@@ -18,7 +18,7 @@ $(document).ready(function() {
     const checkBoxTzd = $("#checkbox-tzd").is(":checked");
     const checkBoxNone = $("#checkbox-none").is(":checked");
 
-    const checkboxVals = [
+    const checkboxValsData = [
        checkBoxInsulin,
        checkBoxSulfonylureas,
        checkBoxGlp1,
@@ -51,13 +51,6 @@ $(document).ready(function() {
 
 
 // results
-
-
-
-
-
-
-
 
 
 const checkboxVals = localStorage
