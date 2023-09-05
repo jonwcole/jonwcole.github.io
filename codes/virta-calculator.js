@@ -1,10 +1,69 @@
 $(document).ready(function() {
+	// When clicking the submit button
+  $('#submit').click(function() {
+		// The value from the inputs
+    let firstName = $('#first-name').val();
+    let lastName = $('#last-name').val();
+    let emailAddress = $('#email-address').val();
+    let weight = $('#weight').val();
+    let feet = $('#height-feet').val();
+    let inches = $('#height-inches').val();
+    let hba1c = $('#hba1c').val();
+    let employer = $('#employer').val();
+		const checkBoxInsulin = $("#checkbox-insulin").is(":checked");
+    const checkBoxSulfonylureas = $("#checkbox-sulfonylureas").is(":checked");
+    const checkBoxGlp1 = $("#checkbox-glp1").is(":checked");
+    const checkBoxSglt2 = $("#checkbox-sglt2").is(":checked");
+    const checkBoxDpp4 = $("#checkbox-dpp4").is(":checked");
+    const checkBoxTzd = $("#checkbox-tzd").is(":checked");
+    const checkBoxNone = $("#checkbox-none").is(":checked");
 
- const checkboxVals = localStorage
+    const checkboxVals = [
+       checkBoxInsulin,
+       checkBoxSulfonylureas,
+       checkBoxGlp1,
+       checkBoxSglt2,
+       checkBoxDpp4,
+       checkBoxTzd,
+       checkBoxNone,
+    ];
+		
+    localStorage.clear();
+    
+	// Storing the values in localStorage
+    localStorage.setItem('first-name', firstName);
+    localStorage.setItem('email-address', emailAddress);
+	localStorage.setItem('last-name', lastName);
+    localStorage.setItem('weight', weight);
+    localStorage.setItem('height-feet', feet);
+    localStorage.setItem('height-inches', inches);
+    localStorage.setItem('hba1c', hba1c);
+    localStorage.setItem('employer', employer);
+	localStorage.setItem("checkboxVals", checkboxVals);    
+
+	// Log it to the console
+	console.log(firstName, emailAddress);
+
+
+
+
+
+
+
+// results
+
+
+
+
+
+
+
+
+
+const checkboxVals = localStorage
     .getItem("checkboxVals")
     .split(",")
     .map((val) => val === "true");
-
   const [
     includeInsulin,
     includeSulfonylurea,
@@ -147,16 +206,17 @@ $(document).ready(function() {
     }
   };
 
-  // Attach an event listener to the submit button
-  $('#submit').click(function() {
-    let firstName = $('#first-name').val();
-    let lastName = $('#last-name').val();
-    let emailAddress = $('#email-address').val();
-    let weight = $('#weight').val();
-    let feet = $('#height-feet').val();
-    let inches = $('#height-inches').val();
-    let hba1c = $('#hba1c').val();
-    let employer = $('#employer').val();
+  // Entering the localStorage value in each input
+  const firstName = localStorage.getItem("first-name");
+  const emailAddress = $("#emailAddress").val(
+    localStorage.getItem("email-address")
+  );
+  const lastName = localStorage.getItem("last-name");
+  const weight = parseFloat(localStorage.getItem("weight"));
+  const feet = parseInt(localStorage.getItem("height-feet"));
+  const inches = parseInt(localStorage.getItem("height-inches"));
+  const hba1c = parseFloat(localStorage.getItem("hba1c"));
+  const employer = localStorage.getItem("employer");
 
   const weightReductionProportion = calculateWeightReduction(
     weight,
@@ -189,11 +249,5 @@ $(document).ready(function() {
   replaceTagWithText("#weight-prediction", "{weight_reduction}", weightReduction);
   replaceTagWithText("#weight-prediction", "{potential_weight}", potentialWeight);
 
-    // Return false to prevent form submission (if needed)
-    // return false;
-    
-    // Scroll to results section
-    $('.modal-overlay').animate({ scrollTop: 0 }, 'slow');
-		
   });
 });
