@@ -44,7 +44,7 @@ $(document).ready(function() {
 	// Log it to the console
 	console.log(firstNameData, emailAddressData);
 
-
+  });
 
 
 
@@ -242,5 +242,4 @@ const checkboxVals = localStorage
   replaceTagWithText("#weight-prediction", "{weight_reduction}", weightReduction);
   replaceTagWithText("#weight-prediction", "{potential_weight}", potentialWeight);
 
-  });
 });
