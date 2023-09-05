@@ -2,14 +2,14 @@ $(document).ready(function() {
 	// When clicking the submit button
   $('#submit').click(function() {
 		// The value from the inputs
-    let firstName = $('#first-name').val();
-    let lastName = $('#last-name').val();
-    let emailAddress = $('#email-address').val();
-    let weight = $('#weight').val();
-    let feet = $('#height-feet').val();
-    let inches = $('#height-inches').val();
-    let hba1c = $('#hba1c').val();
-    let employer = $('#employer').val();
+    let firstNameData = $('#first-name').val();
+    let lastNameData = $('#last-name').val();
+    let emailAddressData = $('#email-address').val();
+    let weightData = $('#weight').val();
+    let feetData = $('#height-feet').val();
+    let inchesData = $('#height-inches').val();
+    let hba1cData = $('#hba1c').val();
+    let employerData = $('#employer').val();
 		const checkBoxInsulin = $("#checkbox-insulin").is(":checked");
     const checkBoxSulfonylureas = $("#checkbox-sulfonylureas").is(":checked");
     const checkBoxGlp1 = $("#checkbox-glp1").is(":checked");
@@ -31,18 +31,18 @@ $(document).ready(function() {
     localStorage.clear();
     
 	// Storing the values in localStorage
-    localStorage.setItem('first-name', firstName);
-    localStorage.setItem('email-address', emailAddress);
-	localStorage.setItem('last-name', lastName);
-    localStorage.setItem('weight', weight);
-    localStorage.setItem('height-feet', feet);
-    localStorage.setItem('height-inches', inches);
-    localStorage.setItem('hba1c', hba1c);
-    localStorage.setItem('employer', employer);
-	localStorage.setItem("checkboxVals", checkboxVals);    
+    localStorage.setItem('first-name', firstNameData);
+    localStorage.setItem('email-address', emailAddressData);
+	localStorage.setItem('last-name', lastNameData);
+    localStorage.setItem('weight', weightData);
+    localStorage.setItem('height-feet', feetData);
+    localStorage.setItem('height-inches', inchesData);
+    localStorage.setItem('hba1c', hba1cData);
+    localStorage.setItem('employer', employerData);
+	localStorage.setItem("checkboxVals", checkboxValsData);    
 
 	// Log it to the console
-	console.log(firstName, emailAddress);
+	console.log(firstNameData, emailAddressData);
 
 
 
