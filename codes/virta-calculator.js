@@ -45,6 +45,9 @@ $(document).ready(function() {
 	// Log it to the console
 	console.log(firstNameData, emailAddressData);
 
+    // Scroll to results section
+    $('.modal-overlay').animate({ scrollTop: 0 }, 'slow');
+
   });
 
 
@@ -239,8 +242,5 @@ const checkboxVals = localStorage
   replaceTagWithText("#weight-prediction", "{weight_reduction_perc}", weightReductionPercentage);
   replaceTagWithText("#weight-prediction", "{weight_reduction}", weightReduction);
   replaceTagWithText("#weight-prediction", "{potential_weight}", potentialWeight);
-
-  // Scroll to results section
-  $('.modal-overlay').animate({ scrollTop: 0 }, 'slow');
 
 });
