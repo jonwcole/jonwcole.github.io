@@ -1,5 +1,6 @@
 $(document).ready(function() {
-	// When clicking the submit button
+
+  // When clicking the submit button
   $('#submit').click(function() {
 		// The value from the inputs
     let firstNameData = $('#first-name').val();
@@ -47,10 +48,7 @@ $(document).ready(function() {
   });
 
 
-
-
-
-// results
+// Results code starts here
 
 
 const checkboxVals = localStorage
@@ -241,5 +239,8 @@ const checkboxVals = localStorage
   replaceTagWithText("#weight-prediction", "{weight_reduction_perc}", weightReductionPercentage);
   replaceTagWithText("#weight-prediction", "{weight_reduction}", weightReduction);
   replaceTagWithText("#weight-prediction", "{potential_weight}", potentialWeight);
+
+  // Scroll to results section
+  $('.modal-overlay').animate({ scrollTop: 0 }, 'slow');
 
 });
