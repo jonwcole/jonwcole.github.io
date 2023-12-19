@@ -73,12 +73,18 @@
         });
 
         const description = document.createElement('div');
-        description.textContent = "lorem ipsum"
+        description.setAttribute('class', 'text-m margin-bottom---xxs');
+        description.textContent = "lorem ipsum";
+
+        const cta = document.createElement('div');
+        cta.setAttribute('class', 'cta text-m desktop-and-tablet-only');
+        cta.textContent = "View position";
 
         jobEntry.appendChild(position);
         jobGroup.appendChild(jobEntry);
         jobEntry.appendChild(locations);
         jobEntry.appendChild(description);
+        jobEntry.appendChild(cta);
       })
 
       wrapper.appendChild(category);
