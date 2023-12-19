@@ -54,6 +54,9 @@
         position.setAttribute('class', 'headline s regular medium margin-bottom---xxs');
         position.textContent = job.title;
 
+        const description = document.createElement('div');
+        description.textContent = "lorem ipsum";
+
         const locations = document.createElement('div');
         
         job.locations.sort(function(locationA, locationB) {
@@ -75,6 +78,7 @@
         jobEntry.appendChild(position);
         jobGroup.appendChild(jobEntry);
         jobEntry.appendChild(locations);
+        jobEntry.appendchild(description);
       })
 
       wrapper.appendChild(category);
