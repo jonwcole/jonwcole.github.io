@@ -60,10 +60,10 @@
           if(locationA.name > locationB.name) { return 1; }
           return 0;
         }).forEach(function(location, index) {
-          const jobLocation = locations.appendChild( document.createElement('span') )
+          const jobLocation = locations.appendChild( document.createElement('div') )
           jobLocation.textContent = location.name
           // jobLocation.setAttribute('href', location.url);
-          jobLocation.setAttribute('class', 'bold')
+          jobLocation.setAttribute('class', 'job-data location')
 
           if(job.locations.length -1 !== index) {
             const spacer = locations.appendChild(document.createElement('span'))
