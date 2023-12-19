@@ -20,7 +20,7 @@
       category.setAttribute('class', 'headline l margin-bottom---s');
       const jobGroup = document.createElement('div');
       const horizontalRule = document.createElement('div');
-      horizontalRule.setAttribute('class', 'horizontal-rule margin-bottom---s');
+      horizontalRule.setAttribute('class', 'horizontal-rule margin-bottom---xs');
 
       const groupedJobs = department.jobs.reduce(function(acc, job) {
 
@@ -47,7 +47,7 @@
         const job = groupedJobs[jobKey]
         const jobEntry = document.createElement('a');
         jobEntry.setAttribute('href', job.url);
-        jobEntry.setAttribute('class', 'card-wrapper border-radius-s padding---s link-block');
+        jobEntry.setAttribute('class', 'card-wrapper border-radius-s padding---s link-block margin-bottom---xs');
 
         const position = document.createElement('h3');
         // position.setAttribute('href', job.url);
