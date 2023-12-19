@@ -48,9 +48,9 @@
         const jobEntry = document.createElement('div');
         jobEntry.setAttribute('class', 'margin-bottom---s');
 
-        const position = document.createElement('a');
-        position.setAttribute('href', job.url);
-        position.setAttribute('class', 'job-link');
+        const position = document.createElement('h3');
+        // position.setAttribute('href', job.url);
+        position.setAttribute('class', 'headline m');
         position.textContent = job.title;
 
         const locations = document.createElement('div');
