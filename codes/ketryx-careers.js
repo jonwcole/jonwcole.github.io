@@ -46,7 +46,7 @@
       Object.keys(groupedJobs).forEach(function(jobKey) {
         const job = groupedJobs[jobKey]
         const jobEntry = document.createElement('div');
-        jobEntry.setAttribute('class', 'card-wrapper border-radius-s');
+        jobEntry.setAttribute('class', 'card-wrapper border-radius-s padding---s');
 
         const position = document.createElement('h3');
         // position.setAttribute('href', job.url);
