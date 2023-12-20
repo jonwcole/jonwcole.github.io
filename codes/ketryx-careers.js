@@ -82,9 +82,9 @@
 
         jobEntry.appendChild(position);
         jobGroup.appendChild(jobEntry);
-        jobEntry.appendChild(locations);
         jobEntry.appendChild(description);
         jobEntry.appendChild(cta);
+        jobEntry.appendChild(locations);
       })
 
       wrapper.appendChild(category);
