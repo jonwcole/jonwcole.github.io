@@ -81,11 +81,24 @@
         cta.setAttribute('class', 'cta text-m desktop-and-tablet-only');
         cta.textContent = "View position";
 
-        jobEntry.appendChild(position);
+        const columnWrapper = document.createElement('div');
+        columnWrapper.setAttribute('class', 'column-wrapper');
+
+        const columnLeft = document.createElement('div');
+        columnLeft.setAttribute('class', 'column');
+
+        const columnRight = document.createElement('div');
+        columnRight.setAttribute('class', 'column');
+
+
         jobGroup.appendChild(jobEntry);
-        jobEntry.appendChild(description);
-        jobEntry.appendChild(cta);
-        jobEntry.appendChild(locations);
+        jobEntry.appendChild(columnWrapper);
+        columnWrapper.appendChild(columnLeft);
+        columnWrapper.appendChild(columnRight);
+        columnLeft.appendChild(position);
+        columnLeft.appendChild(description);
+        columnLeft.appendChild(cta);
+        columnRight.appendChild(locations);
       })
 
       wrapper.appendChild(category);
