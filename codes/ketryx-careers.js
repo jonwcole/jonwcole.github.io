@@ -15,7 +15,7 @@
     });
     greenhouse.forEach(function(department) {
       const wrapper = document.createElement('div');
-      wrapper.setAttribute('class', 'margin-bottom---s');
+      wrapper.setAttribute('class', 'job-category-wrapper margin-bottom---s');
       const category = document.createElement('h2');
       category.textContent = department.name;
       category.setAttribute('class', 'headline l margin-bottom---xs');
@@ -75,9 +75,17 @@
           }
         });
 
+        const type = document.createElement('div');
+        type.setAttribute('class', 'job-data type');
+        type.textContent = "[Remote, Hybrid, On-Site]";
+
+        const departmentName = document.createElement('div');
+        departmentName.setAttribute('class', 'job-data department');
+        departmentName.textContent = "[department]";
+
         const description = document.createElement('div');
         description.setAttribute('class', 'text-m margin-bottom---xxs');
-        description.textContent = "lorem ipsum";
+        description.textContent = "[description]";
 
         const cta = document.createElement('div');
         cta.setAttribute('class', 'cta text-m desktop-and-tablet-only');
