@@ -67,25 +67,13 @@
           const jobLocation = locations.appendChild( document.createElement('div') )
           jobLocation.textContent = location.name
           // jobLocation.setAttribute('href', location.url);
-          jobLocation.setAttribute('class', 'job-data location')
+          jobLocation.setAttribute('class', 'text-m margin-bottom---xxs')
 
           if(job.locations.length -1 !== index) {
             const spacer = locations.appendChild(document.createElement('span'))
             spacer.textContent = " | "
           }
         });
-
-        const type = document.createElement('div');
-        type.setAttribute('class', 'job-data type');
-        type.textContent = "[Remote, Hybrid, On-Site]";
-
-        const departmentName = document.createElement('div');
-        departmentName.setAttribute('class', 'job-data department');
-        departmentName.textContent = department.name;
-
-        const description = document.createElement('div');
-        description.setAttribute('class', 'text-m margin-bottom---xxs');
-        description.textContent = "[description]";
 
         const cta = document.createElement('div');
         cta.setAttribute('class', 'cta text-m desktop-and-tablet-only');
@@ -97,21 +85,13 @@
         const columnLeft = document.createElement('div');
         columnLeft.setAttribute('class', 'column auto-col padding---s padding-bottom-mob---0');
 
-        const columnRight = document.createElement('div');
-        columnRight.setAttribute('class', 'column _4-col padding---xs whole-mob padding-top-mob---0');
-
-
         jobGroup.appendChild(jobEntry);
         jobEntry.appendChild(jobCard);
         jobCard.appendChild(columnWrapper);
         columnWrapper.appendChild(columnLeft);
-        columnWrapper.appendChild(columnRight);
         columnLeft.appendChild(position);
-        columnLeft.appendChild(description);
+        columnLeft.appendChild(locations);
         columnLeft.appendChild(cta);
-        columnRight.appendChild(departmentName);
-        columnRight.appendChild(type);
-        columnRight.appendChild(locations);
       })
 
       wrapper.appendChild(category);
