@@ -46,7 +46,7 @@
       Object.keys(groupedJobs).forEach(function(jobKey) {
         const job = groupedJobs[jobKey]
         const jobEntry = document.createElement('div');
-        jobEntry.setAttribute('class', 'column whole padding---xs');
+        jobEntry.setAttribute('class', 'column third padding---xs whole-mob');
 
         const jobCard = document.createElement('a');
         jobCard.setAttribute('href', job.url);
