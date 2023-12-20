@@ -84,6 +84,7 @@
 
         const column = document.createElement('div');
         column.setAttribute('class', 'column auto-col padding---s');
+        column.style.padding = "30px";
 
         jobGroup.appendChild(jobEntry);
         jobEntry.appendChild(jobCard);
