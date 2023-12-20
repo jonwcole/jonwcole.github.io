@@ -19,6 +19,7 @@
       category.textContent = department.name;
       category.setAttribute('class', 'headline l margin-bottom---xs');
       const jobGroup = document.createElement('div');
+      jobGroup.setAttribute('class', 'job-group margin-bottom---s');
       const horizontalRule = document.createElement('div');
       horizontalRule.setAttribute('class', 'horizontal-rule margin-bottom---s');
 
