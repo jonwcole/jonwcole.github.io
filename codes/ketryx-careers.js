@@ -82,13 +82,13 @@
         cta.textContent = "View position";
 
         const columnWrapper = document.createElement('div');
-        columnWrapper.setAttribute('class', 'column-wrapper');
+        columnWrapper.setAttribute('class', 'column-wrapper flex align-center');
 
         const columnLeft = document.createElement('div');
-        columnLeft.setAttribute('class', 'column');
+        columnLeft.setAttribute('class', 'column auto-col padding---s padding-bottom-mob---0');
 
         const columnRight = document.createElement('div');
-        columnRight.setAttribute('class', 'column');
+        columnRight.setAttribute('class', 'column _4-col padding---xs whole-mob padding-top-mob---0');
 
 
         jobGroup.appendChild(jobEntry);
