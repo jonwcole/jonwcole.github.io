@@ -67,7 +67,7 @@
           const jobLocation = locations.appendChild( document.createElement('div') )
           jobLocation.textContent = location.name
           // jobLocation.setAttribute('href', location.url);
-          jobLocation.setAttribute('class', 'text-m margin-bottom---xxs')
+          jobLocation.setAttribute('class', 'text-m margin-bottom---xs')
 
           if(job.locations.length -1 !== index) {
             const spacer = locations.appendChild(document.createElement('span'))
