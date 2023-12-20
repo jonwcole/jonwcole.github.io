@@ -20,7 +20,7 @@
       category.setAttribute('class', 'headline l margin-bottom---s');
       const jobGroup = document.createElement('div');
       const horizontalRule = document.createElement('div');
-      horizontalRule.setAttribute('class', 'horizontal-rule margin-bottom---xs');
+      horizontalRule.setAttribute('class', 'horizontal-rule  margin-bottom---xs');
 
       const groupedJobs = department.jobs.reduce(function(acc, job) {
 
