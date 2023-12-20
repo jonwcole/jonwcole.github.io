@@ -54,7 +54,7 @@
 
         const position = document.createElement('h3');
         // position.setAttribute('href', job.url);
-        position.setAttribute('class', 'headline s regular medium margin-bottom---xxs');
+        position.setAttribute('class', 'headline s regular medium margin-bottom---5');
         position.textContent = job.title;
 
         const locations = document.createElement('div');
@@ -82,16 +82,16 @@
         const columnWrapper = document.createElement('div');
         columnWrapper.setAttribute('class', 'column-wrapper flex align-center');
 
-        const columnLeft = document.createElement('div');
-        columnLeft.setAttribute('class', 'column auto-col padding---s padding-bottom-mob---0');
+        const column = document.createElement('div');
+        column.setAttribute('class', 'column auto-col padding---xs padding-bottom-mob---0');
 
         jobGroup.appendChild(jobEntry);
         jobEntry.appendChild(jobCard);
         jobCard.appendChild(columnWrapper);
-        columnWrapper.appendChild(columnLeft);
-        columnLeft.appendChild(position);
-        columnLeft.appendChild(locations);
-        columnLeft.appendChild(cta);
+        columnWrapper.appendChild(column);
+        column.appendChild(position);
+        column.appendChild(locations);
+        column.appendChild(cta);
       })
 
       wrapper.appendChild(category);
