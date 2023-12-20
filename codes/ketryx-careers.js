@@ -49,7 +49,7 @@
 
         const jobCard = document.createElement('a');
         jobCard.setAttribute('href', job.url);
-        jobCard.setAttribute('class', 'card-wrapper border-radius-s link-block margin-bottom---xs');
+        jobCard.setAttribute('class', 'card-wrapper border-radius-s link-block');
 
         const position = document.createElement('h3');
         // position.setAttribute('href', job.url);
