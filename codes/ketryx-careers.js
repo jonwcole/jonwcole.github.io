@@ -76,7 +76,7 @@
         });
 
         const cta = document.createElement('div');
-        cta.setAttribute('class', 'cta text-m desktop-and-tablet-only');
+        cta.setAttribute('class', 'cta text-m');
         cta.textContent = "View position";
 
         const columnWrapper = document.createElement('div');
