@@ -81,7 +81,7 @@
 
         const departmentName = document.createElement('div');
         departmentName.setAttribute('class', 'job-data department');
-        departmentName.textContent = "[department]";
+        departmentName.textContent = department.name;
 
         const description = document.createElement('div');
         description.setAttribute('class', 'text-m margin-bottom---xxs');
