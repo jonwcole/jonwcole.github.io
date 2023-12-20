@@ -48,8 +48,8 @@
         jobEntry.setAttribute('class', 'column whole padding---xs');
 
         const jobCard = document.createElement('a');
-        jobEntry.setAttribute('href', job.url);
-        jobEntry.setAttribute('class', 'card-wrapper border-radius-s link-block margin-bottom---xs');
+        jobCard.setAttribute('href', job.url);
+        jobCard.setAttribute('class', 'card-wrapper border-radius-s link-block margin-bottom---xs');
 
         const position = document.createElement('h3');
         // position.setAttribute('href', job.url);
