@@ -18,7 +18,7 @@
       wrapper.setAttribute('class', 'job-category-wrapper margin-bottom---s');
       const category = document.createElement('h2');
       category.textContent = department.name;
-      category.setAttribute('class', 'headline l margin-bottom---xs');
+      category.setAttribute('class', 'headline m margin-bottom---xs');
       const jobGroup = document.createElement('div');
       jobGroup.setAttribute('class', 'column-wrapper margin-offset---xs');
 
