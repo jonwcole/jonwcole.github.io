@@ -19,9 +19,7 @@
       category.textContent = department.name;
       category.setAttribute('class', 'headline l margin-bottom---xs');
       const jobGroup = document.createElement('div');
-      jobGroup.setAttribute('class', 'job-group margin-bottom---s');
-      const horizontalRule = document.createElement('div');
-      horizontalRule.setAttribute('class', 'horizontal-rule margin-bottom---s');
+      jobGroup.setAttribute('class', 'column-wrapper margin-offset---xs');
 
       const groupedJobs = department.jobs.reduce(function(acc, job) {
 
@@ -46,9 +44,12 @@
 
       Object.keys(groupedJobs).forEach(function(jobKey) {
         const job = groupedJobs[jobKey]
-        const jobEntry = document.createElement('a');
+        const jobEntry = document.createElement('div');
+        jobEntry.setAttribute('class', 'column whole padding---xs');
+
+        const jobCard = document.createElement('a');
         jobEntry.setAttribute('href', job.url);
-        jobEntry.setAttribute('class', 'card-wrapper border-radius-s padding---s link-block margin-bottom---xs');
+        jobEntry.setAttribute('class', 'card-wrapper border-radius-s link-block margin-bottom---xs');
 
         const position = document.createElement('h3');
         // position.setAttribute('href', job.url);
@@ -92,7 +93,8 @@
 
 
         jobGroup.appendChild(jobEntry);
-        jobEntry.appendChild(columnWrapper);
+        jobEntry.appendChild(jobCard);
+        jobCard.appendChild(columnWrapper);
         columnWrapper.appendChild(columnLeft);
         columnWrapper.appendChild(columnRight);
         columnLeft.appendChild(position);
@@ -103,7 +105,6 @@
 
       wrapper.appendChild(category);
       wrapper.appendChild(jobGroup);
-      wrapper.appendChild(horizontalRule);
       section.appendChild(wrapper);
     });
   }
