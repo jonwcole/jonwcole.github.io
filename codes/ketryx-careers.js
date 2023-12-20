@@ -109,6 +109,8 @@
         columnLeft.appendChild(position);
         columnLeft.appendChild(description);
         columnLeft.appendChild(cta);
+        columnRight.appendChild(departmentName);
+        columnRight.appendChild(type);
         columnRight.appendChild(locations);
       })
 
