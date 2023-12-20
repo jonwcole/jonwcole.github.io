@@ -83,7 +83,7 @@
         columnWrapper.setAttribute('class', 'column-wrapper flex align-center');
 
         const column = document.createElement('div');
-        column.setAttribute('class', 'column auto-col padding---xs padding-bottom-mob---0');
+        column.setAttribute('class', 'column auto-col padding---s');
 
         jobGroup.appendChild(jobEntry);
         jobEntry.appendChild(jobCard);
