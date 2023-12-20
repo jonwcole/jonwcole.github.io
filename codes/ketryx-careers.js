@@ -15,6 +15,7 @@
     });
     greenhouse.forEach(function(department) {
       const wrapper = document.createElement('div');
+      wrapper.setAttribute('class', 'margin-bottom---s');
       const category = document.createElement('h2');
       category.textContent = department.name;
       category.setAttribute('class', 'headline l margin-bottom---xs');
