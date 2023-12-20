@@ -17,10 +17,10 @@
       const wrapper = document.createElement('div');
       const category = document.createElement('h2');
       category.textContent = department.name;
-      category.setAttribute('class', 'headline l margin-bottom---s');
+      category.setAttribute('class', 'headline l margin-bottom---xs');
       const jobGroup = document.createElement('div');
       const horizontalRule = document.createElement('div');
-      horizontalRule.setAttribute('class', 'horizontal-rule  margin-bottom---xs');
+      horizontalRule.setAttribute('class', 'horizontal-rule margin-bottom---s');
 
       const groupedJobs = department.jobs.reduce(function(acc, job) {
 
