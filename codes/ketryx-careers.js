@@ -51,6 +51,7 @@
         const jobCard = document.createElement('a');
         jobCard.setAttribute('href', job.url);
         jobCard.setAttribute('class', 'card-wrapper border-radius-s link-block');
+        jobCard.setAttribute('target', '_blank');
 
         const position = document.createElement('h3');
         // position.setAttribute('href', job.url);
