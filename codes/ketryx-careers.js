@@ -24,13 +24,13 @@
 
       const groupedJobs = department.jobs.reduce(function(acc, job) {
 
-        if(acc[job.title]) {
-          acc[job.title].locations.push({
+        if(acc[job.requisition_id]) {
+          acc[job.requisition_id].locations.push({
             name: job.location.name,
             url: job.absolute_url
           }) 
         } else {
-          acc[job.title] = {
+          acc[job.requisition_id] = {
             title: job.title,
             url: job.absolute_url,
             locations: [{
