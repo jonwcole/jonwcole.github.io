@@ -79,14 +79,14 @@
         });
 
         const cta = document.createElement('div');
-        cta.setAttribute('class', 'cta text-m');
+        cta.setAttribute('class', 'cta text-m margin-top---auto');
         cta.textContent = "View position";
 
         const columnWrapper = document.createElement('div');
-        columnWrapper.setAttribute('class', 'column-wrapper flex align-center');
+        columnWrapper.setAttribute('class', 'column-wrapper flex align-center full-height');
 
         const column = document.createElement('div');
-        column.setAttribute('class', 'column auto-col padding---30');
+        column.setAttribute('class', 'column auto-col padding---30 full-height flex vertical');
 
         jobGroup.appendChild(jobEntry);
         jobEntry.appendChild(jobCard);
