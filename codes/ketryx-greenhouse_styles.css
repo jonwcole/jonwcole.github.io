@@ -1,0 +1,60 @@
+body {
+  font-family: Inter;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087af4ae74de54eee19d6_Inter-SemiBoldItalic.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afec08542fb953f537_Inter-SemiBoldItalic.woff') format('woff');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087af1b3006562580bb03_Inter-Medium.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087af59fcaec939d84f6e_Inter-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087aff5061b2008ed74b1_Inter-BoldItalic.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afec08542fb953f513_Inter-BoldItalic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afaa6ea36360a6c6e2_Inter-Italic.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afa6e7078f6b34f9ff_Inter-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087af59fcaec939d84f33_Inter-Bold.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afcf53d872ad79a182_Inter-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afe61f39b7480f07d5_Inter-MediumItalic.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087af93856acb3b8a5474_Inter-MediumItalic.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afe61f39b7480f07e0_Inter-SemiBold.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087af998d7d429bba1b4e_Inter-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087aff5061b2008ed7510_Inter-Regular.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afb7be6c0a9207c998_Inter-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
