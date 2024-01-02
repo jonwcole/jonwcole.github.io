@@ -58,16 +58,19 @@
         position.textContent = job.title;
 
         const locations = document.createElement('div');
+
+        const locationsWrapper = document.createElement('div');
+        locationsWrapper.setAttribute('class', 'text-m margin-bottom---xs')
         
         job.locations.sort(function(locationA, locationB) {
           if(locationA.name < locationB.name) { return -1; }
           if(locationA.name > locationB.name) { return 1; }
           return 0;
         }).forEach(function(location, index) {
-          const jobLocation = locations.appendChild( document.createElement('div') )
+          const jobLocation = locations.appendChild( document.createElement('span') )
           jobLocation.textContent = location.name
           // jobLocation.setAttribute('href', location.url);
-          jobLocation.setAttribute('class', 'text-m margin-bottom---xs')
+          jobLocation.setAttribute('class', '')
 
           if(job.locations.length -1 !== index) {
             const spacer = locations.appendChild(document.createElement('span'))
@@ -90,7 +93,8 @@
         jobCard.appendChild(columnWrapper);
         columnWrapper.appendChild(column);
         column.appendChild(position);
-        column.appendChild(locations);
+        column.appendChild(locationsWrapper);
+        locationsWrapper.appendChild(locations);
         column.appendChild(cta);
       })
 
