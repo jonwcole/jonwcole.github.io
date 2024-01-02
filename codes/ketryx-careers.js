@@ -13,6 +13,16 @@
     const greenhouse = jsonObj['departments'].filter(function(dep) {
       return dep.jobs.length > 0;
     });
+
+    // Custom sorting: Move "Sales" to the front and "Finance" to the end
+    greenhouse.sort(function(a, b) {
+      if (a.name === 'Sales') return -1;
+      if (b.name === 'Sales') return 1;
+      if (a.name === 'Finance') return 1;
+      if (b.name === 'Finance') return -1;
+      return 0;
+    });
+    
     greenhouse.forEach(function(department) {
       const wrapper = document.createElement('div');
       wrapper.setAttribute('class', 'job-category-wrapper margin-bottom---s');
