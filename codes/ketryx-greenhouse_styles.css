@@ -58,9 +58,20 @@ h3 {
 #content {
   margin-bottom: 30px;
 }
-#main_fields div.field label, .required-fields, .file-types {
-  font-size: 16px;
+#main_fields div.field label, .required-fields, .file-types, .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
+  font-size: 14px;
   line-height: 133%;
+}
+.unstyled-button.link-button, .attach-or-paste .link-container a {
+  color: #05a448;
+  transition-behavior: normal;
+  transition-delay: 0s, 0s;
+  transition-duration: 0.2s;
+  transition-property: color;
+  transition-timing-function: ease-in-out;
+}
+.unstyled-button.link-button:hover, .attach-or-paste .link-container a:hover {
+  color: #03d583;
 }
 @font-face {
   font-family: 'Inter';
