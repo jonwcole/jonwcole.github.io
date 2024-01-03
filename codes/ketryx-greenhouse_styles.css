@@ -55,6 +55,13 @@ h3 {
 .accessible #apply_button {
   background: transparent;
 }
+#content {
+  margin-bottom: 30px;
+}
+.field label {
+  font-size: 16px;
+  line-height: 133%;
+}
 @font-face {
   font-family: 'Inter';
   src: url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087af4ae74de54eee19d6_Inter-SemiBoldItalic.woff2') format('woff2'), url('https://assets.website-files.com/64c8151865ea82a1c7743603/654087afec08542fb953f537_Inter-SemiBoldItalic.woff') format('woff');
