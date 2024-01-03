@@ -62,6 +62,9 @@ h3 {
   font-size: 14px;
   line-height: 133%;
 }
+.file-types {
+  line-height: 150%;
+}
 .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
   color: #05a448;
   transition-behavior: normal;
@@ -69,6 +72,7 @@ h3 {
   transition-duration: 0.2s;
   transition-property: color;
   transition-timing-function: ease-in-out;
+  margin-top: -10px;
 }
 .unstyled-button.link-button:hover, .attach-or-paste .link-container a:hover {
   color: #03d583;
