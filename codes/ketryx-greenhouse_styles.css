@@ -52,13 +52,15 @@ h3 {
   border-color: #03d583;
   color: #03d583;
 }
+.attach-or-paste .unstyled-button {
+  background-color: #eff3f6;
+}
 .accessible #apply_button {
   background: transparent;
 }
 #content {
   margin-bottom: 60px;
 }
-
 #application {
   border-radius: 8px;
   background-color: #eff3f6;
