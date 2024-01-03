@@ -52,7 +52,7 @@ h3 {
   border-color: #03d583;
   color: #03d583;
 }
-.attach-or-paste .unstyled-button {
+.attach-or-paste .unstyled-button.link-button {
   background-color: #eff3f6;
 }
 .accessible #apply_button {
