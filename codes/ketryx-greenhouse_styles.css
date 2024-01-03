@@ -60,8 +60,9 @@ h3 {
 }
 #application {
   border-radius: 8px;
+  background-color: #a3b3bf;
 }
-#main_fields div.field label, .required-fields, .file-types, .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
+#main_fields div.field label, #application div.required-fields, .file-types, .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
   font-size: 14px;
 }
 .file-types {
@@ -76,7 +77,7 @@ h3 {
   transition-timing-function: ease-in-out;
 }
 .link-container {
-  
+
 }
 .unstyled-button.link-button:hover, .attach-or-paste .link-container a:hover {
   color: #03d583;
