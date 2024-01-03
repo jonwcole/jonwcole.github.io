@@ -56,7 +56,10 @@ h3 {
   background: transparent;
 }
 #content {
-  margin-bottom: 30px;
+  margin-bottom: 60px;
+}
+#application {
+  border-radius: 8px;
 }
 #main_fields div.field label, .required-fields, .file-types, .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
   font-size: 14px;
@@ -73,6 +76,7 @@ h3 {
   transition-timing-function: ease-in-out;
 }
 .link-container {
+  
 }
 .unstyled-button.link-button:hover, .attach-or-paste .link-container a:hover {
   color: #03d583;
