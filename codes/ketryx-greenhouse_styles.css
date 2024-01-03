@@ -62,7 +62,7 @@ h3 {
   font-size: 14px;
   line-height: 133%;
 }
-.unstyled-button.link-button, .attach-or-paste .link-container a {
+.attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
   color: #05a448;
   transition-behavior: normal;
   transition-delay: 0s, 0s;
