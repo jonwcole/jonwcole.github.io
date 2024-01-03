@@ -58,7 +58,7 @@ h3 {
 #content {
   margin-bottom: 30px;
 }
-.field label {
+#main_fields div.field label, .required-fields, .file-types {
   font-size: 16px;
   line-height: 133%;
 }
