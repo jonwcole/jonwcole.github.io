@@ -27,6 +27,7 @@ h3 {
 .location {
   font-size: 14px;
   line-height: 100%;
+  margin: 6px 0px;
 }
 @font-face {
   font-family: 'Inter';
