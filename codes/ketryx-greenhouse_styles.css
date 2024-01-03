@@ -27,7 +27,13 @@ h3 {
 .location {
   font-size: 14px;
   line-height: 100%;
-  margin: 6px 0px;
+  margin: 6px 0px 8px 0px;
+}
+.button {
+  color: #05a448;
+  background-color: transparent;
+  border: 1.5px solid #05a448;
+  border-radius: 5px;
 }
 @font-face {
   font-family: 'Inter';
