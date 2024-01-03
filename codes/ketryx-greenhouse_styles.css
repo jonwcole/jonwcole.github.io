@@ -22,11 +22,11 @@ h3 {
 .company-name {
   font-size: 16px;
   font-weight: 600;
-  line-height: 133%;
+  line-height: 100%;
 }
 .location {
   font-size: 14px;
-  line-height: 133%;
+  line-height: 100%;
 }
 @font-face {
   font-family: 'Inter';
