@@ -62,7 +62,7 @@ h3 {
   border-radius: 8px;
   background-color: #a3b3bf;
 }
-#main_fields div.field label, #application div.required-fields, .file-types, .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
+#custom_fields div.field label, #main_fields div.field label, #application div.required-fields, .file-types, .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
   font-size: 14px;
 }
 .file-types {
