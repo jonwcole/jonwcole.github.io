@@ -72,6 +72,8 @@ h3 {
   transition-duration: 0.2s;
   transition-property: color;
   transition-timing-function: ease-in-out;
+}
+.link-container {
   margin-top: -10px;
 }
 .unstyled-button.link-button:hover, .attach-or-paste .link-container a:hover {
