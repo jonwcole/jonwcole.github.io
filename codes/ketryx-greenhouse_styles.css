@@ -1,8 +1,12 @@
 body, #wrapper {
   font-family: 'Inter';
+  line-height: 150%;
 }
 p {
   font-size: 16px;
+}
+h1, h2, h3, h4 {
+  line-height: 133%;
 }
 h1.app-title {
   font-size: 42px;
