@@ -29,7 +29,7 @@ h3 {
   line-height: 100%;
   margin: 6px 0px 8px 0px;
 }
-.button {
+.button, .accessible #submit_app {
   color: #05a448;
   background-color: transparent;
   border: 2px solid #05a448;
@@ -45,12 +45,20 @@ h3 {
   transition-property: color, border-color, background-color;
   transition-timing-function: ease-in-out, ease-in-out, ease-in-out;
 }
+.accessible #submit_app {
+  background-color: #05a448;
+  color: #fff;
+}
 .button:hover, .accessible #apply_button:hover {
   background-color: transparent;
   background-image: none;
   background: transparent;
   border-color: #03d583;
   color: #03d583;
+}
+.accessible #submit_app:hover {
+  background-color: #03d583;
+  color: #fff;
 }
 .attach-or-paste .unstyled-button.link-button {
   background-color: #eff3f6;
