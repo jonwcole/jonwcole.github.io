@@ -48,6 +48,7 @@ h3 {
 .accessible #submit_app {
   background-color: #05a448;
   color: #fff;
+  text-shadow: 0px 0px 0px rgba(0,0,0,0.0);
 }
 .button:hover, .accessible #apply_button:hover {
   background-color: transparent;
@@ -59,6 +60,7 @@ h3 {
 .accessible #submit_app:hover {
   background-color: #03d583;
   color: #fff;
+  border-color: #03d583;
 }
 .attach-or-paste .unstyled-button.link-button {
   background-color: #eff3f6;
