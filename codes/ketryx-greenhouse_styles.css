@@ -60,7 +60,6 @@ h3 {
 }
 #main_fields div.field label, .required-fields, .file-types, .attach-or-paste .unstyled-button.link-button, .attach-or-paste .link-container a {
   font-size: 14px;
-  line-height: 133%;
 }
 .file-types {
   line-height: 150%;
@@ -74,7 +73,6 @@ h3 {
   transition-timing-function: ease-in-out;
 }
 .link-container {
-  margin-top: -10px;
 }
 .unstyled-button.link-button:hover, .attach-or-paste .link-container a:hover {
   color: #03d583;
