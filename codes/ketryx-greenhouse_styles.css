@@ -20,10 +20,11 @@ h3 {
   font-size: 30px;
 }
 .company-name {
-  font-size: 20px;
+  font-size: 16px;
+  font-weight: 600;
 }
 .location {
-  font-size: 18px;
+  font-size: 14px;
 }
 @font-face {
   font-family: 'Inter';
