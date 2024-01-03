@@ -32,9 +32,23 @@ h3 {
 .button {
   color: #05a448;
   background-color: transparent;
-  border: 1.5px solid #05a448;
+  border: 2px solid #05a448;
   border-radius: 5px;
   background-image: none;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 100%;
+  padding: 10px 23px;
+  transition-behavior: normal, normal, normal;
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.2s, 0.2s, 0.2s;
+  transition-property: color, border-color, background-color;
+  transition-timing-function: ease-in-out, ease-in-out, ease-in-out;
+}
+.button:hover {
+  background-color: transparent;
+  background-image: none;
+  background: transparent;
 }
 .accessible #apply_button {
   background: transparent;
