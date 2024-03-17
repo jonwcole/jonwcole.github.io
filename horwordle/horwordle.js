@@ -151,35 +151,20 @@ function processGuess(guess) {
 
 function updateTiles(attempt, guess, result) {
   const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-  if (!row) {
-    console.error(`Row for attempt ${attempt} not found.`);
-    return;
-  }
   const tiles = row.querySelectorAll('.tile');
 
   tiles.forEach((tile, index) => {
-    // Delay the flipping and updating to visualize one tile at a time
+    // Set up the back face with the guessed letter and status class before starting the animation
+    const back = tile.querySelector('.back');
+    back.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
+    back.className = 'back'; // Reset any previous result classes
+    back.classList.add(result[index]); // Preemptively add the result class to the back
+    
+    // Delay each tile's flip animation to visualize them one by one
     setTimeout(() => {
-      const front = tile.querySelector('.front');
-      const back = tile.querySelector('.back');
-
-      // Check if front and back divs exist
-      if (!front || !back) {
-        console.error(`Front or back div not found in tile at index ${index}`);
-        return; // Skip this tile to avoid the error
-      }
-
-      front.textContent = guess[index]; // Set letter on the front (visible before flip)
-
-      // Flip animation starts
+      // Start the flip animation
       tile.classList.add('flipped');
-
-      setTimeout(() => {
-        // Update the back div with the letter and result class halfway through the flip
-        back.textContent = guess[index]; // Optionally, show the letter or a symbol based on result
-        back.classList.add(result[index]); // Apply result class (correct, present, absent)
-      }, 300); // Time this with the halfway point of the flip animation
-    }, index * 500); // Stagger each tile's flip
+    }, index * 500); // Stagger the start of each tile's flip
   });
 
   updateKeyboard(guess, result);
