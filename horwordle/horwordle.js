@@ -15,14 +15,18 @@ function loadGame() {
     .catch(error => console.error('Error loading dictionary:', error));
 
   // Fetching the word of the day
-  const today = new Date().toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
-  fetch('https://jonwcole.github.io/horwordle/words.json')
-    .then(response => response.json())
-    .then(data => {
-      wordOfTheDay = data[today].toUpperCase(); // Assuming your words.json is an object with dates as keys
-    })
-    .catch(error => console.error('Error loading word of the day:', error));
-}
+const today = new Date().toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
+fetch('https://jonwcole.github.io/horwordle/words.json')
+  .then(response => response.json())
+  .then(data => {
+    const todayWordObject = data.find(entry => entry.date === today);
+    if (todayWordObject) {
+      wordOfTheDay = todayWordObject.word.toUpperCase();
+    } else {
+      console.error('Word for today not found');
+    }
+  })
+  .catch(error => console.error('Error loading word of the day:', error));
 
 document.addEventListener('DOMContentLoaded', loadGame);
 
