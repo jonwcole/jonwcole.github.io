@@ -200,3 +200,5 @@ function deleteLastCharacter() {
 }
 
 document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
+
+console.log(document.querySelector('.tile .front').textContent); // Check initial content
