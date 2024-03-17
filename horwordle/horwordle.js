@@ -25,8 +25,7 @@ fetch('https://jonwcole.github.io/horwordle/words.json')
     }
   })
   .catch(error => console.error('Error loading word of the day:', error));
-
-document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
+};
 
 // Handling virtual keyboard clicks
 document.getElementById('keyboard').addEventListener('click', function(e) {
@@ -49,3 +48,17 @@ document.addEventListener('keydown', function(e) {
     }
   }
 });
+
+function handleKeyPress(key) {
+  // Implement logic to handle key press, updating the current guess, etc.
+}
+
+function submitGuess() {
+  // Implement logic to submit the current guess
+}
+
+function deleteLastCharacter() {
+  // Implement logic to delete the last character of the current guess
+}
+
+document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
