@@ -25,3 +25,37 @@ function loadGame() {
 }
 
 document.addEventListener('DOMContentLoaded', loadGame);
+
+// Event listener for virtual keyboard clicks
+document.getElementById('keyboard').addEventListener('click', function(e) {
+  if (e.target.matches('.key')) {
+    const key = e.target.getAttribute('data-key') || e.target.innerText; // Get the key from the clicked button
+    handleKeyPress(key);
+  }
+});
+
+// Handling physical keyboard input
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    submitGuess();
+  } else if (e.key === 'Backspace') {
+    deleteLastCharacter();
+  } else {
+    const key = e.key.toUpperCase();
+    if (key.length === 1 && key >= 'A' && key <= 'Z') {
+      handleKeyPress(key);
+    }
+  }
+});
+
+function handleKeyPress(key) {
+  // Implement logic to handle key press, updating the current guess, etc.
+}
+
+function submitGuess() {
+  // Implement logic to submit the current guess
+}
+
+function deleteLastCharacter() {
+  // Implement logic to delete the last character of the current guess
+}
