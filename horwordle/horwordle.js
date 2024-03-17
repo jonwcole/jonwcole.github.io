@@ -10,33 +10,34 @@ function loadGame() {
   fetch('https://jonwcole.github.io/horwordle/dictionary.json')
     .then(response => response.json())
     .then(data => {
-      dictionary = data.map(word => word.toUpperCase()); // Assuming your dictionary structure has a 'words' array
+      dictionary = data.map(word => word.toUpperCase());
     })
     .catch(error => console.error('Error loading dictionary:', error));
 
   // Fetching the word of the day
-const today = new Date().toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
-fetch('https://jonwcole.github.io/horwordle/words.json')
-  .then(response => response.json())
-  .then(data => {
-    const todayWordObject = data.find(entry => entry.date === today);
-    if (todayWordObject) {
-      wordOfTheDay = todayWordObject.word.toUpperCase();
-    } else {
-      console.error('Word for today not found');
-    }
-  })
-  .catch(error => console.error('Error loading word of the day:', error));
+  const today = new Date().toISOString().slice(0, 10);
+  fetch('https://jonwcole.github.io/horwordle/words.json')
+    .then(response => response.json())
+    .then(data => {
+      const todayWordObject = data.find(entry => entry.date === today);
+      if (todayWordObject) {
+        wordOfTheDay = todayWordObject.word.toUpperCase();
+      } else {
+        console.error('Word for today not found');
+      }
+    })
+    .catch(error => console.error('Error loading word of the day:', error));
+} // Closing loadGame function
 
-document.addEventListener('DOMContentLoaded', loadGame);
+document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
 
-// Event listener for virtual keyboard clicks
+// Handling virtual keyboard clicks
 document.getElementById('keyboard').addEventListener('click', function(e) {
   if (e.target.matches('.key')) {
-    const key = e.target.getAttribute('data-key') || e.target.innerText; // Get the key from the clicked button
+    const key = e.target.getAttribute('data-key') || e.target.innerText;
     handleKeyPress(key);
   }
-});
+}); // This anonymous function is correctly closed
 
 // Handling physical keyboard input
 document.addEventListener('keydown', function(e) {
@@ -53,13 +54,13 @@ document.addEventListener('keydown', function(e) {
 });
 
 function handleKeyPress(key) {
-  // Implement logic to handle key press, updating the current guess, etc.
-}
+  // Key press logic here
+} // Closing handleKeyPress function
 
 function submitGuess() {
-  // Implement logic to submit the current guess
-}
+  // Submit guess logic here
+} // Closing submitGuess function
 
 function deleteLastCharacter() {
-  // Implement logic to delete the last character of the current guess
-}
+  // Delete character logic here
+} // Closing deleteLastCharacter function
