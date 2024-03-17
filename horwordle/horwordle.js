@@ -10,7 +10,7 @@ function loadGame() {
   fetch('https://jonwcole.github.io/horwordle/dictionary.json')
     .then(response => response.json())
     .then(data => {
-      dictionary = data.words.map(word => word.toUpperCase()); // Assuming your dictionary structure has a 'words' array
+      dictionary = data.map(word => word.toUpperCase()); // Assuming your dictionary structure has a 'words' array
     })
     .catch(error => console.error('Error loading dictionary:', error));
 
