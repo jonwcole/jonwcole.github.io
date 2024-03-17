@@ -49,8 +49,29 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+let currentGuess = []; // An array to hold the current guess's letters
+
 function handleKeyPress(key) {
-  // Implement logic to handle key press, updating the current guess, etc.
+  // Check if game is over
+  if (isGameOver) return;
+
+  // If the key is a valid letter and the current guess is less than the max word length
+  if (/^[A-Z]$/i.test(key) && currentGuess.length < 5) {
+    currentGuess.push(key.toUpperCase()); // Add the uppercase letter to the current guess
+    updateCurrentGuessDisplay(); // Function to visually update the guess on the game board
+  }
+}
+
+function updateCurrentGuessDisplay() {
+  // Implement this function to reflect the current guess on the game board
+  // For example, updating the tiles to show the letters in `currentGuess`
+  const tiles = document.querySelectorAll('.tile');
+  // Reset/clear any existing letters on the board in the current row
+  tiles.forEach((tile, index) => {
+    if (Math.floor(index / 5) === currentAttempt) { // Check if the tile is in the current row
+      tile.textContent = currentGuess[index % 5] || ''; // Update tile content
+    }
+  });
 }
 
 function submitGuess() {
