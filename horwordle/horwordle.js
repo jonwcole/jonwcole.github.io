@@ -132,26 +132,35 @@ function processGuess(guess) {
 
 function updateTiles(attempt, guess, result) {
   const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+  if (!row) {
+    console.error(`Row for attempt ${attempt} not found.`);
+    return;
+  }
   const tiles = row.querySelectorAll('.tile');
 
   tiles.forEach((tile, index) => {
-    // Ensure the .front div is correctly updated with the guess letter
-    const front = tile.querySelector('.front');
-    front.textContent = guess[index];
-
-    // Delay flipping each tile
+    // Delay the flipping and updating to visualize one tile at a time
     setTimeout(() => {
-      // Start the flip animation by adding 'flipped' class
+      const front = tile.querySelector('.front');
+      const back = tile.querySelector('.back');
+
+      // Check if front and back divs exist
+      if (!front || !back) {
+        console.error(`Front or back div not found in tile at index ${index}`);
+        return; // Skip this tile to avoid the error
+      }
+
+      front.textContent = guess[index]; // Set letter on the front (visible before flip)
+
+      // Flip animation starts
       tile.classList.add('flipped');
 
       setTimeout(() => {
-        // This is where we set the class on the back of the tile, not the entire tile
-        const back = tile.querySelector('.back');
-        // Ensure back.textContent is set here if you want to repeat the letter or show something else
-        back.textContent = guess[index]; // Show the guessed letter on the back too (optional)
-        back.classList.add(result[index]); // Add the result class (correct, present, absent) to the back
-      }, 300); // Match this timing to the halfway point of your flip animation
-    }, index * 500); // Stagger the start of each tile's flip
+        // Update the back div with the letter and result class halfway through the flip
+        back.textContent = guess[index]; // Optionally, show the letter or a symbol based on result
+        back.classList.add(result[index]); // Apply result class (correct, present, absent)
+      }, 300); // Time this with the halfway point of the flip animation
+    }, index * 500); // Stagger each tile's flip
   });
 
   updateKeyboard(guess, result);
