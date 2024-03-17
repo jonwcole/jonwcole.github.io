@@ -49,15 +49,3 @@ document.addEventListener('keydown', function(e) {
     }
   }
 });
-
-function handleKeyPress(key) {
-  // Key press logic here
-} // Closing handleKeyPress function
-
-function submitGuess() {
-  // Submit guess logic here
-} // Closing submitGuess function
-
-function deleteLastCharacter() {
-  // Delete character logic here
-} // Closing deleteLastCharacter function
