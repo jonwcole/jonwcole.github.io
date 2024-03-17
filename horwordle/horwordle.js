@@ -79,7 +79,26 @@ function submitGuess() {
 }
 
 function deleteLastCharacter() {
-  // Implement logic to delete the last character of the current guess
+  // Check if there's at least one character to remove
+  if (currentGuess.length > 0) {
+    currentGuess.pop(); // Remove the last letter from the current guess
+    updateCurrentGuessDisplay(); // Update the display accordingly
+  }
 }
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    submitGuess();
+  } else if (e.key === 'Backspace') {
+    e.preventDefault(); // Prevent the default backspace behavior (e.g., navigating back)
+    deleteLastCharacter();
+  } else {
+    const key = e.key.toUpperCase();
+    // Accept only alphabetical characters, and ignore non-letter keys
+    if (/^[A-Z]$/i.test(key)) {
+      handleKeyPress(key);
+    }
+  }
+});
 
 document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
