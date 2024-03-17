@@ -131,7 +131,7 @@ function processGuess(guess) {
 }
 
 function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`.row[data-attempt='${attempt}']`); // Example selector, adjust based on your HTML
+  const row = document.querySelector(`.tile-row-wrapper[data-attempt='${attempt}']`); // Example selector, adjust based on your HTML
   const tiles = row.querySelectorAll('.tile');
 
   tiles.forEach((tile, index) => {
