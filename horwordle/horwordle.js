@@ -131,19 +131,20 @@ function processGuess(guess) {
 }
 
 function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`.tile-row-wrapper[data-attempt='${attempt}']`); // Adjust this selector as needed
-  if (!row) {
-    console.error(`Row for attempt ${attempt} not found.`);
-    return;
-  }
+  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
   const tiles = row.querySelectorAll('.tile');
 
   tiles.forEach((tile, index) => {
-    tile.textContent = guess[index]; // Update tile content
-    tile.className = 'tile'; // Reset class
-    tile.classList.add(result[index]); // Add result class ('correct', 'present', 'absent')
+    setTimeout(() => {
+      tile.classList.add('flipped'); // Start the flip animation
+      setTimeout(() => {
+        const back = tile.querySelector('.back');
+        back.textContent = guess[index]; // Optionally, show the letter on the back
+        back.classList.add(result[index]); // Apply the result class halfway through the flip
+      }, 300); // Adjust timing to match the halfway point of the flip animation
+    }, index * 500); // Delay each tile's flip by 500ms times its index
   });
-
+  
   updateKeyboard(guess, result);
 }
 
