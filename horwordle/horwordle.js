@@ -105,9 +105,63 @@ function submitGuess() {
 }
 
 function processGuess(guess) {
-  // This function should compare the guess to the word of the day
-  // and update the game board accordingly.
-  // Implement logic here for marking tiles as correct, present, or absent.
+  let wordArray = wordOfTheDay.split(''); // Convert word of the day into an array for easy manipulation
+  let result = []; // Array to hold the result (correct, present, absent) for each letter
+
+  // First pass: Check for correct letters (right letter, right position)
+  for (let i = 0; i < guess.length; i++) {
+    if (guess[i] === wordOfTheDay[i]) {
+      result[i] = 'correct';
+      wordArray[i] = null; // Mark this letter as used
+    } else {
+      result[i] = 'absent'; // Default to absent, will check for 'present' in next pass
+    }
+  }
+
+  // Second pass: Check for present letters (right letter, wrong position)
+  for (let i = 0; i < guess.length; i++) {
+    if (result[i] !== 'correct' && wordArray.includes(guess[i])) {
+      result[i] = 'present';
+      wordArray[wordArray.indexOf(guess[i])] = null; // Mark this letter as used
+    }
+  }
+
+  // Update the UI based on the result for each letter in the guess
+  updateTiles(currentAttempt, guess, result);
+}
+
+function updateTiles(attempt, guess, result) {
+  const row = document.querySelector(`.row[data-attempt='${attempt}']`); // Example selector, adjust based on your HTML
+  const tiles = row.querySelectorAll('.tile');
+
+  tiles.forEach((tile, index) => {
+    tile.textContent = guess[index]; // Set the letter in the tile
+    tile.classList.add(result[index]); // Add class based on result ('correct', 'present', 'absent')
+    // You may want to adjust this logic to handle class removal for new guesses
+  });
+
+  updateKeyboard(guess, result);
+}
+
+function updateKeyboard(guess, result) {
+  // This function should update the on-screen keyboard based on the result
+  // Example: If a letter is 'correct', the corresponding key could be marked green
+  guess.split('').forEach((letter, index) => {
+    const key = document.querySelector(`.key[data-key='${letter}']`); // Assuming keys have a data-key attribute
+    if (result[index] === 'correct') {
+      key.classList.add('correct');
+    } else if (result[index] === 'present') {
+      // Only add 'present' if not already marked 'correct'
+      if (!key.classList.contains('correct')) {
+        key.classList.add('present');
+      }
+    } else {
+      // Only add 'absent' if not marked 'correct' or 'present'
+      if (!key.classList.contains('correct') && !key.classList.contains('present')) {
+        key.classList.add('absent');
+      }
+    }
+  });
 }
 
 function deleteLastCharacter() {
