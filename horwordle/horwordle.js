@@ -135,16 +135,25 @@ function updateTiles(attempt, guess, result) {
   const tiles = row.querySelectorAll('.tile');
 
   tiles.forEach((tile, index) => {
+    // Ensure the .front div is correctly updated with the guess letter
+    const front = tile.querySelector('.front');
+    front.textContent = guess[index];
+
+    // Delay flipping each tile
     setTimeout(() => {
-      tile.classList.add('flipped'); // Start the flip animation
+      // Start the flip animation by adding 'flipped' class
+      tile.classList.add('flipped');
+
       setTimeout(() => {
+        // This is where we set the class on the back of the tile, not the entire tile
         const back = tile.querySelector('.back');
-        back.textContent = guess[index]; // Optionally, show the letter on the back
-        back.classList.add(result[index]); // Apply the result class halfway through the flip
-      }, 300); // Adjust timing to match the halfway point of the flip animation
-    }, index * 500); // Delay each tile's flip by 500ms times its index
+        // Ensure back.textContent is set here if you want to repeat the letter or show something else
+        back.textContent = guess[index]; // Show the guessed letter on the back too (optional)
+        back.classList.add(result[index]); // Add the result class (correct, present, absent) to the back
+      }, 300); // Match this timing to the halfway point of your flip animation
+    }, index * 500); // Stagger the start of each tile's flip
   });
-  
+
   updateKeyboard(guess, result);
 }
 
