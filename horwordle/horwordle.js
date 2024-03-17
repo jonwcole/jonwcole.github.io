@@ -77,7 +77,37 @@ function updateCurrentGuessDisplay() {
 }
 
 function submitGuess() {
-  // Implement logic to submit the current guess
+  if (isGameOver || currentGuess.length < 5) return; // Ensure the game is not over and the guess is complete
+
+  const guess = currentGuess.join('').toUpperCase(); // Combine the letters to form the guess word
+  if (!dictionary.includes(guess)) {
+    alert("Not in word list"); // Provide feedback for invalid guesses
+    return;
+  }
+
+  processGuess(guess); // Compare the guess against the word of the day
+
+  currentAttempt++; // Move to the next attempt
+  currentGuess = []; // Reset the current guess for the next attempt
+
+  if (guess === wordOfTheDay) {
+    alert("Congratulations, you've guessed the word!");
+    isGameOver = true;
+    return;
+  }
+
+  if (currentAttempt >= maxAttempts) {
+    alert(`Game over! The word was: ${wordOfTheDay}`);
+    isGameOver = true;
+  }
+
+  // Optionally, update the display to reflect the new game state here
+}
+
+function processGuess(guess) {
+  // This function should compare the guess to the word of the day
+  // and update the game board accordingly.
+  // Implement logic here for marking tiles as correct, present, or absent.
 }
 
 function deleteLastCharacter() {
