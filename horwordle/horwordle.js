@@ -40,10 +40,12 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
     submitGuess();
   } else if (e.key === 'Backspace') {
+    e.preventDefault(); // Prevent the default backspace behavior (e.g., navigating back)
     deleteLastCharacter();
   } else {
     const key = e.key.toUpperCase();
-    if (key.length === 1 && key >= 'A' && key <= 'Z') {
+    // Accept only alphabetical characters, and ignore non-letter keys
+    if (/^[A-Z]$/i.test(key)) {
       handleKeyPress(key);
     }
   }
@@ -85,20 +87,5 @@ function deleteLastCharacter() {
     updateCurrentGuessDisplay(); // Update the display accordingly
   }
 }
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    submitGuess();
-  } else if (e.key === 'Backspace') {
-    e.preventDefault(); // Prevent the default backspace behavior (e.g., navigating back)
-    deleteLastCharacter();
-  } else {
-    const key = e.key.toUpperCase();
-    // Accept only alphabetical characters, and ignore non-letter keys
-    if (/^[A-Z]$/i.test(key)) {
-      handleKeyPress(key);
-    }
-  }
-});
 
 document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
