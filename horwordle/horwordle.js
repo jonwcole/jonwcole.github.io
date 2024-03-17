@@ -65,13 +65,32 @@ function handleKeyPress(key) {
 }
 
 function updateCurrentGuessDisplay() {
-  // Implement this function to reflect the current guess on the game board
-  // For example, updating the tiles to show the letters in `currentGuess`
-  const tiles = document.querySelectorAll('.tile');
-  // Reset/clear any existing letters on the board in the current row
-  tiles.forEach((tile, index) => {
-    if (Math.floor(index / 5) === currentAttempt) { // Check if the tile is in the current row
-      tile.textContent = currentGuess[index % 5] || ''; // Update tile content
+  const rows = document.querySelectorAll('.tile-row-wrapper'); // Get all rows
+  const currentRow = rows[currentAttempt]; // Get the current row based on the current attempt
+  if (!currentRow) {
+    console.error('Current row not found:', currentAttempt);
+    return;
+  }
+
+  const tiles = currentRow.querySelectorAll('.tile'); // Get tiles in the current row
+
+  // Clear existing letters in the current row's tiles
+  tiles.forEach(tile => {
+    const front = tile.querySelector('.front');
+    if (!front) {
+      console.error('Front div not found in tile');
+      return; // Skip this tile to prevent errors
+    }
+    front.textContent = ''; // Reset the text content of the front div
+  });
+
+  // Update tiles with the current guess letters
+  currentGuess.forEach((letter, index) => {
+    const front = tiles[index].querySelector('.front');
+    if (front) {
+      front.textContent = letter; // Set the letter in the front div
+    } else {
+      console.error('Front div not found in tile at index:', index);
     }
   });
 }
