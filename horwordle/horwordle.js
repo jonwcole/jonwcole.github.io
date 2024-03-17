@@ -131,13 +131,17 @@ function processGuess(guess) {
 }
 
 function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`.tile-row-wrapper[data-attempt='${attempt}']`); // Example selector, adjust based on your HTML
+  const row = document.querySelector(`.tile-row-wrapper[data-attempt='${attempt}']`); // Adjust this selector as needed
+  if (!row) {
+    console.error(`Row for attempt ${attempt} not found.`);
+    return;
+  }
   const tiles = row.querySelectorAll('.tile');
 
   tiles.forEach((tile, index) => {
-    tile.textContent = guess[index]; // Set the letter in the tile
-    tile.classList.add(result[index]); // Add class based on result ('correct', 'present', 'absent')
-    // You may want to adjust this logic to handle class removal for new guesses
+    tile.textContent = guess[index]; // Update tile content
+    tile.className = 'tile'; // Reset class
+    tile.classList.add(result[index]); // Add result class ('correct', 'present', 'absent')
   });
 
   updateKeyboard(guess, result);
