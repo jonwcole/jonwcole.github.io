@@ -29,11 +29,21 @@ fetch('https://jonwcole.github.io/horrordle/words.json')
 
 // Handling virtual keyboard clicks
 document.getElementById('keyboard').addEventListener('click', function(e) {
-  if (e.target.matches('.key')) {
-    const key = e.target.getAttribute('data-key') || e.target.innerText;
-    handleKeyPress(key);
+  if (e.target.matches('.key')) { // Now all keys, including special ones, are handled here
+    const key = e.target.getAttribute('data-key');
+    switch (key) {
+      case 'ENTER':
+        submitGuess();
+        break;
+      case 'BACKSPACE':
+        deleteLastCharacter();
+        updateCurrentGuessDisplay(); // Refresh the display to show the current guess state
+        break;
+      default:
+        handleKeyPress(key); // For letter keys
+    }
   }
-}); // This anonymous function is correctly closed
+});
 
 // Handling physical keyboard input
 document.addEventListener('keydown', function(e) {
