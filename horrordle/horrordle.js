@@ -250,7 +250,7 @@ function displayStats() {
   document.getElementById('games-played').textContent = stats.gamesPlayed;
   // Calculate win percentage, round it to a whole number, and update the text content
   const winPercentage = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
-  document.getElementById('win-percentage').textContent = `${winPercentage}%`;
+  document.getElementById('win-percentage').textContent = `${winPercentage}`;
   document.getElementById('current-streak').textContent = stats.currentStreak;
   document.getElementById('max-streak').textContent = stats.maxStreak;
 
