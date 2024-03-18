@@ -184,17 +184,17 @@ function submitGuess() {
 
 function displayHint() {
   const hintElement = document.getElementById('hint');
-  if (hintElement && !hintDisplayed && hintOfTheDay) { // Check if the hint hasn't been displayed and is available
-    // Set the hint text first before making it visible and starting the fade-in
-    hintElement.textContent = hintOfTheDay;
-    
-    hintElement.style.display = 'block'; // Make the hint box layout-visible for the fade-in
-    // Ensure there's a small delay between setting display and starting the fade, to ensure transition applies
-    setTimeout(() => {
-      hintElement.style.opacity = 1; // Trigger the fade-in effect
-    }, 10); // Small delay to ensure CSS applies the display property first
+  if (hintElement && !hintDisplayed && hintOfTheDay) {
+    hintElement.textContent = hintOfTheDay; // Set the hint text
+    hintElement.style.display = 'block'; // Make the element layout-visible
 
-    hintDisplayed = true; // Mark the hint as displayed to avoid showing it again
+    // Force a reflow to ensure the transition is triggered
+    void hintElement.offsetWidth;
+
+    // Now start the fade-in
+    hintElement.style.opacity = 1;
+
+    hintDisplayed = true; // Prevent re-displaying the hint
   }
 }
 
