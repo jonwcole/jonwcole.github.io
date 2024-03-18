@@ -210,9 +210,6 @@ function showStatsAfterDelay() {
   }, 3000);
 }
 
-const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
-console.log(storedGuesses); // Check the structure in the console
-
 function processGuess(guess) {
   let wordArray = wordOfTheDay.split(''); // Existing logic
   let result = []; // Existing logic
@@ -240,24 +237,14 @@ function processGuess(guess) {
   // Here's the new part: Add this guess's result to the gameGuesses array
   gameGuesses.push(result);
 
-  // Check if the game ends and then call markGameAsCompleted() if so
-  if (guess === wordOfTheDay || currentAttempt >= maxAttempts - 1) {
-    // Game ends because of win or running out of attempts
-    markGameAsCompleted();
-    isGameOver = true;
-    updateStats(guess === wordOfTheDay, currentAttempt);
-    // Optionally, display end-game UI here
+  // If the game ends (win or lose), save the results to localStorage
+  if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
+    localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
+    // Optionally reset for a new game
+    gameGuesses = [];
   }
-}
 
-function markGameAsCompleted() {
-  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
-  localStorage.setItem('lastPlayedDate', today);
-  localStorage.setItem('gameCompleted', 'true');
-  // Store the game guesses along with their results
-  localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
-  // Reset gameGuesses for the next game
-  gameGuesses = [];
+  markGameAsCompleted();
 }
 
 function saveGuessesToLocalStorage() {
@@ -381,18 +368,14 @@ function displayStats() {
 
 function generateResultString() {
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
-    if (!storedGuesses.length) {
-        return "No game data available.";
-    }
-
     const emojiMap = {
         'absent': '⬛',
         'present': '🟨',
         'correct': '🟥'
     };
 
-    const resultString = storedGuesses.map(guessResults =>
-        guessResults.map(status => emojiMap[status]).join('')
+    const resultString = storedGuesses.map(guess =>
+        guess.map(status => emojiMap[status]).join('')
     ).join('\n');
 
     const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
@@ -418,41 +401,5 @@ function startNewGame() {
   hintDisplayed = false;
   // Rest of game initialization...
 }
-
-function restoreGameStateIfPlayedToday() {
-    const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
-    const lastPlayedDate = localStorage.getItem('lastPlayedDate');
-    const gameCompleted = localStorage.getItem('gameCompleted') === 'true';
-
-    if (today === lastPlayedDate && gameCompleted) {
-        // Game was completed today. Disable new guesses and populate the board.
-        isGameOver = true;
-        const storedGameData = JSON.parse(localStorage.getItem('gameGuesses'));
-        
-        // Ensure storedGameData is not null and is an array before attempting to use it
-        if (Array.isArray(storedGameData)) {
-            storedGameData.forEach((guessResult, attempt) => {
-                const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-                if (row) {
-                    const tiles = row.querySelectorAll('.tile');
-                    tiles.forEach((tile, index) => {
-                        // Assuming guessResult is structured as [{guess: 'A', status: 'correct'}, ...]
-                        if (guessResult[index]) {
-                            const back = tile.querySelector('.back');
-                            back.textContent = guessResult[index].guess;
-                            back.className = `back ${guessResult[index].status}`;
-                            tile.classList.add('flipped');
-                        }
-                    });
-                }
-            });
-        }
-
-        displayStats(); // Optionally show stats if you have a UI element for this.
-    }
-}
-
-// Call this function when the page loads
-restoreGameStateIfPlayedToday();
 
 document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
