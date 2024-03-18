@@ -111,36 +111,47 @@ function updateCurrentGuessDisplay() {
 }
 
 function submitGuess() {
-  if (isGameOver || currentGuess.length < 5) return; // Ensure the game is not over and the guess is complete
+  if (isGameOver || currentGuess.length < 5) return;
 
-  const guess = currentGuess.join('').toUpperCase(); // Combine the letters to form the guess word
+  const guess = currentGuess.join('').toUpperCase();
   if (!dictionary.includes(guess)) {
-    console.log("Not in word list"); // Use a UI element to display this message as needed
+    console.log("Not in word list");
     return;
   }
 
   processGuess(guess);
 
-  currentAttempt++; // Move to the next attempt
-  currentGuess = []; // Reset the current guess for the next attempt
-
-  // Check for game end conditions after a slight delay to allow for animations
+  // Delay to account for letter flipping animation
   setTimeout(() => {
-    if (guess === wordOfTheDay) {
-      // Game won
-      document.querySelector('.success').style.display = 'block';
-      updateStats(true, currentAttempt);
+    currentAttempt++;
+    currentGuess = [];
+
+    if (guess === wordOfTheDay || currentAttempt >= maxAttempts) {
       isGameOver = true;
-      showStatsAfterDelay();
-    } else if (currentAttempt >= maxAttempts) {
-      // Game lost
-      document.querySelector('.failure').style.display = 'block';
-      updateStats(false, 0); // Indicates a loss
-      isGameOver = true;
-      showStatsAfterDelay();
+      updateStats(guess === wordOfTheDay, currentAttempt);
+
+      // Determine which message to show based on game outcome
+      const messageDiv = guess === wordOfTheDay ? document.querySelector('.success') : document.querySelector('.failure');
+      messageDiv.style.display = 'block';
+
+      // Fade in the message
+      setTimeout(() => {
+        messageDiv.style.opacity = 1;
+
+        // Wait for the fade-in to complete and an extra pause before showing stats
+        setTimeout(() => {
+          messageDiv.style.opacity = 0; // Fade out the message
+          messageDiv.style.display = 'none'; // Hide message after fading out
+
+          // Show and fade in the stats
+          const statsDiv = document.querySelector('.stats');
+          statsDiv.style.display = 'flex';
+          setTimeout(() => statsDiv.style.opacity = 1, 100); // Slight delay to ensure 'display: flex' applies first
+        }, 1200); // 600ms for the message to fade in + 600ms pause
+      }, 100); // Short delay to ensure 'display: block' applies first
     }
-    // If the game is not over, simply proceed without showing any messages
-  }, currentGuess.length * 500); // Adjust this delay to match your flipping animation time
+
+  }, currentGuess.length * 500 + 600); // Wait for all tiles to flip, then an additional 600ms
 }
 
 function showStatsAfterDelay() {
