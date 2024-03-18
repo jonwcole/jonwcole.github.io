@@ -214,6 +214,55 @@ function deleteLastCharacter() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
+const defaultStats = {
+  gamesPlayed: 0,
+  wins: 0, // You might need this to calculate the win percentage
+  currentStreak: 0,
+  maxStreak: 0,
+  guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+};
 
-console.log(document.querySelector('.tile .front').textContent); // Check initial content
+function loadStats() {
+  const stats = JSON.parse(localStorage.getItem('stats')) || defaultStats;
+  return stats;
+}
+
+function saveStats(stats) {
+  localStorage.setItem('stats', JSON.stringify(stats));
+}
+
+const stats = loadStats(); // Load stats at the start of the game
+
+function updateStats(win, guessesTaken) {
+  stats.gamesPlayed += 1;
+  if (win) {
+    stats.wins += 1;
+    stats.currentStreak += 1;
+    stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+    stats.guessDistribution[guessesTaken] += 1; // Increment the guess distribution
+  } else {
+    stats.currentStreak = 0; // Reset streak if the game is lost
+  }
+  saveStats(stats); // Save the updated stats
+}
+
+function displayStats() {
+  document.getElementById('games-played').textContent = stats.gamesPlayed;
+  document.getElementById('win-percentage').textContent = ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) + '%';
+  document.getElementById('current-streak').textContent = stats.currentStreak;
+  document.getElementById('max-streak').textContent = stats.maxStreak;
+
+  Object.entries(stats.guessDistribution).forEach(([guess, count]) => {
+    document.getElementById(`distribution-${guess}`).textContent = count;
+    // Adjust if your guess distribution display requires different handling
+  });
+}
+
+displayStats(); // Call this function to update the UI with the latest stats
+
+function resetStats() {
+  saveStats(defaultStats);
+  displayStats(); // Refresh the stats display
+}
+
+document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
