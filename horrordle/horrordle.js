@@ -74,15 +74,28 @@ document.addEventListener('keydown', function(e) {
 
 let currentGuess = []; // An array to hold the current guess's letters
 
+let inputDisabled = false; // flag to control input globally
+
 function handleKeyPress(key) {
-  // Check if game is over
-  if (isGameOver) return;
+  if (isGameOver || inputDisabled) return;
 
   // If the key is a valid letter and the current guess is less than the max word length
   if (/^[A-Z]$/i.test(key) && currentGuess.length < 5) {
     currentGuess.push(key.toUpperCase()); // Add the uppercase letter to the current guess
     updateCurrentGuessDisplay(); // Function to visually update the guess on the game board
   }
+}
+
+function toggleOnScreenKeyboard(enable) {
+  document.querySelectorAll('.key').forEach(button => {
+    if (enable) {
+      button.removeAttribute('disabled');
+      button.classList.remove('disabled'); // Assuming you use this class to style disabled buttons
+    } else {
+      button.setAttribute('disabled', 'true');
+      button.classList.add('disabled');
+    }
+  });
 }
 
 function updateCurrentGuessDisplay() {
@@ -424,30 +437,28 @@ function restoreGameStateIfPlayedToday() {
             const tiles = row.querySelectorAll('.tile');
 
             guessLetters.forEach((letter, index) => {
-                const tile = tiles[index];
-                const front = tile.querySelector('.front');
-                const back = tile.querySelector('.back');
+                if (tiles[index]) {
+                    const tile = tiles[index];
+                    const front = tile.querySelector('.front');
+                    const back = tile.querySelector('.back');
 
-                front.textContent = letter;
-                back.textContent = letter;
-                back.classList.add(gameGuessColors[attempt][index]); // Assuming gameGuessColors mirrors the structure of gameGuessLetters
+                    // Set the text for front and back
+                    front.textContent = letter;
+                    back.textContent = letter;
+                    
+                    // Clear previous classes on back and add the new one
+                    back.className = 'back'; // Reset class
+                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
+                    
+                    // Add the flipped class to the tile for the flipping effect
+                    tile.classList.add('flipped');
+                }
             });
         });
 
-        // Display stats modal
-        document.querySelector('.stats').style.display = 'flex';
+        // Display stats modal, assuming you have a function or logic to properly display it
+        displayStatsModal();
     }
-}
-
-function disableInput() {
-    // Example: Disable keyboard interaction
-    document.querySelectorAll('.key').forEach(key => {
-        key.classList.add('disabled'); // Add a 'disabled' class or directly disable if they're input elements
-    });
-
-    // Prevent physical keyboard interaction
-    document.removeEventListener('keydown', handleKeyPress);
-    // You'll need to modify your existing event listener setup to use a named function (like `handleKeyPress`) for this to work
 }
 
 document.addEventListener('DOMContentLoaded', function() {
