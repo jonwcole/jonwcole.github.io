@@ -265,7 +265,7 @@ function displayStats() {
     const percentage = totalGuesses > 0 ? (count / totalGuesses) * 100 : 0;
     const bar = document.getElementById(`distribution-${guess}`);
     bar.style.width = `${percentage}%`;
-    bar.textContent = percentage ? `${Math.round(percentage)}%` : ''; // Optional: Display percentage in bar
+    bar.textContent = percentage > 0 ? `${Math.round(percentage)}%` : ''; // Optional: Display percentage in bar
     // Reset any previous application of 'correct' class
     bar.classList.remove('correct');
     // Apply 'correct' class if the last game was won and the number of guesses matches
