@@ -258,17 +258,16 @@ function displayStats() {
   document.getElementById('current-streak').textContent = stats.currentStreak;
   document.getElementById('max-streak').textContent = stats.maxStreak;
 
-  let totalGuesses = 0;
-  Object.values(stats.guessDistribution).forEach(count => totalGuesses += count);
+  let totalWins = Object.values(stats.guessDistribution).reduce((acc, count) => acc + count, 0);
 
   Object.entries(stats.guessDistribution).forEach(([guess, count]) => {
-    const percentage = totalGuesses > 0 ? (count / totalGuesses) * 100 : 0;
     const bar = document.getElementById(`distribution-${guess}`);
-    bar.style.width = `${percentage}%`;
-    bar.textContent = percentage > 0 ? `${Math.round(percentage)}%` : ''; // Optional: Display percentage in bar
-    // Reset any previous application of 'correct' class
+    const percentage = totalWins > 0 ? (count / totalWins) * 100 : 0;
+    bar.style.width = `${percentage}%`; // Set the width of the bar to reflect the percentage
+    bar.textContent = count; // Set the text inside the bar to reflect the actual count
+
+    // Optionally, remove 'correct' class from all, then add back to only the relevant one
     bar.classList.remove('correct');
-    // Apply 'correct' class if the last game was won and the number of guesses matches
     if (stats.lastGameWon && stats.lastWinGuesses.toString() === guess) {
       bar.classList.add('correct');
     }
