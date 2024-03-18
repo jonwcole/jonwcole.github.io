@@ -380,14 +380,18 @@ function displayStats() {
 
 function generateResultString() {
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
+    if (!storedGuesses.length) {
+        return "No game data available.";
+    }
+
     const emojiMap = {
         'absent': '⬛',
         'present': '🟨',
         'correct': '🟥'
     };
 
-    const resultString = storedGuesses.map(guess =>
-        guess.map(status => emojiMap[status]).join('')
+    const resultString = storedGuesses.map(guessResult => 
+        guessResult.map(({ status }) => emojiMap[status]).join('')
     ).join('\n');
 
     const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
@@ -415,19 +419,32 @@ function startNewGame() {
 }
 
 function restoreGameStateIfPlayedToday() {
-  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
-  const lastPlayedDate = localStorage.getItem('lastPlayedDate');
-  const gameCompleted = localStorage.getItem('gameCompleted') === 'true';
+    const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
+    const lastPlayedDate = localStorage.getItem('lastPlayedDate');
+    const gameCompleted = localStorage.getItem('gameCompleted') === 'true';
 
-  if (today === lastPlayedDate && gameCompleted) {
-    // Restore game state here
-    const guessesResults = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
-    guessesResults.forEach(({ guess, result }, index) => {
-      // Use both the guess and its result to restore the state
-      updateTiles(index, guess.split(''), result); // Assuming updateTiles can handle an array of letters
-    });
-    displayStats(); // Show the stats modal
-  }
+    if (today === lastPlayedDate && gameCompleted) {
+        // Game was completed today. Disable new guesses and populate the board.
+        isGameOver = true;
+        const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
+
+        storedGuesses.forEach((result, attempt) => {
+            const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+            if (row) {
+                const tiles = row.querySelectorAll('.tile');
+                tiles.forEach((tile, index) => {
+                    if (result[index]) {
+                        const back = tile.querySelector('.back');
+                        back.textContent = result[index].guess; // assuming you save the guessed letter
+                        back.className = 'back ' + result[index].status; // e.g., 'back correct'
+                        tile.classList.add('flipped');
+                    }
+                });
+            }
+        });
+
+        displayStats(); // Optionally show stats if you have a UI element for this.
+    }
 }
 
 // Call this function when the page loads
