@@ -407,4 +407,50 @@ function startNewGame() {
   // Rest of game initialization...
 }
 
-document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
+function restoreGameStateIfPlayedToday() {
+    const stats = JSON.parse(localStorage.getItem('stats')) || {};
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (stats.lastPlayedDate === today) {
+        // Prevent further input
+        disableInput();
+
+        // Restore game state
+        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+
+        gameGuessLetters.forEach((guessLetters, attempt) => {
+            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+            const tiles = row.querySelectorAll('.tile');
+
+            guessLetters.forEach((letter, index) => {
+                const tile = tiles[index];
+                const front = tile.querySelector('.front');
+                const back = tile.querySelector('.back');
+
+                front.textContent = letter;
+                back.textContent = letter;
+                back.classList.add(gameGuessColors[attempt][index]); // Assuming gameGuessColors mirrors the structure of gameGuessLetters
+            });
+        });
+
+        // Display stats modal
+        document.querySelector('.stats').style.display = 'flex';
+    }
+}
+
+function disableInput() {
+    // Example: Disable keyboard interaction
+    document.querySelectorAll('.key').forEach(key => {
+        key.classList.add('disabled'); // Add a 'disabled' class or directly disable if they're input elements
+    });
+
+    // Prevent physical keyboard interaction
+    document.removeEventListener('keydown', handleKeyPress);
+    // You'll need to modify your existing event listener setup to use a named function (like `handleKeyPress`) for this to work
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadGame(); // Make sure this still runs to load the game data
+    restoreGameStateIfPlayedToday(); // Check if we need to restore state
+});
