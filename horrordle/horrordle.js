@@ -477,11 +477,13 @@ function displayStatsModal() {
         completedMessage.style.display = 'block';
     }
 
-    // Simulate a click on the .nav-button-default-state to open the stats modal
-    const navButton = document.querySelector('.nav-button-default-state');
-    if (navButton) {
-        navButton.click();
-    }
+    // Wait for 1200ms before simulating a click on the .nav-button-default-state to open the stats modal
+    setTimeout(() => {
+        const navButton = document.querySelector('.nav-button-default-state');
+        if (navButton) {
+            navButton.click();
+        }
+    }, 1200); // Delay of 1200ms
 }
 
 document.addEventListener('DOMContentLoaded', function() {
