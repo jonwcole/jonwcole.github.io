@@ -437,22 +437,43 @@ function restoreGameStateIfPlayedToday() {
             const tiles = row.querySelectorAll('.tile');
 
             guessLetters.forEach((letter, index) => {
-                const tile = tiles[index];
-                const front = tile.querySelector('.front');
-                const back = tile.querySelector('.back');
+                if (tiles[index]) {
+                    const tile = tiles[index];
+                    const front = tile.querySelector('.front');
+                    const back = tile.querySelector('.back');
 
-                front.textContent = letter;
-                back.textContent = letter;
-                back.classList.add(gameGuessColors[attempt][index]); // Assuming gameGuessColors mirrors the structure of gameGuessLetters
-
-                // Add the flipped class to the tile for the flipping effect
-                tile.classList.add('flipped');
+                    // Set the text for front and back
+                    front.textContent = letter;
+                    back.textContent = letter;
+                    
+                    // Clear previous classes on back and add the new one
+                    back.className = 'back'; // Reset class
+                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
+                    
+                    // Add the flipped class to the tile for the flipping effect
+                    tile.classList.add('flipped');
+                }
             });
         });
 
-        // Display stats modal
-        document.querySelector('.stats').style.display = 'flex';
+        // Display stats modal, assuming you have a function or logic to properly display it
+        displayStatsModal();
     }
+}
+
+function disableInput() {
+    // Here you should disable the keyboard and any other input forms you have.
+    // This could be as simple as not allowing key presses to register or hiding the virtual keyboard if you have one.
+    // Example:
+    document.getElementById('keyboard').style.pointerEvents = 'none'; // Disables click events on the on-screen keyboard
+    // You might also disable physical keyboard input by removing or disabling event listeners.
+}
+
+function displayStatsModal() {
+    // Display the stats modal. This might involve more than just changing the display style,
+    // such as updating the modal content based on the saved game state.
+    document.querySelector('.stats').style.display = 'flex';
+    // You might also want to fade in or animate the modal for a nicer user experience.
 }
 
 document.addEventListener('DOMContentLoaded', function() {
