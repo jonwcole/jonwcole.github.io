@@ -7,7 +7,7 @@ let isGameOver = false;
 
 function loadGame() {
   // Fetching the dictionary
-  fetch('https://jonwcole.github.io/horwordle/dictionary.json')
+  fetch('https://jonwcole.github.io/horrordle/dictionary.json')
     .then(response => response.json())
     .then(data => {
       dictionary = data.map(word => word.toUpperCase());
@@ -21,7 +21,7 @@ function loadGame() {
   const today = adjustedDate.toISOString().slice(0, 10);
 
   // Fetching the word of the day using the adjusted date
-  fetch('https://jonwcole.github.io/horwordle/words.json')
+  fetch('https://jonwcole.github.io/horrordle/words.json')
     .then(response => response.json())
     .then(data => {
       wordOfTheDay = data[today]?.toUpperCase(); // Access the word directly using the date key
