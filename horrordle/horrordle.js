@@ -251,8 +251,13 @@ function processGuess(guess) {
 }
 
 function markGameAsCompleted() {
-  console.log("Marking game as completed.");
-  localStorage.setItem('test', 'This is a test.');
+  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
+  localStorage.setItem('lastPlayedDate', today);
+  localStorage.setItem('gameCompleted', 'true');
+  // Store the game guesses along with their results
+  localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
+  // Reset gameGuesses for the next game
+  gameGuesses = [];
 }
 
 function saveGuessesToLocalStorage() {
