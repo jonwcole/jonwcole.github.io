@@ -240,15 +240,11 @@ function processGuess(guess) {
   // If the game ends (win or lose), save the results to localStorage
   if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
     localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
-    // Optionally reset for a new game
-    gameGuesses = [];
   }
 }
 
 function saveGuessesToLocalStorage() {
     localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
-    // Optionally reset gameGuesses if a new game starts immediately
-    gameGuesses = []; // Comment or remove if you handle new game initiation elsewhere
 }
 
 function updateTiles(attempt, guess, result) {
