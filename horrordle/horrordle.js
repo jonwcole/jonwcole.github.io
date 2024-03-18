@@ -258,7 +258,7 @@ function updateTiles(attempt, guess, result) {
 
 function updateKeyboard(guess, result) {
   // Set a fixed delay value in milliseconds
-  const delayBeforeUpdate = 3000; // For example, 2.5 seconds
+  const delayBeforeUpdate = 2500; // For example, 2.5 seconds
 
   setTimeout(() => {
     // Update the keyboard after the delay
