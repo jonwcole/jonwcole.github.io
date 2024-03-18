@@ -458,8 +458,6 @@ function restoreGameStateIfPlayedToday() {
 
         // Display stats modal, assuming you have a function or logic to properly display it
         displayStatsModal();
-
-        hintDisplayed = true;
     }
 }
 
@@ -479,6 +477,8 @@ function displayStatsModal() {
     // Ensure the modal is visible
     statsModal.style.display = 'flex';
     completedMessage.style.display = 'block';
+    hintElement.style = 'block';
+    hintElement.style.opacity = 1;
 
     // Animate the opacity to 1
     // You might need a slight delay to ensure the transition is visible if you're using CSS transitions
