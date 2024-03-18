@@ -480,7 +480,7 @@ function displayStatsModal() {
     // You might need a slight delay to ensure the transition is visible if you're using CSS transitions
     setTimeout(() => {
         statsModal.style.opacity = 1;
-    }, 10); // Adjust delay as needed; 10ms should generally be enough to ensure the display property is applied first
+    }, 1200); // Adjust delay as needed; 10ms should generally be enough to ensure the display property is applied first
 }
 
 document.addEventListener('DOMContentLoaded', function() {
