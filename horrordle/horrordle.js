@@ -7,7 +7,9 @@ let isGameOver = false;
 let incorrectGuesses = 0;
 let hintDisplayed = false;
 let hintOfTheDay = ''; // Make sure this is declared globally
-let gameGuesses = []; // Reset this at the start of each new game
+let gameGuessColors = []; // This will store the result colors (correct, present, absent) for each guess.
+let gameGuessLetters = []; // This will store the actual letters guessed in each attempt.
+
 
 function loadGame() {
   fetch('https://jonwcole.github.io/horrordle/dictionary.json')
@@ -234,17 +236,22 @@ function processGuess(guess) {
   // After determining the result for each letter, update the UI
   updateTiles(currentAttempt, guess, result);
 
-  // Here's the new part: Add this guess's result to the gameGuesses array
-  gameGuesses.push(result);
+  // Here's the new part: Add this guess's result to the gameGuessColors array
+  gameGuessColors.push(result);
+
+  gameGuessLetters.push(guess.split('')); // Split the guess into individual letters for storage
+
 
   // If the game ends (win or lose), save the results to localStorage
   if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
-    localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
+    localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
+    localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
   }
 }
 
 function saveGuessesToLocalStorage() {
-    localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
+    localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
+    localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
 }
 
 function updateTiles(attempt, guess, result) {
@@ -365,7 +372,7 @@ function displayStats() {
 }
 
 function generateResultString() {
-    const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
+    const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
         'absent': '⬛',
         'present': '🟨',
