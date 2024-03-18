@@ -214,7 +214,12 @@ function markGameAsCompleted() {
   const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
   localStorage.setItem('lastPlayedDate', today);
   localStorage.setItem('gameCompleted', 'true');
-  // Optionally, store other game state information as needed
+  
+  // Assuming gameGuesses now includes objects with guess and result properties
+  localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses.map(guess => ({
+    guess: guess.guess, // The actual guessed word
+    result: guess.result // The evaluation result of the guess
+  }))));
 }
 
 function processGuess(guess) {
@@ -417,9 +422,10 @@ function restoreGameStateIfPlayedToday() {
   if (today === lastPlayedDate && gameCompleted) {
     // Restore game state here
     const guessesResults = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
-    guessesResults.forEach((guessResult, index) => {
-      // Simulate each guess being entered and evaluated
-      updateTiles(index, /* guess letters */, guessResult);
+    const guessesResults = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
+    guessesResults.forEach(({ guess, result }, index) => {
+      // Use both the guess and its result to restore the state
+      updateTiles(index, guess.split(''), result); // Assuming updateTiles can handle an array of letters
     });
     displayStats(); // Show the stats modal
     disableGuessing(); // Prevent further guesses
