@@ -215,10 +215,12 @@ function deleteLastCharacter() {
 
 const defaultStats = {
   gamesPlayed: 0,
-  wins: 0, // You might need this to calculate the win percentage
+  wins: 0,
   currentStreak: 0,
   maxStreak: 0,
   guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+  lastGameWon: false,
+  lastWinGuesses: null,
 };
 
 function loadStats() {
@@ -238,24 +240,38 @@ function updateStats(win, guessesTaken) {
     stats.wins += 1;
     stats.currentStreak += 1;
     stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-    stats.guessDistribution[guessesTaken] += 1; // Increment the guess distribution
+    stats.guessDistribution[guessesTaken] += 1;
+    stats.lastGameWon = true;
+    stats.lastWinGuesses = guessesTaken;
   } else {
-    stats.currentStreak = 0; // Reset streak if the game is lost
+    stats.currentStreak = 0;
+    stats.lastGameWon = false;
   }
-  saveStats(stats); // Save the updated stats
+  saveStats(stats);
   displayStats(); // Update the display every time stats are updated
 }
 
 function displayStats() {
   document.getElementById('games-played').textContent = stats.gamesPlayed;
-  // Calculate win percentage, round it to a whole number, and update the text content
   const winPercentage = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
-  document.getElementById('win-percentage').textContent = `${winPercentage}`;
+  document.getElementById('win-percentage').textContent = `${winPercentage}%`;
   document.getElementById('current-streak').textContent = stats.currentStreak;
   document.getElementById('max-streak').textContent = stats.maxStreak;
 
+  let totalGuesses = 0;
+  Object.values(stats.guessDistribution).forEach(count => totalGuesses += count);
+
   Object.entries(stats.guessDistribution).forEach(([guess, count]) => {
-    document.getElementById(`distribution-${guess}`).textContent = count;
+    const percentage = totalGuesses > 0 ? (count / totalGuesses) * 100 : 0;
+    const bar = document.getElementById(`distribution-${guess}`);
+    bar.style.width = `${percentage}%`;
+    bar.textContent = percentage > 0 ? `${Math.round(percentage)}%` : ''; // Optional: Display percentage in bar
+    // Reset any previous application of 'correct' class
+    bar.classList.remove('correct');
+    // Apply 'correct' class if the last game was won and the number of guesses matches
+    if (stats.lastGameWon && stats.lastWinGuesses.toString() === guess) {
+      bar.classList.add('correct');
+    }
   });
 }
 
