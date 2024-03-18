@@ -437,27 +437,21 @@ function restoreGameStateIfPlayedToday() {
             const tiles = row.querySelectorAll('.tile');
 
             guessLetters.forEach((letter, index) => {
-                if (tiles[index]) {
-                    const tile = tiles[index];
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back');
+                const tile = tiles[index];
+                const front = tile.querySelector('.front');
+                const back = tile.querySelector('.back');
 
-                    // Set the text for front and back
-                    front.textContent = letter;
-                    back.textContent = letter;
-                    
-                    // Clear previous classes on back and add the new one
-                    back.className = 'back'; // Reset class
-                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
-                    
-                    // Add the flipped class to the tile for the flipping effect
-                    tile.classList.add('flipped');
-                }
+                front.textContent = letter;
+                back.textContent = letter;
+                back.classList.add(gameGuessColors[attempt][index]); // Assuming gameGuessColors mirrors the structure of gameGuessLetters
+
+                // Add the flipped class to the tile for the flipping effect
+                tile.classList.add('flipped');
             });
         });
 
-        // Display stats modal, assuming you have a function or logic to properly display it
-        displayStatsModal();
+        // Display stats modal
+        document.querySelector('.stats').style.display = 'flex';
     }
 }
 
