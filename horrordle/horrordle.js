@@ -478,8 +478,6 @@ function displayStatsModal() {
     statsModal.style.display = 'flex';
     completedMessage.style.display = 'block';
 
-    displayHint();
-
     // Animate the opacity to 1
     // You might need a slight delay to ensure the transition is visible if you're using CSS transitions
     setTimeout(() => {
