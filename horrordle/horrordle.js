@@ -115,26 +115,42 @@ function submitGuess() {
 
   const guess = currentGuess.join('').toUpperCase(); // Combine the letters to form the guess word
   if (!dictionary.includes(guess)) {
-    alert("Not in word list"); // Provide feedback for invalid guesses
+    console.log("Not in word list"); // Use a UI element to display this message as needed
     return;
   }
 
-  processGuess(guess); // Compare the guess against the word of the day
+  processGuess(guess);
 
   currentAttempt++; // Move to the next attempt
   currentGuess = []; // Reset the current guess for the next attempt
 
-  if (guess === wordOfTheDay) {
-    alert("Congratulations, you've guessed the word!");
-    updateStats(true, currentAttempt); // Assuming `currentAttempt` starts from 0
-    isGameOver = true;
-  } else if (currentAttempt >= maxAttempts) {
-    alert(`Game over! The word was: ${wordOfTheDay}`);
-    updateStats(false, 0); // 0 or another indicator for loss without guessing correctly
-    isGameOver = true;
-  }
+  // Check for game end conditions after a slight delay to allow for animations
+  setTimeout(() => {
+    if (guess === wordOfTheDay) {
+      // Game won
+      document.querySelector('.success').style.display = 'block';
+      updateStats(true, currentAttempt);
+      isGameOver = true;
+      showStatsAfterDelay();
+    } else if (currentAttempt >= maxAttempts) {
+      // Game lost
+      document.querySelector('.failure').style.display = 'block';
+      updateStats(false, 0); // Indicates a loss
+      isGameOver = true;
+      showStatsAfterDelay();
+    }
+    // If the game is not over, simply proceed without showing any messages
+  }, currentGuess.length * 500); // Adjust this delay to match your flipping animation time
+}
 
-  // Optionally, update the display to reflect the new game state here
+function showStatsAfterDelay() {
+  // Wait 3 seconds before showing stats and hiding success/failure message
+  setTimeout(() => {
+    document.querySelector('.stats').style.display = 'flex';
+    document.querySelectorAll('.success, .failure').forEach(el => el.style.display = 'none');
+    // Optionally, refresh the stats display if needed
+    displayStats();
+  }, 3000);
 }
 
 function processGuess(guess) {
