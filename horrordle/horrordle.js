@@ -125,6 +125,8 @@ function submitGuess() {
   currentGuess = []; // Reset the current guess for the next attempt
 
 if (guess === wordOfTheDay) {
+  // If `currentAttempt` is incremented before this check, subtract 1
+  updateStats(true, currentAttempt); // Assuming `currentAttempt` was already incremented for this guess
   alert("Congratulations, you've guessed the word!");
   updateStats(true, currentAttempt + 1); // Assuming `currentAttempt` starts from 0
   isGameOver = true;
