@@ -181,9 +181,10 @@ function submitGuess() {
             messageDiv.style.opacity = 0;
             setTimeout(() => {
               messageDiv.style.display = 'none';
-              const statsDiv = document.querySelector('.stats');
-              statsDiv.style.display = 'flex';
-              setTimeout(() => statsDiv.style.opacity = 1, 100);
+              const navButton = document.querySelector('.nav-button-default-state');
+              if (navButton) {
+                  navButton.click();
+              }
             }, 600); // Pause after showing the message
           }, 1200); // Time for the message to fade in
         }, 100); // Allow time for display: block to take effect before starting opacity transition
@@ -212,20 +213,6 @@ function displayHint() {
 
     hintDisplayed = true; // Prevent re-displaying the hint
   }
-}
-
-
-function showStatsAfterDelay() {
-  // Wait 3 seconds before showing stats and hiding success/failure message
-  setTimeout(() => {
-    const navButton = document.querySelector('.nav-button-default-state');
-    if (navButton) {
-        navButton.click();
-    }
-    document.querySelectorAll('.success, .failure').forEach(el => el.style.display = 'none');
-    // Optionally, refresh the stats display if needed
-    displayStats();
-  }, 3000);
 }
 
 function processGuess(guess) {
