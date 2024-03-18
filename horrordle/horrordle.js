@@ -478,6 +478,7 @@ function displayStatsModal() {
     // Ensure the modal is visible
     statsModal.style.display = 'flex';
     completedMessage.style.display = 'block';
+    hintElement.textContent = hintOfTheDay;
     hintElement.style.display = 'block';
     hintElement.style.opacity = 1;
 
