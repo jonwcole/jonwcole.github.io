@@ -124,16 +124,15 @@ function submitGuess() {
   currentAttempt++; // Move to the next attempt
   currentGuess = []; // Reset the current guess for the next attempt
 
-  if (guess === wordOfTheDay) {
-    alert("Congratulations, you've guessed the word!");
-    isGameOver = true;
-    return;
-  }
-
-  if (currentAttempt >= maxAttempts) {
-    alert(`Game over! The word was: ${wordOfTheDay}`);
-    isGameOver = true;
-  }
+if (guess === wordOfTheDay) {
+  alert("Congratulations, you've guessed the word!");
+  updateStats(true, currentAttempt + 1); // Assuming `currentAttempt` starts from 0
+  isGameOver = true;
+} else if (currentAttempt >= maxAttempts) {
+  alert(`Game over! The word was: ${wordOfTheDay}`);
+  updateStats(false, 0); // 0 or another indicator for loss without guessing correctly
+  isGameOver = true;
+}
 
   // Optionally, update the display to reflect the new game state here
 }
@@ -244,6 +243,7 @@ function updateStats(win, guessesTaken) {
     stats.currentStreak = 0; // Reset streak if the game is lost
   }
   saveStats(stats); // Save the updated stats
+  displayStats(); // Update the display every time stats are updated
 }
 
 function displayStats() {
