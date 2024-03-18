@@ -470,10 +470,17 @@ function disableInput() {
 }
 
 function displayStatsModal() {
-    // Display the stats modal. This might involve more than just changing the display style,
-    // such as updating the modal content based on the saved game state.
-    document.querySelector('.stats').style.display = 'flex';
-    // You might also want to fade in or animate the modal for a nicer user experience.
+    // Select the stats modal element
+    const statsModal = document.querySelector('.stats');
+
+    // Ensure the modal is visible
+    statsModal.style.display = 'flex';
+
+    // Animate the opacity to 1
+    // You might need a slight delay to ensure the transition is visible if you're using CSS transitions
+    setTimeout(() => {
+        statsModal.style.opacity = 1;
+    }, 10); // Adjust delay as needed; 10ms should generally be enough to ensure the display property is applied first
 }
 
 document.addEventListener('DOMContentLoaded', function() {
