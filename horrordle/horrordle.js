@@ -427,7 +427,6 @@ function restoreGameStateIfPlayedToday() {
       updateTiles(index, guess.split(''), result); // Assuming updateTiles can handle an array of letters
     });
     displayStats(); // Show the stats modal
-    disableGuessing(); // Prevent further guesses
   }
 }
 
