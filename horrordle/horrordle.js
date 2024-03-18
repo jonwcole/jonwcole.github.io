@@ -431,13 +431,6 @@ function restoreGameStateIfPlayedToday() {
   }
 }
 
-function disableGuessing() {
-  // Disable input or guess submission functionality
-  // For example, disabling the input field or button
-  document.getElementById('guessInput').disabled = true; // Example, adjust as per your HTML
-  document.getElementById('submitGuessButton').disabled = true; // Example, adjust as per your HTML
-}
-
 // Call this function when the page loads
 restoreGameStateIfPlayedToday();
 
