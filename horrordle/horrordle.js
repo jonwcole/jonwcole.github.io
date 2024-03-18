@@ -115,24 +115,39 @@ function submitGuess() {
 
   const guess = currentGuess.join('').toUpperCase(); // Combine the letters to form the guess word
   if (!dictionary.includes(guess)) {
-    alert("Not in word list"); // Provide feedback for invalid guesses
+    // Here, you might want to update the UI to show an invalid guess message instead of using alert
+    console.log("Not in word list"); // Example replacement for the alert
     return;
   }
 
   processGuess(guess); // Compare the guess against the word of the day
 
+  // Wait for all tiles to flip before showing success/failure message
+  setTimeout(() => {
+    if (guess === wordOfTheDay) {
+      document.querySelector('.success').style.display = 'block';
+      updateStats(true, currentAttempt); // Assuming `currentAttempt` starts from 0
+      isGameOver = true;
+    } else if (currentAttempt >= maxAttempts) {
+      document.querySelector('.failure').style.display = 'block';
+      updateStats(false, 0); // 0 or another indicator for loss without guessing correctly
+      isGameOver = true;
+    }
+
+    // Wait 3 seconds before showing stats and hiding success/failure message
+    setTimeout(() => {
+      document.querySelector('.stats').style.display = 'flex';
+      document.querySelector('.success').style.display = 'none';
+      document.querySelector('.failure').style.display = 'none';
+
+      // Optionally, call a function to refresh the stats display if needed
+      displayStats();
+    }, 3000);
+
+  }, currentGuess.length * 500); // Adjust this delay based on your tile flipping animation speed
+
   currentAttempt++; // Move to the next attempt
   currentGuess = []; // Reset the current guess for the next attempt
-
-if (guess === wordOfTheDay) {
-  alert("Congratulations, you've guessed the word!");
-  updateStats(true, currentAttempt); // Assuming `currentAttempt` starts from 0
-  isGameOver = true;
-} else if (currentAttempt >= maxAttempts) {
-  alert(`Game over! The word was: ${wordOfTheDay}`);
-  updateStats(false, 0); // 0 or another indicator for loss without guessing correctly
-  isGameOver = true;
-}
 
   // Optionally, update the display to reflect the new game state here
 }
