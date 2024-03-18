@@ -147,11 +147,11 @@ function submitGuess() {
           const statsDiv = document.querySelector('.stats');
           statsDiv.style.display = 'flex';
           setTimeout(() => statsDiv.style.opacity = 1, 100); // Slight delay to ensure 'display: flex' applies first
-        }, 1200); // 600ms for the message to fade in + 600ms pause
+        }, 1600); // 600ms for the message to fade in + 600ms pause
       }, 100); // Short delay to ensure 'display: block' applies first
     }
 
-  }, currentGuess.length * 500 + 1000); // Wait for all tiles to flip, then an additional 600ms
+  }, currentGuess.length * 500 + 600); // Wait for all tiles to flip, then an additional 600ms
 }
 
 function showStatsAfterDelay() {
