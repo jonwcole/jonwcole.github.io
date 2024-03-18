@@ -257,24 +257,26 @@ function updateTiles(attempt, guess, result) {
 }
 
 function updateKeyboard(guess, result) {
-  // This function should update the on-screen keyboard based on the result
-  // Example: If a letter is 'correct', the corresponding key could be marked green
-  guess.split('').forEach((letter, index) => {
-    const key = document.querySelector(`.key[data-key='${letter}']`); // Assuming keys have a data-key attribute
-    if (result[index] === 'correct') {
-      key.classList.add('correct');
-    } else if (result[index] === 'present') {
-      // Only add 'present' if not already marked 'correct'
-      if (!key.classList.contains('correct')) {
-        key.classList.add('present');
+  // Set a fixed delay value in milliseconds
+  const delayBeforeUpdate = 3000; // For example, 2.5 seconds
+
+  setTimeout(() => {
+    // Update the keyboard after the delay
+    guess.split('').forEach((letter, index) => {
+      const key = document.querySelector(`.key[data-key='${letter}']`);
+      if (result[index] === 'correct') {
+        key.classList.add('correct');
+      } else if (result[index] === 'present') {
+        if (!key.classList.contains('correct')) {
+          key.classList.add('present');
+        }
+      } else {
+        if (!key.classList.contains('correct') && !key.classList.contains('present')) {
+          key.classList.add('absent');
+        }
       }
-    } else {
-      // Only add 'absent' if not marked 'correct' or 'present'
-      if (!key.classList.contains('correct') && !key.classList.contains('present')) {
-        key.classList.add('absent');
-      }
-    }
-  });
+    });
+  }, delayBeforeUpdate);
 }
 
 function deleteLastCharacter() {
