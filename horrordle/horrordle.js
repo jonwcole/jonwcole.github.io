@@ -183,13 +183,13 @@ function submitGuess() {
 }
 
 function displayHint() {
-  if (!hintDisplayed && hintOfTheDay) { // Check if the hint hasn't been displayed and is available
-    const hintElement = document.getElementById('hint');
-    if (hintElement) { // Ensure the element exists
-      hintElement.textContent = hintOfTheDay; // Set the hint text
-      hintElement.style.display = 'block'; // Make the hint visible
-      hintDisplayed = true; // Set flag to prevent re-display
-    }
+  const hintElement = document.getElementById('hint');
+  if (hintElement && !hintDisplayed) { // Check if the hint element exists and hasn't been displayed yet
+    hintElement.style.display = 'block'; // Make the hint element take up space and be "visible" for opacity transition
+    setTimeout(() => {
+      hintElement.style.opacity = 1; // Start the fade-in by changing opacity to 1
+    }, 10); // A short timeout ensures the display change has taken effect
+    hintDisplayed = true; // Ensure we don't show the hint again
   }
 }
 
