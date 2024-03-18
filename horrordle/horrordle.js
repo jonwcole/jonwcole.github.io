@@ -7,6 +7,7 @@ let isGameOver = false;
 let incorrectGuesses = 0;
 let hintDisplayed = false;
 let hintOfTheDay = ''; // Make sure this is declared globally
+let gameGuesses = []; // Reset this at the start of each new game
 
 function loadGame() {
   fetch('https://jonwcole.github.io/horrordle/dictionary.json')
@@ -210,29 +211,44 @@ function showStatsAfterDelay() {
 }
 
 function processGuess(guess) {
-  let wordArray = wordOfTheDay.split(''); // Convert word of the day into an array for easy manipulation
-  let result = []; // Array to hold the result (correct, present, absent) for each letter
+  let wordArray = wordOfTheDay.split(''); // Existing logic
+  let result = []; // Existing logic
 
-  // First pass: Check for correct letters (right letter, right position)
+  // Your existing logic for determining 'correct', 'present', 'absent'
   for (let i = 0; i < guess.length; i++) {
     if (guess[i] === wordOfTheDay[i]) {
       result[i] = 'correct';
-      wordArray[i] = null; // Mark this letter as used
+      wordArray[i] = null; 
     } else {
-      result[i] = 'absent'; // Default to absent, will check for 'present' in next pass
+      result[i] = 'absent'; 
     }
   }
 
-  // Second pass: Check for present letters (right letter, wrong position)
   for (let i = 0; i < guess.length; i++) {
     if (result[i] !== 'correct' && wordArray.includes(guess[i])) {
       result[i] = 'present';
-      wordArray[wordArray.indexOf(guess[i])] = null; // Mark this letter as used
+      wordArray[wordArray.indexOf(guess[i])] = null; 
     }
   }
 
-  // Update the UI based on the result for each letter in the guess
+  // After determining the result for each letter, update the UI
   updateTiles(currentAttempt, guess, result);
+
+  // Here's the new part: Add this guess's result to the gameGuesses array
+  gameGuesses.push(result);
+
+  // If the game ends (win or lose), save the results to localStorage
+  if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
+    localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
+    // Optionally reset for a new game
+    gameGuesses = [];
+  }
+}
+
+function saveGuessesToLocalStorage() {
+    localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
+    // Optionally reset gameGuesses if a new game starts immediately
+    gameGuesses = []; // Comment or remove if you handle new game initiation elsewhere
 }
 
 function updateTiles(attempt, guess, result) {
@@ -347,6 +363,29 @@ function displayStats() {
     }
   });
 }
+
+function generateResultString() {
+    const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
+    const emojiMap = {
+        'absent': '⬛',
+        'present': '🟨',
+        'correct': '🟥'
+    };
+
+    const resultString = storedGuesses.map(guess =>
+        guess.map(status => emojiMap[status]).join('')
+    ).join('\n');
+
+    const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+    return `Horrordle, ${date}\n\n${resultString}`;
+}
+
+document.getElementById('share-result').addEventListener('click', function() {
+    const resultString = generateResultString();
+    navigator.clipboard.writeText(resultString)
+        .then(() => alert('Result copied to clipboard!'))
+        .catch(err => console.error('Failed to copy result to clipboard:', err));
+});
 
 displayStats(); // Call this function to update the UI with the latest stats
 
