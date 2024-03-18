@@ -151,7 +151,7 @@ function submitGuess() {
       }, 100); // Short delay to ensure 'display: block' applies first
     }
 
-  }, currentGuess.length * 500 + 600); // Wait for all tiles to flip, then an additional 600ms
+  }, currentGuess.length * 500 + 1000); // Wait for all tiles to flip, then an additional 600ms
 }
 
 function showStatsAfterDelay() {
