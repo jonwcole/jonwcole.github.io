@@ -210,14 +210,6 @@ function showStatsAfterDelay() {
   }, 3000);
 }
 
-function markGameAsCompleted() {
-  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
-  localStorage.setItem('lastPlayedDate', today);
-  localStorage.setItem('gameCompleted', 'true');
-  // Store the date with the game guesses
-  localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
-}
-
 const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
 console.log(storedGuesses); // Check the structure in the console
 
@@ -248,14 +240,24 @@ function processGuess(guess) {
   // Here's the new part: Add this guess's result to the gameGuesses array
   gameGuesses.push(result);
 
-  // If the game ends (win or lose), save the results to localStorage
-  if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
-    localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
-    // Optionally reset for a new game
-    gameGuesses = [];
+  // Check if the game ends and then call markGameAsCompleted() if so
+  if (guess === wordOfTheDay || currentAttempt >= maxAttempts - 1) {
+    // Game ends because of win or running out of attempts
+    markGameAsCompleted();
+    isGameOver = true;
+    updateStats(guess === wordOfTheDay, currentAttempt);
+    // Optionally, display end-game UI here
   }
+}
 
-  markGameAsCompleted();
+function markGameAsCompleted() {
+  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
+  localStorage.setItem('lastPlayedDate', today);
+  localStorage.setItem('gameCompleted', 'true');
+  // Store the game guesses along with their results
+  localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses));
+  // Reset gameGuesses for the next game
+  gameGuesses = [];
 }
 
 function saveGuessesToLocalStorage() {
