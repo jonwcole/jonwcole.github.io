@@ -14,22 +14,25 @@ function loadGame() {
     })
     .catch(error => console.error('Error loading dictionary:', error));
 
-  // Adjusting for timezone offset
-  const now = new Date();
-  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert offset to milliseconds
-  const adjustedDate = new Date(now - timezoneOffset);
-  const today = adjustedDate.toISOString().slice(0, 10);
+// Adjusting for timezone offset
+const now = new Date();
+const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert offset to milliseconds
+const adjustedDate = new Date(now - timezoneOffset);
+const today = adjustedDate.toISOString().slice(0, 10);
 
-  // Fetching the word of the day using the adjusted date
-  fetch('https://jonwcole.github.io/horrordle/words.json')
-    .then(response => response.json())
-    .then(data => {
-      wordOfTheDay = data[today]?.toUpperCase(); // Access the word directly using the date key
-      if (!wordOfTheDay) {
-        console.error('Word for today not found');
-      }
-    })
-    .catch(error => console.error('Error loading word of the day:', error));
+// Fetching the word of the day using the adjusted date
+fetch('https://yourdomain.com/words.json')
+  .then(response => response.json())
+  .then(data => {
+    const todayData = data[today];
+    if (todayData) {
+      wordOfTheDay = todayData.word.toUpperCase(); // Access the word
+      hintOfTheDay = todayData.hint; // Access the hint
+    } else {
+      console.error('Word for today not found');
+    }
+  })
+  .catch(error => console.error('Error loading word of the day:', error));
 }
 
 // Handling virtual keyboard clicks
@@ -173,6 +176,8 @@ function showStatsAfterDelay() {
   }, 3000);
 }
 
+let incorrectGuesses = 0;
+
 function processGuess(guess) {
   let wordArray = wordOfTheDay.split(''); // Convert word of the day into an array for easy manipulation
   let result = []; // Array to hold the result (correct, present, absent) for each letter
@@ -193,6 +198,12 @@ function processGuess(guess) {
       result[i] = 'present';
       wordArray[wordArray.indexOf(guess[i])] = null; // Mark this letter as used
     }
+  }
+
+  if (incorrectGuesses >= 5) {
+    // Show the hint
+    document.getElementById('hint').textContent = hintOfTheDay; // Assuming you have an element with the ID 'hint'
+    document.getElementById('hint').style.display = 'block'; // Make the hint visible
   }
 
   // Update the UI based on the result for each letter in the guess
