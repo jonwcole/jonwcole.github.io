@@ -211,15 +211,17 @@ function showStatsAfterDelay() {
 }
 
 function markGameAsCompleted() {
-  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
-  localStorage.setItem('lastPlayedDate', today);
-  localStorage.setItem('gameCompleted', 'true');
-
-  // Assuming gameGuesses now includes objects with guess and result properties
-  localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses.map(guess => ({
-    guess: guess.guess, // The actual guessed word
-    result: guess.result // The evaluation result of the guess
-  }))));
+    const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
+    localStorage.setItem('lastPlayedDate', today);
+    localStorage.setItem('gameCompleted', 'true');
+    // Store the date with the game guesses
+    localStorage.setItem('gameGuesses', JSON.stringify({
+        date: today, // Include the game date
+        guesses: gameGuesses.map(guess => ({
+            guess: guess.guess, // The actual guessed word
+            result: guess.result // The evaluation result of the guess
+        }))
+    }));
 }
 
 function processGuess(guess) {
@@ -379,23 +381,36 @@ function displayStats() {
 }
 
 function generateResultString() {
-    const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
-    if (!storedGuesses.length) {
+    // Retrieve the stored game data from localStorage
+    const storedGameData = JSON.parse(localStorage.getItem('gameGuesses'));
+
+    // Check if there is stored data
+    if (!storedGameData || !storedGameData.guesses.length) {
         return "No game data available.";
     }
 
+    // Extract the stored date and guesses
+    const { date, guesses } = storedGameData;
+
+    // Emoji map for converting result status to emojis
     const emojiMap = {
         'absent': '⬛',
         'present': '🟨',
         'correct': '🟥'
     };
 
-    const resultString = storedGuesses.map(guessResult => 
-        guessResult.map(({ status }) => emojiMap[status]).join('')
-    ).join('\n');
+    // Generate the result string by mapping over stored guesses
+    const resultString = guesses.map(guess => {
+        // Map each letter's result in the guess to the corresponding emoji
+        const guessResultEmojis = guess.result.map(status => emojiMap[status]).join('');
+        return guessResultEmojis;
+    }).join('\n');
 
-    const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-    return `Horrordle, ${date}\n\n${resultString}`;
+    // Convert stored date to local date format
+    const formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+    
+    // Return the formatted result string
+    return `Horrordle, ${formattedDate}\n\n${resultString}`;
 }
 
 document.getElementById('share-result').addEventListener('click', function() {
