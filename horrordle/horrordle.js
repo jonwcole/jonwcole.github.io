@@ -243,8 +243,6 @@ function processGuess(guess) {
     // Optionally reset for a new game
     gameGuesses = [];
   }
-
-  markGameAsCompleted();
 }
 
 function saveGuessesToLocalStorage() {
