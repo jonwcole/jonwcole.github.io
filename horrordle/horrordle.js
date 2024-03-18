@@ -210,6 +210,13 @@ function showStatsAfterDelay() {
   }, 3000);
 }
 
+function markGameAsCompleted() {
+  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
+  localStorage.setItem('lastPlayedDate', today);
+  localStorage.setItem('gameCompleted', 'true');
+  // Optionally, store other game state information as needed
+}
+
 function processGuess(guess) {
   let wordArray = wordOfTheDay.split(''); // Existing logic
   let result = []; // Existing logic
@@ -243,6 +250,8 @@ function processGuess(guess) {
     // Optionally reset for a new game
     gameGuesses = [];
   }
+
+  markGameAsCompleted();
 }
 
 function saveGuessesToLocalStorage() {
@@ -399,5 +408,32 @@ function startNewGame() {
   hintDisplayed = false;
   // Rest of game initialization...
 }
+
+function restoreGameStateIfPlayedToday() {
+  const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
+  const lastPlayedDate = localStorage.getItem('lastPlayedDate');
+  const gameCompleted = localStorage.getItem('gameCompleted') === 'true';
+
+  if (today === lastPlayedDate && gameCompleted) {
+    // Restore game state here
+    const guessesResults = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
+    guessesResults.forEach((guessResult, index) => {
+      // Simulate each guess being entered and evaluated
+      updateTiles(index, /* guess letters */, guessResult);
+    });
+    displayStats(); // Show the stats modal
+    disableGuessing(); // Prevent further guesses
+  }
+}
+
+function disableGuessing() {
+  // Disable input or guess submission functionality
+  // For example, disabling the input field or button
+  document.getElementById('guessInput').disabled = true; // Example, adjust as per your HTML
+  document.getElementById('submitGuessButton').disabled = true; // Example, adjust as per your HTML
+}
+
+// Call this function when the page loads
+restoreGameStateIfPlayedToday();
 
 document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
