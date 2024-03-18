@@ -169,7 +169,7 @@ function submitGuess() {
               statsDiv.style.display = 'flex';
               setTimeout(() => statsDiv.style.opacity = 1, 100);
             }, 1200); // Pause after showing the message
-          }, 600); // Time for the message to fade in
+          }, 1200); // Time for the message to fade in
         }, 100); // Allow time for display: block to take effect before starting opacity transition
       }, delayTime); // Wait for tiles to flip and hint to be shown if applicable
     }
