@@ -441,22 +441,26 @@ function restoreGameStateIfPlayedToday() {
     if (today === lastPlayedDate && gameCompleted) {
         // Game was completed today. Disable new guesses and populate the board.
         isGameOver = true;
-        const storedGuesses = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
-
-        storedGuesses.forEach((result, attempt) => {
-            const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-            if (row) {
-                const tiles = row.querySelectorAll('.tile');
-                tiles.forEach((tile, index) => {
-                    if (result[index]) {
-                        const back = tile.querySelector('.back');
-                        back.textContent = result[index].guess; // assuming you save the guessed letter
-                        back.className = 'back ' + result[index].status; // e.g., 'back correct'
-                        tile.classList.add('flipped');
-                    }
-                });
-            }
-        });
+        const storedGameData = JSON.parse(localStorage.getItem('gameGuesses'));
+        
+        // Ensure storedGameData is not null and is an array before attempting to use it
+        if (Array.isArray(storedGameData)) {
+            storedGameData.forEach((guessResult, attempt) => {
+                const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+                if (row) {
+                    const tiles = row.querySelectorAll('.tile');
+                    tiles.forEach((tile, index) => {
+                        // Assuming guessResult is structured as [{guess: 'A', status: 'correct'}, ...]
+                        if (guessResult[index]) {
+                            const back = tile.querySelector('.back');
+                            back.textContent = guessResult[index].guess;
+                            back.className = `back ${guessResult[index].status}`;
+                            tile.classList.add('flipped');
+                        }
+                    });
+                }
+            });
+        }
 
         displayStats(); // Optionally show stats if you have a UI element for this.
     }
