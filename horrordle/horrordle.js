@@ -475,11 +475,6 @@ function displayStatsModal() {
     // Click to open modal
     completedMessage.style.display = 'block';
 
-    // Animate the opacity to 1
-    // You might need a slight delay to ensure the transition is visible if you're using CSS transitions
-    setTimeout(() => {
-        document.getElementById('nav-button-default-state').click();
-    }, 1200); // Adjust delay as needed; 10ms should generally be enough to ensure the display property is applied first
 }
 
 document.addEventListener('DOMContentLoaded', function() {
