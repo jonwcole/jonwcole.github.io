@@ -214,7 +214,7 @@ function markGameAsCompleted() {
   const today = new Date().toISOString().slice(0, 10); // Format as YYYY-MM-DD
   localStorage.setItem('lastPlayedDate', today);
   localStorage.setItem('gameCompleted', 'true');
-  
+
   // Assuming gameGuesses now includes objects with guess and result properties
   localStorage.setItem('gameGuesses', JSON.stringify(gameGuesses.map(guess => ({
     guess: guess.guess, // The actual guessed word
@@ -421,7 +421,6 @@ function restoreGameStateIfPlayedToday() {
 
   if (today === lastPlayedDate && gameCompleted) {
     // Restore game state here
-    const guessesResults = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
     const guessesResults = JSON.parse(localStorage.getItem('gameGuesses') || '[]');
     guessesResults.forEach(({ guess, result }, index) => {
       // Use both the guess and its result to restore the state
