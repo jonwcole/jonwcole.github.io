@@ -4,6 +4,8 @@ let guesses = [];
 let currentAttempt = 0;
 let maxAttempts = 6;
 let isGameOver = false;
+let incorrectGuesses = 0;
+let hintDisplayed = false;
 
 function loadGame() {
   // Fetching the dictionary
@@ -14,25 +16,22 @@ function loadGame() {
     })
     .catch(error => console.error('Error loading dictionary:', error));
 
-// Adjusting for timezone offset
-const now = new Date();
-const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert offset to milliseconds
-const adjustedDate = new Date(now - timezoneOffset);
-const today = adjustedDate.toISOString().slice(0, 10);
+  // Adjusting for timezone offset
+  const now = new Date();
+  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert offset to milliseconds
+  const adjustedDate = new Date(now - timezoneOffset);
+  const today = adjustedDate.toISOString().slice(0, 10);
 
-// Fetching the word of the day using the adjusted date
-fetch('https://yourdomain.com/words.json')
-  .then(response => response.json())
-  .then(data => {
-    const todayData = data[today];
-    if (todayData) {
-      wordOfTheDay = todayData.word.toUpperCase(); // Access the word
-      hintOfTheDay = todayData.hint; // Access the hint
-    } else {
-      console.error('Word for today not found');
-    }
-  })
-  .catch(error => console.error('Error loading word of the day:', error));
+  // Fetching the word of the day using the adjusted date
+  fetch('https://jonwcole.github.io/horrordle/words.json')
+    .then(response => response.json())
+    .then(data => {
+      wordOfTheDay = data[today]?.toUpperCase(); // Access the word directly using the date key
+      if (!wordOfTheDay) {
+        console.error('Word for today not found');
+      }
+    })
+    .catch(error => console.error('Error loading word of the day:', error));
 }
 
 // Handling virtual keyboard clicks
@@ -118,17 +117,20 @@ function submitGuess() {
 
   const guess = currentGuess.join('').toUpperCase();
   if (!dictionary.includes(guess)) {
-    // Get the current row
+    incorrectGuesses++; // Increment the counter for incorrect guesses
+    // Get the current row for the shake animation
     const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
     if (currentRow) {
       currentRow.classList.add('shake');
-
-      // Remove the class after the animation duration to reset the state
-      setTimeout(() => {
-        currentRow.classList.remove('shake');
-      }, 800); // Match the duration of the animation
+      setTimeout(() => currentRow.classList.remove('shake'), 800); // Reset the shake after the animation
     }
-    return;
+    // If not in the dictionary and incorrect guesses are 5 or more, show the hint if not already shown
+    if (incorrectGuesses >= 5 && !hintDisplayed) {
+      document.getElementById('hint').textContent = hintOfTheDay; // Assuming you have defined hintOfTheDay when fetching the word
+      document.getElementById('hint').style.display = 'block';
+      hintDisplayed = true; // Prevent the hint from being shown multiple times
+    }
+    return; // Exit the function early if the guess is incorrect
   }
 
   processGuess(guess);
@@ -142,25 +144,26 @@ function submitGuess() {
       isGameOver = true;
       updateStats(guess === wordOfTheDay, currentAttempt);
 
-      // Determine which message to show based on game outcome
-      const messageDiv = guess === wordOfTheDay ? document.querySelector('.success') : document.querySelector('.failure');
-      messageDiv.style.display = 'block';
-
-      // Fade in the message
+      // Delay for the flip animations plus an additional time for showing the hint if needed
+      let delayTime = currentGuess.length * 500 + (hintDisplayed ? 600 : 0);
+      
       setTimeout(() => {
-        messageDiv.style.opacity = 1;
-
-        // Wait for the fade-in to complete and an extra pause before showing stats
+        const messageDiv = guess === wordOfTheDay ? document.querySelector('.success') : document.querySelector('.failure');
+        messageDiv.style.display = 'block';
         setTimeout(() => {
-          messageDiv.style.opacity = 0; // Fade out the message
-          messageDiv.style.display = 'none'; // Hide message after fading out
-
-          // Show and fade in the stats
-          const statsDiv = document.querySelector('.stats');
-          statsDiv.style.display = 'flex';
-          setTimeout(() => statsDiv.style.opacity = 1, 100); // Slight delay to ensure 'display: flex' applies first
-        }, 1600); // 600ms for the message to fade in + 600ms pause
-      }, 100); // Short delay to ensure 'display: block' applies first
+          messageDiv.style.opacity = 1;
+          setTimeout(() => {
+            // After showing the message, proceed to display stats
+            messageDiv.style.opacity = 0;
+            setTimeout(() => {
+              messageDiv.style.display = 'none';
+              const statsDiv = document.querySelector('.stats');
+              statsDiv.style.display = 'flex';
+              setTimeout(() => statsDiv.style.opacity = 1, 100);
+            }, 600); // Pause after showing the message
+          }, 600); // Time for the message to fade in
+        }, 100); // Allow time for display: block to take effect before starting opacity transition
+      }, delayTime); // Wait for tiles to flip and hint to be shown if applicable
     }
 
   }, currentGuess.length * 500 + 600); // Wait for all tiles to flip, then an additional 600ms
@@ -175,8 +178,6 @@ function showStatsAfterDelay() {
     displayStats();
   }, 3000);
 }
-
-let incorrectGuesses = 0;
 
 function processGuess(guess) {
   let wordArray = wordOfTheDay.split(''); // Convert word of the day into an array for easy manipulation
@@ -198,12 +199,6 @@ function processGuess(guess) {
       result[i] = 'present';
       wordArray[wordArray.indexOf(guess[i])] = null; // Mark this letter as used
     }
-  }
-
-  if (incorrectGuesses >= 5) {
-    // Show the hint
-    document.getElementById('hint').textContent = hintOfTheDay; // Assuming you have an element with the ID 'hint'
-    document.getElementById('hint').style.display = 'block'; // Make the hint visible
   }
 
   // Update the UI based on the result for each letter in the guess
