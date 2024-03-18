@@ -472,9 +472,16 @@ function disableInput() {
 function displayStatsModal() {
     const completedMessage = document.querySelector('.completed-message');
 
-    // Click to open modal
-    completedMessage.style.display = 'block';
+    // Display the completed message
+    if (completedMessage) {
+        completedMessage.style.display = 'block';
+    }
 
+    // Simulate a click on the .nav-button-default-state to open the stats modal
+    const navButton = document.querySelector('.nav-button-default-state');
+    if (navButton) {
+        navButton.click();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
