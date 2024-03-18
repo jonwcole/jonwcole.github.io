@@ -248,13 +248,14 @@ function updateStats(win, guessesTaken) {
 
 function displayStats() {
   document.getElementById('games-played').textContent = stats.gamesPlayed;
-  document.getElementById('win-percentage').textContent = ((stats.wins / stats.gamesPlayed) * 100).toFixed(1) + '%';
+  // Calculate win percentage, round it to a whole number, and update the text content
+  const winPercentage = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
+  document.getElementById('win-percentage').textContent = `${winPercentage}%`;
   document.getElementById('current-streak').textContent = stats.currentStreak;
   document.getElementById('max-streak').textContent = stats.maxStreak;
 
   Object.entries(stats.guessDistribution).forEach(([guess, count]) => {
     document.getElementById(`distribution-${guess}`).textContent = count;
-    // Adjust if your guess distribution display requires different handling
   });
 }
 
