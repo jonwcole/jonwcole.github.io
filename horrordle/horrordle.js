@@ -472,9 +472,11 @@ function disableInput() {
 function displayStatsModal() {
     // Select the stats modal element
     const statsModal = document.querySelector('.stats');
+    const completedMessage = document.querySelector('.completed-message');
 
     // Ensure the modal is visible
     statsModal.style.display = 'flex';
+    completedMessage.style.display = 'block';
 
     // Animate the opacity to 1
     // You might need a slight delay to ensure the transition is visible if you're using CSS transitions
