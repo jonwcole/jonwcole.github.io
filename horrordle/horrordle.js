@@ -8,30 +8,30 @@ let incorrectGuesses = 0;
 let hintDisplayed = false;
 
 function loadGame() {
-  // Fetching the dictionary
-  fetch('https://jonwcole.github.io/horrordle/dictionary.json')
-    .then(response => response.json())
-    .then(data => {
-      dictionary = data.map(word => word.toUpperCase());
-    })
-    .catch(error => console.error('Error loading dictionary:', error));
+    fetch('https://jonwcole.github.io/horrordle/dictionary.json')
+        .then(response => response.json())
+        .then(data => {
+            dictionary = data.map(word => word.toUpperCase());
+        })
+        .catch(error => console.error('Error loading dictionary:', error));
 
-  // Adjusting for timezone offset
-  const now = new Date();
-  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert offset to milliseconds
-  const adjustedDate = new Date(now - timezoneOffset);
-  const today = adjustedDate.toISOString().slice(0, 10);
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000; 
+    const adjustedDate = new Date(now - timezoneOffset);
+    const today = adjustedDate.toISOString().slice(0, 10);
 
-  // Fetching the word of the day using the adjusted date
-  fetch('https://jonwcole.github.io/horrordle/words.json')
-    .then(response => response.json())
-    .then(data => {
-      wordOfTheDay = data[today]?.toUpperCase(); // Access the word directly using the date key
-      if (!wordOfTheDay) {
-        console.error('Word for today not found');
-      }
-    })
-    .catch(error => console.error('Error loading word of the day:', error));
+    fetch('https://jonwcole.github.io/horrordle/words.json')
+        .then(response => response.json())
+        .then(data => {
+            const todayData = data[today];
+            if (todayData) {
+                wordOfTheDay = todayData.word.toUpperCase(); // Correctly access the word
+                hintOfTheDay = todayData.hint; // Also retrieve the hint
+            } else {
+                console.error('Word for today not found');
+            }
+        })
+        .catch(error => console.error('Error loading word of the day:', error));
 }
 
 // Handling virtual keyboard clicks
