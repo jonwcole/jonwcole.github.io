@@ -9,39 +9,30 @@ let hintDisplayed = false;
 let hintOfTheDay = ''; // Make sure this is declared globally
 
 function loadGame() {
-    fetch('https://jonwcole.github.io/horrordle/dictionary.json')
-        .then(response => response.json())
-        .then(data => {
-            dictionary = data.map(word => word.toUpperCase());
-        })
-        .catch(error => console.error('Error loading dictionary:', error));
+  fetch('https://jonwcole.github.io/horrordle/dictionary.json')
+    .then(response => response.json())
+    .then(data => {
+      dictionary = data.map(word => word.toUpperCase());
+    })
+    .catch(error => console.error('Error loading dictionary:', error));
 
-    const now = new Date();
-    const timezoneOffset = now.getTimezoneOffset() * 60000; 
-    const adjustedDate = new Date(now - timezoneOffset);
-    const today = adjustedDate.toISOString().slice(0, 10);
+  const now = new Date();
+  const timezoneOffset = now.getTimezoneOffset() * 60000;
+  const adjustedDate = new Date(now.getTime() - timezoneOffset);
+  const today = adjustedDate.toISOString().slice(0, 10);
 
-    fetch('https://jonwcole.github.io/horrordle/words.json')
-        .then(response => response.json())
-        .then(data => {
-            const todayData = data[today];
-            if (todayData) {
-                wordOfTheDay = todayData.word.toUpperCase(); // Correctly access the word
-                hintOfTheDay = todayData.hint; // Also retrieve the hint
-            } else {
-                console.error('Word for today not found');
-            }
-        })
-        .then(data => {
-          const todayData = data[today];
-          if (todayData) {
-            wordOfTheDay = todayData.word.toUpperCase(); 
-            hintOfTheDay = todayData.hint; // Capture the hint
-          } else {
-            console.error('Word for today not found');
-          }
-        })
-        .catch(error => console.error('Error loading word of the day:', error));
+  fetch('https://jonwcole.github.io/horrordle/words.json')
+    .then(response => response.json())
+    .then(data => {
+      const todayData = data[today];
+      if (todayData) {
+        wordOfTheDay = todayData.word.toUpperCase();
+        hintOfTheDay = todayData.hint;
+      } else {
+        console.error('Word for today not found');
+      }
+    })
+    .catch(error => console.error('Error loading word of the day:', error));
 }
 
 // Handling virtual keyboard clicks
