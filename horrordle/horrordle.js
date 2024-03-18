@@ -473,6 +473,7 @@ function displayStatsModal() {
     // Select the stats modal element
     const statsModal = document.querySelector('.stats');
     const completedMessage = document.querySelector('.completed-message');
+    const hintElement = document.getElementById('hint');
 
     // Ensure the modal is visible
     statsModal.style.display = 'flex';
