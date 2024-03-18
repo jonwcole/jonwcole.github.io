@@ -115,7 +115,16 @@ function submitGuess() {
 
   const guess = currentGuess.join('').toUpperCase();
   if (!dictionary.includes(guess)) {
-    console.log("Not in word list");
+    // Get the current row
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
+    if (currentRow) {
+      currentRow.classList.add('shake');
+
+      // Remove the class after the animation duration to reset the state
+      setTimeout(() => {
+        currentRow.classList.remove('shake');
+      }, 800); // Match the duration of the animation
+    }
     return;
   }
 
