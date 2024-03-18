@@ -218,7 +218,10 @@ function displayHint() {
 function showStatsAfterDelay() {
   // Wait 3 seconds before showing stats and hiding success/failure message
   setTimeout(() => {
-    document.querySelector('.stats').style.display = 'flex';
+    const navButton = document.querySelector('.nav-button-default-state');
+    if (navButton) {
+        navButton.click();
+    }
     document.querySelectorAll('.success, .failure').forEach(el => el.style.display = 'none');
     // Optionally, refresh the stats display if needed
     displayStats();
@@ -387,7 +390,7 @@ function displayStats() {
 function generateResultString() {
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
-        'absent': '⬛',
+        'absent': '🟫',
         'present': '🟨',
         'correct': '🟥'
     };
