@@ -6,6 +6,7 @@ let maxAttempts = 6;
 let isGameOver = false;
 let incorrectGuesses = 0;
 let hintDisplayed = false;
+let hintOfTheDay = ''; // Make sure this is declared globally
 
 function loadGame() {
     fetch('https://jonwcole.github.io/horrordle/dictionary.json')
@@ -30,6 +31,15 @@ function loadGame() {
             } else {
                 console.error('Word for today not found');
             }
+        })
+        .then(data => {
+          const todayData = data[today];
+          if (todayData) {
+            wordOfTheDay = todayData.word.toUpperCase(); 
+            hintOfTheDay = todayData.hint; // Capture the hint
+          } else {
+            console.error('Word for today not found');
+          }
         })
         .catch(error => console.error('Error loading word of the day:', error));
 }
@@ -113,27 +123,34 @@ function updateCurrentGuessDisplay() {
 }
 
 function submitGuess() {
-  if (isGameOver || currentGuess.length < 5) return;
+    if (isGameOver || currentGuess.length < 5) return;
 
-  const guess = currentGuess.join('').toUpperCase();
-  if (!dictionary.includes(guess)) {
-    incorrectGuesses++; // Increment the counter for incorrect guesses
-    // Get the current row for the shake animation
-    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
-    if (currentRow) {
-      currentRow.classList.add('shake');
-      setTimeout(() => currentRow.classList.remove('shake'), 800); // Reset the shake after the animation
+    const guess = currentGuess.join('').toUpperCase();
+    
+    // Check if the guess is incorrect
+    if (guess !== wordOfTheDay) {
+        incorrectGuesses++; // Increment for any incorrect guess, regardless of being in the dictionary
+        
+        // Immediately show the hint if the threshold is met, no need to wait until the end of the function
+        if (incorrectGuesses >= 5) {
+            displayHint(); // Show hint function
+        }
     }
-    // If not in the dictionary and incorrect guesses are 5 or more, show the hint if not already shown
-    if (incorrectGuesses >= 5 && !hintDisplayed) {
-      document.getElementById('hint').textContent = hintOfTheDay; // Assuming you have defined hintOfTheDay when fetching the word
-      document.getElementById('hint').style.display = 'block';
-      hintDisplayed = true; // Prevent the hint from being shown multiple times
-    }
-    return; // Exit the function early if the guess is incorrect
-  }
 
-  processGuess(guess);
+    // Check if the guessed word is not in the dictionary
+    if (!dictionary.includes(guess)) {
+        // Trigger the shake effect for an invalid guess
+        const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
+        if (currentRow) {
+            currentRow.classList.add('shake');
+            setTimeout(() => {
+                currentRow.classList.remove('shake');
+            }, 800);
+        }
+        return; // Do not proceed further if the guess is not in the dictionary
+    }
+  
+    processGuess(guess); // Continue with processing the guess
 
   // Delay to account for letter flipping animation
   setTimeout(() => {
@@ -167,6 +184,22 @@ function submitGuess() {
     }
 
   }, currentGuess.length * 500 + 600); // Wait for all tiles to flip, then an additional 600ms
+
+  // After processing the guess, check for displaying the hint
+  if (incorrectGuesses >= 5) {
+    displayHint();
+  }
+}
+
+function displayHint() {
+  if (!hintDisplayed && hintOfTheDay) { // Check if the hint hasn't been displayed and is available
+    const hintElement = document.getElementById('hint');
+    if (hintElement) { // Ensure the element exists
+      hintElement.textContent = hintOfTheDay; // Set the hint text
+      hintElement.style.display = 'block'; // Make the hint visible
+      hintDisplayed = true; // Set flag to prevent re-display
+    }
+  }
 }
 
 function showStatsAfterDelay() {
@@ -321,6 +354,12 @@ displayStats(); // Call this function to update the UI with the latest stats
 function resetStats() {
   saveStats(defaultStats);
   displayStats(); // Refresh the stats display
+}
+
+function startNewGame() {
+  incorrectGuesses = 0;
+  hintDisplayed = false;
+  // Rest of game initialization...
 }
 
 document.addEventListener('DOMContentLoaded', loadGame); // This is correctly closed
