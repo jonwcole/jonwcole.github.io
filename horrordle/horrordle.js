@@ -307,6 +307,7 @@ const defaultStats = {
   guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
   lastGameWon: false,
   lastWinGuesses: null,
+  lastPlayedDate: null,
 };
 
 function loadStats() {
@@ -321,6 +322,8 @@ function saveStats(stats) {
 const stats = loadStats(); // Load stats at the start of the game
 
 function updateStats(win, guessesTaken) {
+  const today = new Date().toISOString().slice(0, 10); // Get the current date in YYYY-MM-DD format
+
   stats.gamesPlayed += 1;
   if (win) {
     stats.wins += 1;
@@ -333,6 +336,7 @@ function updateStats(win, guessesTaken) {
     stats.currentStreak = 0;
     stats.lastGameWon = false;
   }
+  stats.lastPlayedDate = today; // Update the lastPlayedDate with the current date
   saveStats(stats);
   displayStats(); // Update the display every time stats are updated
 }
