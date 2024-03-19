@@ -192,14 +192,12 @@ function handleGuessFinalization(guess) {
 }
 
 function displayEndGameMessage(won) {
-    // Display the hint if it's supposed to be shown
-    if (hintDisplayed) {
-        const hintElement = document.getElementById('hint');
-        if (hintElement && hintOfTheDay) {
-            hintElement.textContent = hintOfTheDay; // Set the hint text
-            hintElement.style.display = 'block';
-            setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
-        }
+    
+    const hintElement = document.querySelector('.hint');
+    if (hintElement && hintOfTheDay) {
+        hintElement.textContent = hintOfTheDay; // Set the hint text
+        hintElement.style.display = 'block';
+        setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
     }
 
     // Display the success or failure message
