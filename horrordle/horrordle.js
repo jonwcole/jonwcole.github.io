@@ -36,6 +36,7 @@ function loadGame() {
       }
     })
     .catch(error => console.error('Error loading word of the day:', error));
+}
 
   const hintElement = document.getElementById('hint');
   if (hintElement && hintOfTheDay) {
@@ -43,7 +44,6 @@ function loadGame() {
     hintElement.style.display = 'none'; // Initially hide the hint
     hintElement.style.opacity = 0; // Ensure it starts invisible
   }
-}
 
 // Handling virtual keyboard clicks
 document.getElementById('keyboard').addEventListener('click', function(e) {
