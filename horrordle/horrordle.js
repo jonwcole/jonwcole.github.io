@@ -19,26 +19,29 @@ function loadGame() {
     })
     .catch(error => console.error('Error loading dictionary:', error));
 
-    const now = new Date();
-    const timezoneOffset = now.getTimezoneOffset() * 60000;
-    const adjustedDate = new Date(now - timezoneOffset);
-    const today = adjustedDate.toISOString().slice(0, 10);
+  const now = new Date();
+  const timezoneOffset = now.getTimezoneOffset() * 60000;
+  const adjustedDate = new Date(now.getTime() - timezoneOffset);
+  const today = adjustedDate.toISOString().slice(0, 10);
 
-    fetch('https://jonwcole.github.io/horrordle/words.json')
-        .then(response => response.json())
-        .then(data => {
-            const wordData = data[today];
-            if (wordData) {
-                wordOfTheDay = wordData.word.toUpperCase(); // Assuming the word
-                hintOfTheDay = wordData.hint; // Assuming there's a hint
+  fetch('https://jonwcole.github.io/horrordle/words.json')
+    .then(response => response.json())
+    .then(data => {
+      const todayData = data[today];
+      if (todayData) {
+        wordOfTheDay = todayData.word.toUpperCase();
+        hintOfTheDay = todayData.hint;
 
-                // Store the date from words.json, indicating the current game's date
-                localStorage.setItem('gameDate', today);
-            } else {
-                console.error('Word for today not found');
-            }
-        })
-        .catch(error => console.error('Error loading word of the day:', error));
+        // Move this block inside the .then() where hintOfTheDay is set
+        const hintElement = document.getElementById('hint');
+        if (hintElement && hintOfTheDay) {
+          hintElement.textContent = hintOfTheDay; // Set the hint text
+        }
+      } else {
+        console.error('Word for today not found');
+      }
+    })
+    .catch(error => console.error('Error loading word of the day:', error));
 }
 
 // Handling virtual keyboard clicks
@@ -505,31 +508,6 @@ function displayStatsModal() {
         }
     }, 1200); // Delay of 1200ms
 }
-
-function checkForNewGame() {
-    const storedGameDate = localStorage.getItem('gameDate');
-    const now = new Date();
-    const timezoneOffset = now.getTimezoneOffset() * 60000;
-    const adjustedNow = new Date(now - timezoneOffset);
-    const today = adjustedNow.toISOString().slice(0, 10);
-
-    if (!storedGameDate || today > storedGameDate) {
-        // It's a new day or no game has been played, start a new game
-        resetGameState();
-        loadGame(); // This will fetch and set up the game for the new word
-    } else {
-        // Restore the previous game state if it's still the same day
-        restoreGameStateIfPlayedToday();
-    }
-}
-
-// Reset game state for a new game
-function resetGameState() {
-    // Reset any necessary variables and UI components for a new game
-    // For example, clear guesses, reset attempts, hide hints, etc.
-}
-
-document.addEventListener('DOMContentLoaded', checkForNewGame);
 
 document.addEventListener('DOMContentLoaded', function() {
     loadGame(); // Make sure this still runs to load the game data
