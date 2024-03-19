@@ -192,32 +192,37 @@ function handleGuessFinalization(guess) {
 }
 
 function displayEndGameMessage(won) {
+    // Display the hint if it's supposed to be shown
+    if (hintDisplayed) {
+        const hintElement = document.getElementById('hint');
+        if (hintElement && hintOfTheDay) {
+            hintElement.textContent = hintOfTheDay; // Set the hint text
+            hintElement.style.display = 'block';
+            setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
+        }
+    }
+
+    // Display the success or failure message
     const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
     messageDiv.style.display = 'block';
     setTimeout(() => {
         messageDiv.style.opacity = 1;
         setTimeout(() => {
-            // Fade out the end game message before showing the stats
+            // After showing the message, fade it out
             messageDiv.style.opacity = 0;
             setTimeout(() => {
-                messageDiv.style.display = 'none'; // Hide the messageDiv after fade out
+                messageDiv.style.display = 'none'; // Hide the message
 
-                // Simulate a click on the nav button to open the stats modal
+                // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
                 const navButton = document.querySelector('.nav-button-default-state');
                 if (navButton) {
                     navButton.click();
                 }
-
-                // Additionally, handle the hint display if needed
-                if (hintDisplayed) {
-                    const hintElement = document.getElementById('hint');
-                    hintElement.style.display = 'block';
-                    setTimeout(() => hintElement.style.opacity = 1, 10); // Fade in the hint
-                }
-            }, 600); // This is the fade out duration
-        }, 1200); // Time for the message to be visible before fading out
-    }, 100); // To allow for CSS transitions to apply
+            }, 600); // Wait for fade out
+        }, 1200); // Duration message is shown
+    }, 100); // Ensure display:block is applied
 }
+
 
 
 function displayHint() {
