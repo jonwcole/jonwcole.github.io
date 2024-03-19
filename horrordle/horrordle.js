@@ -197,9 +197,26 @@ function displayEndGameMessage(won) {
     setTimeout(() => {
         messageDiv.style.opacity = 1;
         setTimeout(() => {
-            // Further actions or transitions after showing the message
-        }, 600); // Adjust as needed
-    }, 100); // To allow for CSS transitions
+            // Fade out the end game message before showing the stats
+            messageDiv.style.opacity = 0;
+            setTimeout(() => {
+                messageDiv.style.display = 'none'; // Hide the messageDiv after fade out
+
+                // Simulate a click on the nav button to open the stats modal
+                const navButton = document.querySelector('.nav-button-default-state');
+                if (navButton) {
+                    navButton.click();
+                }
+
+                // Additionally, handle the hint display if needed
+                if (hintDisplayed) {
+                    const hintElement = document.getElementById('hint');
+                    hintElement.style.display = 'block';
+                    setTimeout(() => hintElement.style.opacity = 1, 10); // Fade in the hint
+                }
+            }, 600); // This is the fade out duration
+        }, 1200); // Time for the message to be visible before fading out
+    }, 100); // To allow for CSS transitions to apply
 }
 
 
