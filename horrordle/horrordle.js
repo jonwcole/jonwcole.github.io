@@ -139,9 +139,20 @@ function submitGuess() {
     if (isGameOver || currentGuess.length < 5) return;
 
     const guess = currentGuess.join('').toUpperCase();
+    
+    // Check if the guess is incorrect
+    if (guess !== wordOfTheDay) {
+        incorrectGuesses++; // Increment for any incorrect guess, regardless of being in the dictionary
+        
+        // Immediately show the hint if the threshold is met, no need to wait until the end of the function
+        if (incorrectGuesses >= 5) {
+            displayHint(); // Show hint function
+        }
+    }
 
-    // If the guessed word is not in the dictionary, trigger the shake effect
+    // Check if the guessed word is not in the dictionary
     if (!dictionary.includes(guess)) {
+        // Trigger the shake effect for an invalid guess
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
         if (currentRow) {
             currentRow.classList.add('shake');
@@ -151,58 +162,48 @@ function submitGuess() {
         }
         return; // Do not proceed further if the guess is not in the dictionary
     }
-
-    // The guessed word is in the dictionary
-    if (guess !== wordOfTheDay) {
-        incorrectGuesses++; // Increment for incorrect but valid guesses
-        // Check if it's time to show the hint
-        if (incorrectGuesses >= 5 && !hintDisplayed) {
-            displayHint();
-        }
-    }
-
+  
     processGuess(guess); // Continue with processing the guess
 
-    // Delay for animations
-    setTimeout(() => {
-        finalizeGuess();
-    }, currentGuess.length * 500 + 600); // Adjust timing as needed
-}
-
-function finalizeGuess() {
+  // Delay to account for letter flipping animation
+  setTimeout(() => {
     currentAttempt++;
     currentGuess = [];
 
     if (guess === wordOfTheDay || currentAttempt >= maxAttempts) {
-        isGameOver = true;
-        updateStats(guess === wordOfTheDay, currentAttempt);
+      isGameOver = true;
+      updateStats(guess === wordOfTheDay, currentAttempt);
 
-        // Show success or failure message after animations
-        showEndGameMessage(); // This function would handle showing the appropriate message and stats modal
-    }
-}
-
-function showEndGameMessage() {
-    let delayTime = (hintDisplayed ? 600 : 0);
-    setTimeout(() => {
+      // Delay for the flip animations plus an additional time for showing the hint if needed
+      let delayTime = currentGuess.length * 500 + (hintDisplayed ? 600 : 0);
+      
+      setTimeout(() => {
         const messageDiv = guess === wordOfTheDay ? document.querySelector('.success') : document.querySelector('.failure');
         messageDiv.style.display = 'block';
-        animateMessageAndShowStats(messageDiv);
-    }, delayTime);
-}
-
-function animateMessageAndShowStats(messageDiv) {
-    messageDiv.style.opacity = 1;
-    setTimeout(() => {
-        messageDiv.style.opacity = 0;
         setTimeout(() => {
-            messageDiv.style.display = 'none';
-            // Assuming you have a function or method to display the stats modal
-            displayStatsModal();
-        }, 600); // Adjust timing as needed
-    }, 1200); // Adjust timing as needed
-}
+          messageDiv.style.opacity = 1;
+          setTimeout(() => {
+            // After showing the message, proceed to display stats
+            messageDiv.style.opacity = 0;
+            setTimeout(() => {
+              messageDiv.style.display = 'none';
+              const navButton = document.querySelector('.nav-button-default-state');
+              if (navButton) {
+                  navButton.click();
+              }
+            }, 600); // Pause after showing the message
+          }, 1200); // Time for the message to fade in
+        }, 100); // Allow time for display: block to take effect before starting opacity transition
+      }, delayTime); // Wait for tiles to flip and hint to be shown if applicable
+    }
 
+  }, currentGuess.length * 500 + 600); // Wait for all tiles to flip, then an additional 600ms
+
+  // After processing the guess, check for displaying the hint
+  if (incorrectGuesses >= 5) {
+    displayHint();
+  }
+}
 
 function displayHint() {
   const hintElement = document.getElementById('hint');
