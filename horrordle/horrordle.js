@@ -12,17 +12,12 @@ let gameGuessLetters = []; // This will store the actual letters guessed in each
 
 
 function loadGame() {
-  fetch('https://jonwcole.github.io/horrordle/dictionary.json')
-    .then(response => response.json())
-    .then(data => {
-      dictionary = data.map(word => word.toUpperCase());
-    })
-    .catch(error => console.error('Error loading dictionary:', error));
-
-  const now = new Date();
-  const timezoneOffset = now.getTimezoneOffset() * 60000;
-  const adjustedDate = new Date(now.getTime() - timezoneOffset);
-  const today = adjustedDate.toISOString().slice(0, 10);
+    fetch('https://jonwcole.github.io/horrordle/dictionary.json')
+        .then(response => response.json())
+        .then(data => {
+            dictionary = data.map(word => word.toUpperCase());
+        })
+        .catch(error => console.error('Error loading dictionary:', error));
 
     fetch('https://jonwcole.github.io/horrordle/words.json')
         .then(response => response.json())
@@ -38,19 +33,21 @@ function loadGame() {
                 hintOfTheDay = wordData.hint;
                 gameDate = today; // Set the game date to today, based on words.json
                 localStorage.setItem('gameDate', gameDate); // Store this date in localStorage
-            const hintElement = document.getElementById('hint');
-            if (hintElement && hintOfTheDay) {
-              hintElement.textContent = hintOfTheDay; // Set the hint text
-              hintElement.style.display = 'none'; // Initially hide the hint
-              hintElement.style.opacity = 0; // Ensure it starts invisible
-            }
-                
+
+                // Set the hint text early and keep it hidden
+                const hintElement = document.getElementById('hint');
+                if (hintElement && hintOfTheDay) {
+                    hintElement.textContent = hintOfTheDay; // Set the hint text
+                    hintElement.style.display = 'none'; // Initially hide the hint
+                    hintElement.style.opacity = 0; // Ensure it starts invisible
+                }
             } else {
                 console.error('Word for today not found');
             }
         })
         .catch(error => console.error('Error loading word of the day:', error));
 }
+
 
 // Handling virtual keyboard clicks
 document.getElementById('keyboard').addEventListener('click', function(e) {
