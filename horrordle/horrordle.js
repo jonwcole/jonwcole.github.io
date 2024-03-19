@@ -19,21 +19,25 @@ function loadGame() {
     })
     .catch(error => console.error('Error loading dictionary:', error));
 
-    const now = new Date();
-    const timezoneOffset = now.getTimezoneOffset() * 60000;
-    const adjustedDate = new Date(now - timezoneOffset);
-    const today = adjustedDate.toISOString().slice(0, 10);
+  const now = new Date();
+  const timezoneOffset = now.getTimezoneOffset() * 60000;
+  const adjustedDate = new Date(now.getTime() - timezoneOffset);
+  const today = adjustedDate.toISOString().slice(0, 10);
 
     fetch('https://jonwcole.github.io/horrordle/words.json')
         .then(response => response.json())
         .then(data => {
+            const now = new Date();
+            const timezoneOffset = now.getTimezoneOffset() * 60000;
+            const adjustedNow = new Date(now - timezoneOffset);
+            const today = adjustedNow.toISOString().slice(0, 10);
+
             const wordData = data[today];
             if (wordData) {
-                wordOfTheDay = wordData.word.toUpperCase(); // Assuming the word
-                hintOfTheDay = wordData.hint; // Assuming there's a hint
-
-                // Store the date from words.json, indicating the current game's date
-                localStorage.setItem('gameDate', today);
+                wordOfTheDay = wordData.word.toUpperCase();
+                hintOfTheDay = wordData.hint;
+                gameDate = today; // Set the game date to today, based on words.json
+                localStorage.setItem('gameDate', gameDate); // Store this date in localStorage
             } else {
                 console.error('Word for today not found');
             }
@@ -352,8 +356,6 @@ function saveStats(stats) {
 const stats = loadStats(); // Load stats at the start of the game
 
 function updateStats(win, guessesTaken) {
-  const today = new Date().toISOString().slice(0, 10); // Get the current date in YYYY-MM-DD format
-
   stats.gamesPlayed += 1;
   if (win) {
     stats.wins += 1;
@@ -366,7 +368,9 @@ function updateStats(win, guessesTaken) {
     stats.currentStreak = 0;
     stats.lastGameWon = false;
   }
-  stats.lastPlayedDate = today; // Update the lastPlayedDate with the current date
+
+  // Use the globally stored gameDate, which corresponds to the date from words.json
+  stats.lastPlayedDate = gameDate;
   saveStats(stats);
   displayStats(); // Update the display every time stats are updated
 }
