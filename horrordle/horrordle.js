@@ -31,19 +31,20 @@ function loadGame() {
       if (todayData) {
         wordOfTheDay = todayData.word.toUpperCase();
         hintOfTheDay = todayData.hint;
+
+        // Move this block inside the .then() where hintOfTheDay is set
+        const hintElement = document.getElementById('hint');
+        if (hintElement && hintOfTheDay) {
+          hintElement.textContent = hintOfTheDay; // Set the hint text
+          hintElement.style.display = 'none'; // Initially hide the hint
+          hintElement.style.opacity = 0; // Ensure it starts invisible
+        }
       } else {
         console.error('Word for today not found');
       }
     })
     .catch(error => console.error('Error loading word of the day:', error));
 }
-
-  const hintElement = document.getElementById('hint');
-  if (hintElement && hintOfTheDay) {
-    hintElement.textContent = hintOfTheDay; // Set the hint text early
-    hintElement.style.display = 'none'; // Initially hide the hint
-    hintElement.style.opacity = 0; // Ensure it starts invisible
-  }
 
 // Handling virtual keyboard clicks
 document.getElementById('keyboard').addEventListener('click', function(e) {
