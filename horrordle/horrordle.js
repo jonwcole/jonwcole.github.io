@@ -38,6 +38,13 @@ function loadGame() {
                 hintOfTheDay = wordData.hint;
                 gameDate = today; // Set the game date to today, based on words.json
                 localStorage.setItem('gameDate', gameDate); // Store this date in localStorage
+            const hintElement = document.getElementById('hint');
+            if (hintElement && hintOfTheDay) {
+              hintElement.textContent = hintOfTheDay; // Set the hint text
+              hintElement.style.display = 'none'; // Initially hide the hint
+              hintElement.style.opacity = 0; // Ensure it starts invisible
+            }
+                
             } else {
                 console.error('Word for today not found');
             }
