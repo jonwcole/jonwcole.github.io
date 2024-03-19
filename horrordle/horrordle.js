@@ -36,6 +36,13 @@ function loadGame() {
       }
     })
     .catch(error => console.error('Error loading word of the day:', error));
+
+  const hintElement = document.getElementById('hint');
+  if (hintElement && hintOfTheDay) {
+    hintElement.textContent = hintOfTheDay; // Set the hint text early
+    hintElement.style.display = 'none'; // Initially hide the hint
+    hintElement.style.opacity = 0; // Ensure it starts invisible
+  }
 }
 
 // Handling virtual keyboard clicks
@@ -201,17 +208,16 @@ function submitGuess() {
 
 function displayHint() {
   const hintElement = document.getElementById('hint');
-  if (hintElement && !hintDisplayed && hintOfTheDay) {
-    hintElement.textContent = hintOfTheDay; // Set the hint text
-    hintElement.style.display = 'block'; // Make the element layout-visible
+  if (hintElement && !hintDisplayed) {
+    hintElement.style.display = 'block'; // Make the hint visible
 
-    // Force a reflow to ensure the transition is triggered
+    // Force a reflow to ensure the opacity transition is triggered
     void hintElement.offsetWidth;
 
-    // Now start the fade-in
+    // Start the fade-in
     hintElement.style.opacity = 1;
 
-    hintDisplayed = true; // Prevent re-displaying the hint
+    hintDisplayed = true; // Mark the hint as displayed
   }
 }
 
