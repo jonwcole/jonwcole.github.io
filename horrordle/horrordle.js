@@ -218,7 +218,7 @@ function displayEndGameMessage(won) {
                 }
             }, 1200); // Wait for fade out
         }, 1200); // Duration message is shown
-    }, 100); // Ensure display:block is applied
+    }, 600); // Ensure display:block is applied
 }
 
 
