@@ -216,9 +216,9 @@ function displayEndGameMessage(won) {
                 if (navButton) {
                     navButton.click();
                 }
-            }, 10); // Wait for fade out
-        }, 4000); // Duration message is shown
-    }, 1200); // Ensure display:block is applied
+            }, 400); // Wait for fade out
+        }, 2400); // Duration message is shown
+    }, 600); // Ensure display:block is applied
 }
 
 
