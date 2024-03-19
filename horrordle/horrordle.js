@@ -139,71 +139,69 @@ function submitGuess() {
     if (isGameOver || currentGuess.length < 5) return;
 
     const guess = currentGuess.join('').toUpperCase();
-    
-    // Check if the guess is incorrect
-    if (guess !== wordOfTheDay) {
-        incorrectGuesses++; // Increment for any incorrect guess, regardless of being in the dictionary
-        
-        // Immediately show the hint if the threshold is met, no need to wait until the end of the function
-        if (incorrectGuesses >= 5) {
-            displayHint(); // Show hint function
-        }
+
+    // First, handle the case where the guess is not a valid word
+    if (!dictionary.includes(guess)) {
+        shakeCurrentRow(); // This will be a new function to handle the shake effect
+        return; // Exit the function early as the guess is invalid
     }
 
-    // Check if the guessed word is not in the dictionary
-    if (!dictionary.includes(guess)) {
-        // Trigger the shake effect for an invalid guess
-        const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
-        if (currentRow) {
-            currentRow.classList.add('shake');
-            setTimeout(() => {
-                currentRow.classList.remove('shake');
-            }, 800);
-        }
-        return; // Do not proceed further if the guess is not in the dictionary
+    // The guess is valid; check if it's correct
+    if (guess !== wordOfTheDay) {
+        incorrectGuesses++; // Only increment incorrectGuesses for valid guesses
     }
-  
+
     processGuess(guess); // Continue with processing the guess
 
-  // Delay to account for letter flipping animation
-  setTimeout(() => {
+    // Wait for the flip animation to complete before potentially ending the game
+    setTimeout(() => {
+        handleGuessFinalization(guess); // New function to handle what happens after a guess is processed
+    }, currentGuess.length * 500 + 600); // Adjust as necessary
+}
+
+function shakeCurrentRow() {
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
+    if (currentRow) {
+        currentRow.classList.add('shake');
+        setTimeout(() => {
+            currentRow.classList.remove('shake');
+        }, 800); // Match the CSS animation duration
+    }
+}
+
+function handleGuessFinalization(guess) {
     currentAttempt++;
     currentGuess = [];
 
     if (guess === wordOfTheDay || currentAttempt >= maxAttempts) {
-      isGameOver = true;
-      updateStats(guess === wordOfTheDay, currentAttempt);
+        isGameOver = true;
+        updateStats(guess === wordOfTheDay, currentAttempt);
 
-      // Delay for the flip animations plus an additional time for showing the hint if needed
-      let delayTime = currentGuess.length * 500 + (hintDisplayed ? 600 : 0);
-      
-      setTimeout(() => {
-        const messageDiv = guess === wordOfTheDay ? document.querySelector('.success') : document.querySelector('.failure');
-        messageDiv.style.display = 'block';
+        // Delay to account for the hint display if needed
+        let delayTime = hintDisplayed ? 1200 : 0;
+        
         setTimeout(() => {
-          messageDiv.style.opacity = 1;
-          setTimeout(() => {
-            // After showing the message, proceed to display stats
-            messageDiv.style.opacity = 0;
-            setTimeout(() => {
-              messageDiv.style.display = 'none';
-              const navButton = document.querySelector('.nav-button-default-state');
-              if (navButton) {
-                  navButton.click();
-              }
-            }, 600); // Pause after showing the message
-          }, 1200); // Time for the message to fade in
-        }, 100); // Allow time for display: block to take effect before starting opacity transition
-      }, delayTime); // Wait for tiles to flip and hint to be shown if applicable
+            displayEndGameMessage(guess === wordOfTheDay);
+        }, delayTime);
     }
 
-  }, currentGuess.length * 500 + 600); // Wait for all tiles to flip, then an additional 600ms
-
-  // After processing the guess, check for displaying the hint
-  if (incorrectGuesses >= 5) {
-    displayHint();
-  }
+    // Check if it's time to show the hint (moved from earlier to ensure it's based on valid guesses only)
+    if (incorrectGuesses >= 5 && !hintDisplayed) {
+        displayHint();
+    }
 }
+
+function displayEndGameMessage(won) {
+    const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
+    messageDiv.style.display = 'block';
+    setTimeout(() => {
+        messageDiv.style.opacity = 1;
+        setTimeout(() => {
+            // Further actions or transitions after showing the message
+        }, 600); // Adjust as needed
+    }, 100); // To allow for CSS transitions
+}
+
 
 function displayHint() {
   const hintElement = document.getElementById('hint');
