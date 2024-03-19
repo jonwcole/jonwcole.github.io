@@ -36,8 +36,6 @@ function loadGame() {
         const hintElement = document.getElementById('hint');
         if (hintElement && hintOfTheDay) {
           hintElement.textContent = hintOfTheDay; // Set the hint text
-          hintElement.style.display = 'none'; // Initially hide the hint
-          hintElement.style.opacity = 0; // Ensure it starts invisible
         }
       } else {
         console.error('Word for today not found');
