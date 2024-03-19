@@ -19,29 +19,26 @@ function loadGame() {
     })
     .catch(error => console.error('Error loading dictionary:', error));
 
-  const now = new Date();
-  const timezoneOffset = now.getTimezoneOffset() * 60000;
-  const adjustedDate = new Date(now.getTime() - timezoneOffset);
-  const today = adjustedDate.toISOString().slice(0, 10);
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    const adjustedDate = new Date(now - timezoneOffset);
+    const today = adjustedDate.toISOString().slice(0, 10);
 
-  fetch('https://jonwcole.github.io/horrordle/words.json')
-    .then(response => response.json())
-    .then(data => {
-      const todayData = data[today];
-      if (todayData) {
-        wordOfTheDay = todayData.word.toUpperCase();
-        hintOfTheDay = todayData.hint;
+    fetch('https://jonwcole.github.io/horrordle/words.json')
+        .then(response => response.json())
+        .then(data => {
+            const wordData = data[today];
+            if (wordData) {
+                wordOfTheDay = wordData.word.toUpperCase(); // Assuming the word
+                hintOfTheDay = wordData.hint; // Assuming there's a hint
 
-        // Move this block inside the .then() where hintOfTheDay is set
-        const hintElement = document.getElementById('hint');
-        if (hintElement && hintOfTheDay) {
-          hintElement.textContent = hintOfTheDay; // Set the hint text
-        }
-      } else {
-        console.error('Word for today not found');
-      }
-    })
-    .catch(error => console.error('Error loading word of the day:', error));
+                // Store the date from words.json, indicating the current game's date
+                localStorage.setItem('gameDate', today);
+            } else {
+                console.error('Word for today not found');
+            }
+        })
+        .catch(error => console.error('Error loading word of the day:', error));
 }
 
 // Handling virtual keyboard clicks
