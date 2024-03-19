@@ -468,10 +468,20 @@ function disableInput() {
 
 function displayStatsModal() {
     const completedMessage = document.querySelector('.completed-message');
+    const hintElement = document.getElementById('hint');
 
     // Display the completed message
     if (completedMessage) {
         completedMessage.style.display = 'block';
+    }
+
+    // Also ensure the hint is visible
+    if (hintElement) {
+        hintElement.style.display = 'block';
+        // Start transitioning to visible if it was previously hidden
+        setTimeout(() => {
+            hintElement.style.opacity = 1;
+        }, 100); // A short delay to ensure the display change has taken effect
     }
 
     // Wait for 1200ms before simulating a click on the .nav-button-default-state to open the stats modal
