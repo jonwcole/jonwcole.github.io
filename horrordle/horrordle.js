@@ -39,6 +39,10 @@ function loadGame() {
                 if (hintElement && hintOfTheDay) {
                     hintElement.textContent = hintOfTheDay; // Set the hint text
                 }
+                const wordElement = document.getElementById('word');
+                if (wordElement && wordOfTheDay) {
+                  wordElement.textContent = wordOfTheDay; // Set the word text
+                }
             } else {
                 console.error('Word for today not found');
             }
@@ -517,10 +521,6 @@ function displayStatsModal() {
     }
 
     //set the word text
-    const wordElement = document.getElementById('word');
-    if (wordElement && wordOfTheDay) {
-      wordElement.textContent = wordOfTheDay; // Set the word text
-    }
     wordElement.style.display = 'inline-block';
     wordElement.style.opacity = 1;
 
