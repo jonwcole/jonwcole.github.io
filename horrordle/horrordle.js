@@ -182,19 +182,28 @@ function handleGuessFinalization(guess) {
     currentAttempt++;
     currentGuess = [];
 
-    if (guess === wordOfTheDay || currentAttempt >= maxAttempts) {
-        isGameOver = true;
-        updateStats(guess === wordOfTheDay, currentAttempt);
+    const won = guess === wordOfTheDay;
+    const lost = !won && currentAttempt >= maxAttempts;
 
-        // Delay to account for the hint display if needed
-        let delayTime = hintDisplayed ? 1200 : 0;
-        
+    if (won || lost) {
+        isGameOver = true;
+        updateStats(won, currentAttempt);
+
+        // Additional code for when the user loses
+        if (lost) {
+            // Display the Word of the Day
+            const wordElement = document.getElementById('word');
+            wordElement.style.display = 'inline-block';
+            setTimeout(() => {
+                wordElement.style.opacity = 1;
+            }, 100); // A short delay to ensure the display change has taken effect
+        }
+
         setTimeout(() => {
-            displayEndGameMessage(guess === wordOfTheDay);
-        }, delayTime);
+            displayEndGameMessage(won);
+        }, hintDisplayed ? 1200 : 0);
     }
 
-    // Check if it's time to show the hint (moved from earlier to ensure it's based on valid guesses only)
     if (incorrectGuesses >= 5 && !hintDisplayed) {
         displayHint();
     }
@@ -365,23 +374,22 @@ function saveStats(stats) {
 const stats = loadStats(); // Load stats at the start of the game
 
 function updateStats(win, guessesTaken) {
-  stats.gamesPlayed += 1;
-  if (win) {
-    stats.wins += 1;
-    stats.currentStreak += 1;
-    stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-    stats.guessDistribution[guessesTaken] += 1;
-    stats.lastGameWon = true;
-    stats.lastWinGuesses = guessesTaken;
-  } else {
-    stats.currentStreak = 0;
-    stats.lastGameWon = false;
-  }
-
-  // Use the globally stored gameDate, which corresponds to the date from words.json
-  stats.lastPlayedDate = gameDate;
-  saveStats(stats);
-  displayStats(); // Update the display every time stats are updated
+    stats.gamesPlayed += 1;
+    if (win) {
+        stats.wins += 1;
+        stats.currentStreak += 1;
+        stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+        stats.guessDistribution[guessesTaken] += 1;
+        stats.lastGameWon = true;
+        stats.lastWinGuesses = guessesTaken;
+    } else {
+        stats.currentStreak = 0;
+        stats.lastGameWon = false;
+    }
+    stats.lastPlayedDate = gameDate;
+    localStorage.setItem('gameOutcome', win ? 'won' : 'lost');
+    saveStats(stats);
+    displayStats(); // Update the display every time stats are updated
 }
 
 function displayStats() {
@@ -458,6 +466,7 @@ function getLocalDateISOString() {
 function restoreGameStateIfPlayedToday() {
     const stats = JSON.parse(localStorage.getItem('stats')) || {};
     const today = getLocalDateISOString(); // Use local date
+    const gameOutcome = localStorage.getItem('gameOutcome');
 
     if (stats.lastPlayedDate === today) {
         // Prevent further input
@@ -466,6 +475,15 @@ function restoreGameStateIfPlayedToday() {
         // Restore game state
         const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
         const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+
+        // Display the Word of the Day if the user lost their last game
+        if (gameOutcome === 'lost') {
+            const wordElement = document.getElementById('word');
+            wordElement.style.display = 'inline-block';
+            setTimeout(() => {
+                wordElement.style.opacity = 1;
+            }, 100);
+        }
 
         gameGuessLetters.forEach((guessLetters, attempt) => {
             const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
