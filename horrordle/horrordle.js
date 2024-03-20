@@ -520,11 +520,13 @@ function displayStatsModal() {
         }, 100); // A short delay to ensure the display change has taken effect
     }
 
-    const wordElement = document.querySelector('.word');
+    const wordElement = document.getElementById('word');
 
     //set the word text
     wordElement.style.display = 'inline-block';
-    wordElement.style.opacity = 1;
+    setTimeout(() => {
+        wordElement.style.opacity = 1;
+    }, 100); // A short delay to ensure the display change has taken effect
 
     // Wait for 1200ms before simulating a click on the .nav-button-default-state to open the stats modal
     setTimeout(() => {
