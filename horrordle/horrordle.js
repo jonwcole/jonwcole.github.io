@@ -418,7 +418,7 @@ function displayStats() {
 function generateResultString() {
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
-        'absent': '🟫',
+        'absent': '⬛',
         'present': '🟨',
         'correct': '🟥'
     };
