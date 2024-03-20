@@ -213,6 +213,7 @@ function displayEndGameMessage(won) {
       wordElement.textContent = wordOfTheDay; // Set the word text
     }
     wordElement.style.display = 'inline-block';
+    wordElement.style.opacity = 0;
 
     setTimeout(() => {
         messageDiv.style.opacity = 1;
