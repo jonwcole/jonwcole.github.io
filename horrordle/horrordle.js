@@ -203,19 +203,6 @@ function displayEndGameMessage(won) {
         setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
     }
 
-    const wordData = data[today];
-    if (wordData) {
-        wordOfTheDay = wordData.word.toUpperCase();
-      }
-
-    //set the word text
-    const wordElement = document.getElementById('word');
-    if (wordElement && wordOfTheDay) {
-        wordElement.textContent = wordOfTheDay; // Set the word text
-        wordElement.style.display = 'inline-block';
-        setTimeout(() => wordElement.style.opacity = 1, 10); // Start the fade-in
-    }
-
     // Display the success or failure message
     const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
     messageDiv.style.display = 'block';
