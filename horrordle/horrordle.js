@@ -520,7 +520,7 @@ function displayStatsModal() {
         }, 100); // A short delay to ensure the display change has taken effect
     }
 
-    const wordElement = document.getElementById('word');
+    const wordElement = document.querySelector('.word');
 
     //set the word text
     wordElement.style.display = 'inline-block';
