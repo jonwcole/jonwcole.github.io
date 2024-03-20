@@ -39,6 +39,8 @@ function loadGame() {
                 if (hintElement && hintOfTheDay) {
                     hintElement.textContent = hintOfTheDay; // Set the hint text
                 }
+
+                // Set the word text early
                 const wordElement = document.getElementById('word');
                 if (wordElement && wordOfTheDay) {
                   wordElement.textContent = wordOfTheDay; // Set the word text
@@ -206,6 +208,14 @@ function displayEndGameMessage(won) {
         hintElement.style.display = 'block';
         setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
     }
+
+    const wordElement = document.getElementById('word');
+
+    //set the word text
+    wordElement.style.display = 'inline-block';
+    setTimeout(() => {
+        wordElement.style.opacity = 1;
+    }, 100); // A short delay to ensure the display change has taken effect
 
     // Display the success or failure message
     const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
