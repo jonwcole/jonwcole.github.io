@@ -193,7 +193,7 @@ function handleGuessFinalization(guess) {
         if (lost) {
             // Display the Word of the Day
             const wordElement = document.getElementById('word');
-            wordElement.style.display = 'inline-block';
+            wordElement.style.display = 'flex';
             setTimeout(() => {
                 wordElement.style.opacity = 1;
             }, 100); // A short delay to ensure the display change has taken effect
@@ -479,7 +479,7 @@ function restoreGameStateIfPlayedToday() {
         // Display the Word of the Day if the user lost their last game
         if (gameOutcome === 'lost') {
             const wordElement = document.getElementById('word');
-            wordElement.style.display = 'inline-block';
+            wordElement.style.display = 'flex';
             setTimeout(() => {
                 wordElement.style.opacity = 1;
             }, 100);
