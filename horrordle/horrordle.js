@@ -209,14 +209,6 @@ function displayEndGameMessage(won) {
         setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
     }
 
-    const wordElement = document.getElementById('word');
-
-    //set the word text
-    wordElement.style.display = 'inline-block';
-    setTimeout(() => {
-        wordElement.style.opacity = 1;
-    }, 100); // A short delay to ensure the display change has taken effect
-
     // Display the success or failure message
     const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
     messageDiv.style.display = 'block';
@@ -529,14 +521,6 @@ function displayStatsModal() {
             hintElement.style.opacity = 1;
         }, 100); // A short delay to ensure the display change has taken effect
     }
-
-    const wordElement = document.getElementById('word');
-
-    //set the word text
-    wordElement.style.display = 'inline-block';
-    setTimeout(() => {
-        wordElement.style.opacity = 1;
-    }, 100); // A short delay to ensure the display change has taken effect
 
     // Wait for 1200ms before simulating a click on the .nav-button-default-state to open the stats modal
     setTimeout(() => {
