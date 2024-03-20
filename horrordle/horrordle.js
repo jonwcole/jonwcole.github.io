@@ -436,9 +436,21 @@ function startNewGame() {
   // Rest of game initialization...
 }
 
+function getLocalDateISOString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // getMonth() returns 0-11
+    const day = now.getDate();
+    // Format month and day to ensure two digits
+    const formattedMonth = month < 10 ? `0${month}` : month;
+    const formattedDay = day < 10 ? `0${day}` : day;
+    // Construct an ISO-like string with local date components
+    return `${year}-${formattedMonth}-${formattedDay}`;
+}
+
 function restoreGameStateIfPlayedToday() {
     const stats = JSON.parse(localStorage.getItem('stats')) || {};
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getLocalDateISOString(); // Use local date
 
     if (stats.lastPlayedDate === today) {
         // Prevent further input
