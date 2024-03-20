@@ -524,6 +524,14 @@ function displayStatsModal() {
         }, 100); // A short delay to ensure the display change has taken effect
     }
 
+    //set the word text
+    const wordElement = document.getElementById('word');
+    if (wordElement && wordOfTheDay) {
+      wordElement.textContent = wordOfTheDay; // Set the word text
+    }
+    wordElement.style.display = 'inline-block';
+    wordElement.style.opacity = 1;
+
     // Wait for 1200ms before simulating a click on the .nav-button-default-state to open the stats modal
     setTimeout(() => {
         const navButton = document.querySelector('.nav-button-default-state');
