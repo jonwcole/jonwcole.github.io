@@ -41,7 +41,7 @@ function loadGame() {
                 }
 
                 // Set the word text early
-                const wordElement = document.getElementById('word');
+                const wordElement = document.getElementById('word-content');
                 if (wordElement && wordOfTheDay) {
                   wordElement.textContent = wordOfTheDay; // Set the word text
                 }
