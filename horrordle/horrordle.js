@@ -34,7 +34,13 @@ function loadGame() {
                 gameDate = today; // Set the game date to today, based on words.json
                 localStorage.setItem('gameDate', gameDate); // Store this date in localStorage
 
-                // Set the hint text early and keep it hidden
+                //set the word text
+                const wordElement = document.getElementById('word');
+                if (wordElement && wordOfTheDay) {
+                  wordElement.textContent = wordOfTheDay; // Set the word text
+                }
+
+                // Set the hint text early
                 const hintElement = document.getElementById('hint');
                 if (hintElement && hintOfTheDay) {
                     hintElement.textContent = hintOfTheDay; // Set the hint text
