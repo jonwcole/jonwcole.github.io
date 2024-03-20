@@ -203,17 +203,17 @@ function displayEndGameMessage(won) {
         setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
     }
 
-    // Display the success or failure message
-    const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
-    messageDiv.style.display = 'block';
-
     //set the word text
     const wordElement = document.getElementById('word');
     if (wordElement && wordOfTheDay) {
-      wordElement.textContent = wordOfTheDay; // Set the word text
+        wordElement.textContent = wordOfTheDay; // Set the word text
+        wordElement.style.display = 'inline-block';
+        setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
     }
-    wordElement.style.display = 'inline-block';
-    wordElement.style.opacity = 1;
+
+    // Display the success or failure message
+    const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
+    messageDiv.style.display = 'block';
 
     setTimeout(() => {
         messageDiv.style.opacity = 1;
