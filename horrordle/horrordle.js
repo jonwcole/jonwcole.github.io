@@ -34,12 +34,6 @@ function loadGame() {
                 gameDate = today; // Set the game date to today, based on words.json
                 localStorage.setItem('gameDate', gameDate); // Store this date in localStorage
 
-                //set the word text
-                const wordElement = document.getElementById('word');
-                if (wordElement && wordOfTheDay) {
-                  wordElement.textContent = wordOfTheDay; // Set the word text
-                }
-
                 // Set the hint text early
                 const hintElement = document.getElementById('hint');
                 if (hintElement && hintOfTheDay) {
@@ -212,6 +206,14 @@ function displayEndGameMessage(won) {
     // Display the success or failure message
     const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
     messageDiv.style.display = 'block';
+
+    //set the word text
+    const wordElement = document.getElementById('word');
+    if (wordElement && wordOfTheDay) {
+      wordElement.textContent = wordOfTheDay; // Set the word text
+    }
+    wordElement.style.display = 'inline-block';
+
     setTimeout(() => {
         messageDiv.style.opacity = 1;
         setTimeout(() => {
