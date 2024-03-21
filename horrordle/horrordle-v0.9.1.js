@@ -20,7 +20,7 @@ const GameDataModule = (() => {
   }
 
   function validateWord(word) {
-      return dictionary.includes(word.toUpperCase());
+      return true; // Temporary change to see if words are accepted
   }
 
   async function loadWordOfTheDay() {
