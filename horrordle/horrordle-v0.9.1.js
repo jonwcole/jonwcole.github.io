@@ -156,11 +156,15 @@ const UIModule = (() => {
       // Example restoration logic
       // This will likely involve iterating over gameState properties
       // and updating the UI accordingly
-      const { gameGuessLetters, gameGuessColors } = gameState;
+      const { 
+          gameGuessLetters = [], 
+          gameGuessColors = [], 
+          // Include other properties you might need
+      } = gameState;
 
       gameGuessLetters.forEach((letters, attempt) => {
           letters.forEach((letter, index) => {
-              const color = gameGuessColors[attempt][index];
+              const color = gameGuessColors[attempt] ? gameGuessColors[attempt][index] : 'defaultColor'; // Adjust 'defaultColor' as needed
               restoreGuess(attempt, index, letter, color);
           });
       });
