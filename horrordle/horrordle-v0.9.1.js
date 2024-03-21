@@ -141,6 +141,13 @@ const UIModule = (() => {
     });
   }
 
+  function disableInput() {
+      // Example of disabling input. This could be more complex depending on your application's structure.
+      // Here, we're disabling the on-screen keyboard.
+      const keys = document.querySelectorAll('.key');
+      keys.forEach(key => key.setAttribute('disabled', true));
+  }
+
   return {
     updateCurrentGuessDisplay,
     clearCurrentGuessDisplay,
@@ -149,6 +156,7 @@ const UIModule = (() => {
     displayWinMessage,
     displayEndGameMessage,
     updateKeyboard,
+    disableInput,
     // Additional UI functions as needed
   };
 })();
