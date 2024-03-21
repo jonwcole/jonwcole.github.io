@@ -434,19 +434,26 @@ const StatsModule = ((storageModule) => {
   }
 
   function displayStats() {
-    // Assuming there are UI elements with these IDs to display the stats
-    document.getElementById('games-played').textContent = stats.gamesPlayed;
-    document.getElementById('win-percentage').textContent = ((stats.wins / stats.gamesPlayed) * 100).toFixed(2) + '%';
-    document.getElementById('current-streak').textContent = stats.currentStreak;
-    document.getElementById('max-streak').textContent = stats.maxStreak;
-    // Update guess distribution display...
-    Object.entries(stats.guessDistribution).forEach(([guessCount, count]) => {
-      const element = document.getElementById(`distribution-${guessCount}`);
-      if (element) {
-        element.textContent = count;
-        // Additional logic for visual representation of distribution...
-      }
-    });
+      // Ensure gamesPlayed is not zero to avoid division by zero and NaN result.
+      const winPercentage = stats.gamesPlayed > 0
+          ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(2)
+          : 0;
+
+      // Assuming there are UI elements with these IDs to display the stats
+      document.getElementById('games-played').textContent = stats.gamesPlayed;
+      document.getElementById('win-percentage').textContent = winPercentage + '%'; // Use the calculated winPercentage
+      document.getElementById('current-streak').textContent = stats.currentStreak;
+      document.getElementById('max-streak').textContent = stats.maxStreak;
+
+      // Update guess distribution display...
+      Object.entries(stats.guessDistribution).forEach(([guessCount, count]) => {
+          const element = document.getElementById(`distribution-${guessCount}`);
+          if (element) {
+              element.textContent = count;
+              // You might want to adjust the width or style of the element based on count
+              // to visually represent the distribution, if your UI design calls for it.
+          }
+      });
   }
 
   function resetStats() {
