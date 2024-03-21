@@ -9,14 +9,10 @@ const GameDataModule = (() => {
   const gameStatsKey = 'horrordleStats';
   const gameStateKey = 'horrordleGameState';
 
-  async function loadDictionary() {
-      try {
-          const response = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
-          dictionary = await response.json();
-      } catch (error) {
-          console.error('Error loading dictionary:', error);
-      }
-  }
+async function loadDictionary() {
+    dictionary = ['TESTA', 'TESTB', 'TESTC']; // Temporary hardcoded dictionary
+    console.log("Dictionary loaded:", dictionary);
+}
 
   function validateWord(word) {
       return dictionary.includes(word.toUpperCase());
