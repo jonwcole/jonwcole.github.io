@@ -148,6 +148,26 @@ const UIModule = (() => {
       keys.forEach(key => key.setAttribute('disabled', true));
   }
 
+  function restoreGuess(attempt, index, letter, color) {
+      // Implementation for restoring a single guess in the UI
+  }
+
+  function restoreUIFromGameState(gameState) {
+      // Example restoration logic
+      // This will likely involve iterating over gameState properties
+      // and updating the UI accordingly
+      const { gameGuessLetters, gameGuessColors } = gameState;
+
+      gameGuessLetters.forEach((letters, attempt) => {
+          letters.forEach((letter, index) => {
+              const color = gameGuessColors[attempt][index];
+              restoreGuess(attempt, index, letter, color);
+          });
+      });
+
+      // Additional UI updates based on gameState (e.g., displaying hints, word of the day, etc.)
+  }
+
   return {
     updateCurrentGuessDisplay,
     clearCurrentGuessDisplay,
@@ -157,6 +177,7 @@ const UIModule = (() => {
     displayEndGameMessage,
     updateKeyboard,
     disableInput,
+    restoreUIFromGameState,
     // Additional UI functions as needed
   };
 })();
