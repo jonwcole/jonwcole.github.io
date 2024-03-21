@@ -9,10 +9,14 @@ const GameDataModule = (() => {
   const gameStatsKey = 'horrordleStats';
   const gameStateKey = 'horrordleGameState';
 
-async function loadDictionary() {
-    dictionary = ['TESTA', 'TESTB', 'TESTC']; // Temporary hardcoded dictionary
-    console.log("Dictionary loaded:", dictionary);
-}
+  async function loadDictionary() {
+      try {
+          const response = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
+          dictionary = await response.json();
+      } catch (error) {
+          console.error('Error loading dictionary:', error);
+      }
+  }
 
   function validateWord(word) {
       return dictionary.includes(word.toUpperCase());
@@ -70,6 +74,21 @@ async function loadDictionary() {
       return adjustedNow.toISOString().slice(0, 10);
   }
 
+  function compareWord(guess) {
+      // Assuming wordOfTheDay is the correct word players are trying to guess
+      // This function should return an array indicating the result for each letter in the guess
+      // For simplicity, let's just check if the guessed word is exactly the word of the day
+      return guess.split('').map((letter, index) => {
+          if (wordOfTheDay[index] === letter.toUpperCase()) {
+              return 'correct'; // Letter is in the correct position
+          } else if (wordOfTheDay.includes(letter.toUpperCase())) {
+              return 'present'; // Letter is in the word but in the wrong position
+          } else {
+              return 'absent'; // Letter is not in the word
+          }
+      });
+  }
+
   return {
     loadGame: async () => {
       await loadDictionary();
@@ -79,6 +98,7 @@ async function loadDictionary() {
     getHintOfTheDay: () => hintOfTheDay,
     getTodayDate,
     validateWord,
+    compareWord,
   };
 })();
 
