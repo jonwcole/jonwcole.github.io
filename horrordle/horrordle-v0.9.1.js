@@ -228,7 +228,6 @@ const GameLogicModule = ((gameDataModule, uiModule) => {
 
       // Ensure gameGuessLetters and gameGuessColors are arrays before calling forEach.
       // This initializes them to empty arrays if they are undefined.
-      const gameGuessLetters = gameState.gameGuessLetters || [];
       const gameGuessColors = gameState.gameGuessColors || [];
 
       // Correctly access gameOutcome from gameState
