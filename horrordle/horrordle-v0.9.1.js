@@ -13,14 +13,13 @@ const GameDataModule = (() => {
       try {
           const response = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
           dictionary = await response.json();
-          console.log("Dictionary loaded:", dictionary); // Add this line to inspect the loaded dictionary
       } catch (error) {
           console.error('Error loading dictionary:', error);
       }
   }
 
   function validateWord(word) {
-      return true; // Temporary change to see if words are accepted
+      return dictionary.includes(word.toUpperCase());
   }
 
   async function loadWordOfTheDay() {
