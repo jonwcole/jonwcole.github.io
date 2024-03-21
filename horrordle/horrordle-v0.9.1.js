@@ -75,136 +75,6 @@ const GameDataModule = (() => {
 })();
 
 
-//--------------//
-// Input module //
-//--------------//
-
-const InputModule = ((gameDataModule, gameLogicModule, uiModule) => {
-  // Assuming these modules are passed as dependencies to handle game logic and UI updates
-
-  function initialize() {
-    document.getElementById('keyboard').addEventListener('click', handleVirtualKeyPress);
-    document.addEventListener('keydown', handlePhysicalKeyPress);
-  }
-
-  function handleVirtualKeyPress(event) {
-    if (event.target.classList.contains('key')) {
-      const key = event.target.getAttribute('data-key');
-      processKey(key);
-    }
-  }
-
-  function handlePhysicalKeyPress(event) {
-    const allowedKeys = ['Enter', 'Backspace'];
-    const key = event.key.toUpperCase();
-
-    if (allowedKeys.includes(event.key) || /^[A-Z]$/i.test(key)) {
-      event.preventDefault(); // Prevent default behavior for handled keys
-      processKey(event.key === 'Enter' ? 'ENTER' : event.key === 'Backspace' ? 'BACKSPACE' : key);
-    }
-  }
-
-  function processKey(key) {
-    switch (key) {
-      case 'ENTER':
-        gameLogicModule.submitGuess();
-        break;
-      case 'BACKSPACE':
-        gameLogicModule.deleteLastCharacter();
-        break;
-      default:
-        gameLogicModule.addCharacterToGuess(key);
-    }
-  }
-
-  function enableInput(enable) {
-    const keys = document.querySelectorAll('.key');
-    keys.forEach(key => {
-      if (enable) {
-        key.removeAttribute('disabled');
-        key.classList.remove('disabled');
-      } else {
-        key.setAttribute('disabled', 'true');
-        key.classList.add('disabled');
-      }
-    });
-  }
-
-  return {
-    initialize,
-    enableInput,
-  };
-})(GameDataModule, GameLogicModule, UIModule); // Dependency injection
-
-// Remember to call InputModule.initialize() somewhere in your game initialization logic.
-
-
-//-------------------//
-// Game Logic module //
-//-------------------//
-
-const GameLogicModule = ((gameDataModule, uiModule) => {
-  let currentGuess = [];
-  let attempts = 0;
-  const maxAttempts = 6;
-  let isGameOver = false;
-
-  function addCharacterToGuess(character) {
-    if (isGameOver || currentGuess.length >= 5) return;
-    currentGuess.push(character);
-    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
-  }
-
-  function deleteLastCharacter() {
-    if (isGameOver || currentGuess.length === 0) return;
-    currentGuess.pop();
-    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
-  }
-
-  function submitGuess() {
-    if (isGameOver || currentGuess.length < 5) return;
-    const guessStr = currentGuess.join('');
-    if (!gameDataModule.validateWord(guessStr)) {
-      uiModule.shakeCurrentRow(attempts);
-      return;
-    }
-    processGuess(guessStr);
-    currentGuess = []; // Reset for next guess
-    uiModule.clearCurrentGuessDisplay(attempts); // Prepare for next guess input
-    if (checkGameOver()) {
-      endGame();
-    } else {
-      attempts++;
-    }
-  }
-
-  function processGuess(guess) {
-    const result = gameDataModule.compareWord(guess);
-    uiModule.updateTiles(attempts, guess, result);
-    if (guess === gameDataModule.getWordOfTheDay()) {
-      isGameOver = true;
-      uiModule.displayWinMessage();
-    }
-  }
-
-  function checkGameOver() {
-    return attempts >= maxAttempts - 1 || currentGuess.join('') === gameDataModule.getWordOfTheDay();
-  }
-
-  function endGame() {
-    isGameOver = true;
-    uiModule.displayEndGameMessage(currentGuess.join('') === gameDataModule.getWordOfTheDay());
-    // Additional end game logic like updating stats could go here
-  }
-
-  return {
-    addCharacterToGuess,
-    deleteLastCharacter,
-    submitGuess,
-    // Other public methods or properties as needed
-  };
-})(GameDataModule, UIModule);
-
 
 //-----------//
 // UI module //
@@ -275,6 +145,138 @@ const UIModule = (() => {
     // Additional UI functions as needed
   };
 })();
+
+
+
+//-------------------//
+// Game Logic module //
+//-------------------//
+
+const GameLogicModule = ((gameDataModule, uiModule) => {
+  let currentGuess = [];
+  let attempts = 0;
+  const maxAttempts = 6;
+  let isGameOver = false;
+
+  function addCharacterToGuess(character) {
+    if (isGameOver || currentGuess.length >= 5) return;
+    currentGuess.push(character);
+    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
+  }
+
+  function deleteLastCharacter() {
+    if (isGameOver || currentGuess.length === 0) return;
+    currentGuess.pop();
+    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
+  }
+
+  function submitGuess() {
+    if (isGameOver || currentGuess.length < 5) return;
+    const guessStr = currentGuess.join('');
+    if (!gameDataModule.validateWord(guessStr)) {
+      uiModule.shakeCurrentRow(attempts);
+      return;
+    }
+    processGuess(guessStr);
+    currentGuess = []; // Reset for next guess
+    uiModule.clearCurrentGuessDisplay(attempts); // Prepare for next guess input
+    if (checkGameOver()) {
+      endGame();
+    } else {
+      attempts++;
+    }
+  }
+
+  function processGuess(guess) {
+    const result = gameDataModule.compareWord(guess);
+    uiModule.updateTiles(attempts, guess, result);
+    if (guess === gameDataModule.getWordOfTheDay()) {
+      isGameOver = true;
+      uiModule.displayWinMessage();
+    }
+  }
+
+  function checkGameOver() {
+    return attempts >= maxAttempts - 1 || currentGuess.join('') === gameDataModule.getWordOfTheDay();
+  }
+
+  function endGame() {
+    isGameOver = true;
+    uiModule.displayEndGameMessage(currentGuess.join('') === gameDataModule.getWordOfTheDay());
+    // Additional end game logic like updating stats could go here
+  }
+
+  return {
+    addCharacterToGuess,
+    deleteLastCharacter,
+    submitGuess,
+    // Other public methods or properties as needed
+  };
+})(GameDataModule, UIModule);
+
+
+//--------------//
+// Input module //
+//--------------//
+
+const InputModule = ((gameDataModule, gameLogicModule, uiModule) => {
+  // Assuming these modules are passed as dependencies to handle game logic and UI updates
+
+  function initialize() {
+    document.getElementById('keyboard').addEventListener('click', handleVirtualKeyPress);
+    document.addEventListener('keydown', handlePhysicalKeyPress);
+  }
+
+  function handleVirtualKeyPress(event) {
+    if (event.target.classList.contains('key')) {
+      const key = event.target.getAttribute('data-key');
+      processKey(key);
+    }
+  }
+
+  function handlePhysicalKeyPress(event) {
+    const allowedKeys = ['Enter', 'Backspace'];
+    const key = event.key.toUpperCase();
+
+    if (allowedKeys.includes(event.key) || /^[A-Z]$/i.test(key)) {
+      event.preventDefault(); // Prevent default behavior for handled keys
+      processKey(event.key === 'Enter' ? 'ENTER' : event.key === 'Backspace' ? 'BACKSPACE' : key);
+    }
+  }
+
+  function processKey(key) {
+    switch (key) {
+      case 'ENTER':
+        gameLogicModule.submitGuess();
+        break;
+      case 'BACKSPACE':
+        gameLogicModule.deleteLastCharacter();
+        break;
+      default:
+        gameLogicModule.addCharacterToGuess(key);
+    }
+  }
+
+  function enableInput(enable) {
+    const keys = document.querySelectorAll('.key');
+    keys.forEach(key => {
+      if (enable) {
+        key.removeAttribute('disabled');
+        key.classList.remove('disabled');
+      } else {
+        key.setAttribute('disabled', 'true');
+        key.classList.add('disabled');
+      }
+    });
+  }
+
+  return {
+    initialize,
+    enableInput,
+  };
+})(GameDataModule, GameLogicModule, UIModule); // Dependency injection
+
+// Remember to call InputModule.initialize() somewhere in your game initialization logic.
 
 
 
