@@ -1,555 +1,410 @@
-let wordOfTheDay = '';
-let dictionary = [];
-let guesses = [];
-let currentAttempt = 0;
-let maxAttempts = 6;
-let isGameOver = false;
-let incorrectGuesses = 0;
-let hintDisplayed = false;
-let hintOfTheDay = ''; // Make sure this is declared globally
-let gameGuessColors = []; // This will store the result colors (correct, present, absent) for each guess.
-let gameGuessLetters = []; // This will store the actual letters guessed in each attempt.
+class HorrordleGame {
+  constructor() {
+    this.wordOfTheDay = '';
+    this.dictionary = [];
+    this.currentAttempt = 0;
+    this.maxAttempts = 6;
+    this.isGameOver = false;
+    this.incorrectGuesses = 0;
+    this.hintDisplayed = false;
+    this.hintOfTheDay = '';
+    this.gameGuessColors = [];
+    this.gameGuessLetters = [];
+    this.currentGuess = [];
+    this.inputDisabled = false;
+    
+    this.loadGame();
+    this.setupEventListeners();
+  }
 
+  async loadGame() {
+    try {
+      const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
+      const dictionaryData = await dictionaryResponse.json();
+      this.dictionary = dictionaryData.map(word => word.toUpperCase());
 
-function loadGame() {
-    fetch('https://jonwcole.github.io/horrordle/dictionary.json')
-        .then(response => response.json())
-        .then(data => {
-            dictionary = data.map(word => word.toUpperCase());
-        })
-        .catch(error => console.error('Error loading dictionary:', error));
+      const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words.json');
+      const wordsData = await wordsResponse.json();
+      const today = new Date().toISOString().slice(0, 10);
+      const wordData = wordsData[today];
 
-    fetch('https://jonwcole.github.io/horrordle/words.json')
-        .then(response => response.json())
-        .then(data => {
-            const now = new Date();
-            const timezoneOffset = now.getTimezoneOffset() * 60000;
-            const adjustedNow = new Date(now - timezoneOffset);
-            const today = adjustedNow.toISOString().slice(0, 10);
+      if (wordData) {
+        this.wordOfTheDay = wordData.word.toUpperCase();
+        this.hintOfTheDay = wordData.hint;
+        localStorage.setItem('gameDate', today);
+        document.getElementById('hint').textContent = this.hintOfTheDay;
+        document.getElementById('word-content').textContent = this.wordOfTheDay;
+      } else {
+        console.error('Word for today not found');
+      }
+    } catch (error) {
+      console.error('Error loading game data:', error);
+    }
+  }
 
-            const wordData = data[today];
-            if (wordData) {
-                wordOfTheDay = wordData.word.toUpperCase();
-                hintOfTheDay = wordData.hint;
-                gameDate = today; // Set the game date to today, based on words.json
-                localStorage.setItem('gameDate', gameDate); // Store this date in localStorage
+  setupEventListeners() {
+    document.getElementById('keyboard').addEventListener('click', e => this.handleKeyboardClick(e));
+    document.addEventListener('keydown', e => this.handleKeyPress(e));
+    document.getElementById('share-result').addEventListener('click', () => this.shareResults());
+  }
 
-                // Set the hint text early
-                const hintElement = document.getElementById('hint');
-                if (hintElement && hintOfTheDay) {
-                    hintElement.textContent = hintOfTheDay; // Set the hint text
-                }
+  handleKeyboardClick(e) {
+    if (e.target.matches('.key')) {
+      const key = e.target.getAttribute('data-key');
+      this.processKey(key);
+    }
+  }
 
-                // Set the word text early
-                const wordElement = document.getElementById('word-content');
-                if (wordElement && wordOfTheDay) {
-                  wordElement.textContent = wordOfTheDay; // Set the word text
-                }
-            } else {
-                console.error('Word for today not found');
-            }
-        })
-        .catch(error => console.error('Error loading word of the day:', error));
-}
+  handleKeyPress(e) {
+    if (this.inputDisabled) return;
+    
+    if (e.key === 'Enter') {
+      this.submitGuess();
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      this.deleteLastCharacter();
+    } else {
+      const key = e.key.toUpperCase();
+      if (/^[A-Z]$/i.test(key)) {
+        this.processKey(key);
+      }
+    }
+  }
 
+  processKey(key) {
+    if (this.isGameOver || this.inputDisabled) return;
 
-// Handling virtual keyboard clicks
-document.getElementById('keyboard').addEventListener('click', function(e) {
-  if (e.target.matches('.key')) { // Now all keys, including special ones, are handled here
-    const key = e.target.getAttribute('data-key');
     switch (key) {
       case 'ENTER':
-        submitGuess();
+        this.submitGuess();
         break;
       case 'BACKSPACE':
-        deleteLastCharacter();
-        updateCurrentGuessDisplay(); // Refresh the display to show the current guess state
+        this.deleteLastCharacter();
+        this.updateCurrentGuessDisplay();
         break;
       default:
-        handleKeyPress(key); // For letter keys
+        if (/^[A-Z]$/i.test(key) && this.currentGuess.length < 5) {
+          this.currentGuess.push(key);
+          this.updateCurrentGuessDisplay();
+        }
     }
   }
-});
 
-// Handling physical keyboard input
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    submitGuess();
-  } else if (e.key === 'Backspace') {
-    e.preventDefault(); // Prevent the default backspace behavior (e.g., navigating back)
-    deleteLastCharacter();
-  } else {
-    const key = e.key.toUpperCase();
-    // Accept only alphabetical characters, and ignore non-letter keys
-    if (/^[A-Z]$/i.test(key)) {
-      handleKeyPress(key);
+  submitGuess() {
+    // Ensure we can submit guesses
+    if (this.isGameOver || this.currentGuess.length < 5) return;
+
+    const guess = this.currentGuess.join('').toUpperCase();
+
+    // Validate guess is in dictionary
+    if (!this.dictionary.includes(guess)) {
+      this.shakeCurrentRow();
+      return; // Invalid guess, so exit early
     }
-  }
-});
 
-let currentGuess = []; // An array to hold the current guess's letters
-
-let inputDisabled = false; // flag to control input globally
-
-function handleKeyPress(key) {
-  if (isGameOver || inputDisabled) return;
-
-  // If the key is a valid letter and the current guess is less than the max word length
-  if (/^[A-Z]$/i.test(key) && currentGuess.length < 5) {
-    currentGuess.push(key.toUpperCase()); // Add the uppercase letter to the current guess
-    updateCurrentGuessDisplay(); // Function to visually update the guess on the game board
-  }
-}
-
-function toggleOnScreenKeyboard(enable) {
-  document.querySelectorAll('.key').forEach(button => {
-    if (enable) {
-      button.removeAttribute('disabled');
-      button.classList.remove('disabled'); // Assuming you use this class to style disabled buttons
+    // Check if guess matches the word of the day
+    const isCorrect = guess === this.wordOfTheDay;
+    if (isCorrect) {
+      this.isGameOver = true; // Mark game as won
     } else {
-      button.setAttribute('disabled', 'true');
-      button.classList.add('disabled');
+      this.incorrectGuesses++; // Increment for hint display logic
+      if (this.currentAttempt + 1 >= this.maxAttempts) {
+        this.isGameOver = true; // No more attempts left
+      }
     }
-  });
-}
 
-function updateCurrentGuessDisplay() {
-  const rows = document.querySelectorAll('.tile-row-wrapper'); // Get all rows
-  const currentRow = rows[currentAttempt]; // Get the current row based on the current attempt
-  if (!currentRow) {
-    console.error('Current row not found:', currentAttempt);
-    return;
+    // Process guess for feedback
+    this.processGuess(guess);
+
+    // Prepare for next guess or conclude game
+    if (!this.isGameOver) {
+      this.currentAttempt++;
+      this.currentGuess = []; // Reset for next guess
+    } else {
+      // Display end-game message
+      this.displayEndGameMessage(isCorrect);
+    }
+
+    // Always update display regardless of guess outcome
+    this.updateCurrentGuessDisplay();
   }
 
-  const tiles = currentRow.querySelectorAll('.tile'); // Get tiles in the current row
-
-  // Clear existing letters in the current row's tiles
-  tiles.forEach(tile => {
-    const front = tile.querySelector('.front');
-    if (!front) {
-      console.error('Front div not found in tile');
-      return; // Skip this tile to prevent errors
-    }
-    front.textContent = ''; // Reset the text content of the front div
-  });
-
-  // Update tiles with the current guess letters
-  currentGuess.forEach((letter, index) => {
-    const front = tiles[index].querySelector('.front');
-    if (front) {
-      front.textContent = letter; // Set the letter in the front div
-    } else {
-      console.error('Front div not found in tile at index:', index);
-    }
-  });
-}
-
-function submitGuess() {
-    if (isGameOver || currentGuess.length < 5) return;
-
-    const guess = currentGuess.join('').toUpperCase();
-
-    // First, handle the case where the guess is not a valid word
-    if (!dictionary.includes(guess)) {
-        shakeCurrentRow(); // This will be a new function to handle the shake effect
-        return; // Exit the function early as the guess is invalid
-    }
-
-    // The guess is valid; check if it's correct
-    if (guess !== wordOfTheDay) {
-        incorrectGuesses++; // Only increment incorrectGuesses for valid guesses
-    }
-
-    processGuess(guess); // Continue with processing the guess
-
-    // Wait for the flip animation to complete before potentially ending the game
-    setTimeout(() => {
-        handleGuessFinalization(guess); // New function to handle what happens after a guess is processed
-    }, currentGuess.length * 500 + 600); // Adjust as necessary
-}
-
-function shakeCurrentRow() {
-    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
+  shakeCurrentRow() {
+    // Select the current row based on the current attempt
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${this.currentAttempt}"]`);
     if (currentRow) {
-        currentRow.classList.add('shake');
-        setTimeout(() => {
-            currentRow.classList.remove('shake');
-        }, 800); // Match the CSS animation duration
-    }
-}
+      currentRow.classList.add('shake');
 
-function handleGuessFinalization(guess) {
-    currentAttempt++;
-    currentGuess = [];
-
-    const won = guess === wordOfTheDay;
-    const lost = !won && currentAttempt >= maxAttempts;
-
-    if (won || lost) {
-        isGameOver = true;
-        updateStats(won, currentAttempt);
-
-        // Additional code for when the user loses
-        if (lost) {
-            // Display the Word of the Day
-            const wordElement = document.getElementById('word');
-            wordElement.style.display = 'flex';
-            setTimeout(() => {
-                wordElement.style.opacity = 1;
-            }, 100); // A short delay to ensure the display change has taken effect
-        }
-
-        setTimeout(() => {
-            displayEndGameMessage(won);
-        }, hintDisplayed ? 1200 : 0);
-    }
-
-    if (incorrectGuesses >= 5 && !hintDisplayed) {
-        displayHint();
-    }
-}
-
-function displayEndGameMessage(won) {
-    
-    const hintElement = document.querySelector('.hint');
-    if (hintElement && hintOfTheDay) {
-        hintElement.textContent = hintOfTheDay; // Set the hint text
-        hintElement.style.display = 'block';
-        setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
-    }
-
-    // Display the success or failure message
-    const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
-    messageDiv.style.display = 'block';
-
-    setTimeout(() => {
-        messageDiv.style.opacity = 1;
-        setTimeout(() => {
-            // After showing the message, fade it out
-            messageDiv.style.opacity = 0;
-            setTimeout(() => {
-                messageDiv.style.display = 'none'; // Hide the message
-
-                // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
-                const navButton = document.querySelector('.nav-button-default-state');
-                if (navButton) {
-                    navButton.click();
-                }
-            }, 400); // Wait for fade out
-        }, 2400); // Duration message is shown
-    }, 600); // Ensure display:block is applied
-}
-
-
-
-function displayHint() {
-  const hintElement = document.getElementById('hint');
-  if (hintElement && !hintDisplayed) {
-    hintElement.style.display = 'block'; // Make the hint visible
-
-    // Force a reflow to ensure the opacity transition is triggered
-    void hintElement.offsetWidth;
-
-    // Start the fade-in
-    hintElement.style.opacity = 1;
-
-    hintDisplayed = true; // Mark the hint as displayed
-  }
-}
-
-function processGuess(guess) {
-  let wordArray = wordOfTheDay.split(''); // Existing logic
-  let result = []; // Existing logic
-
-  // Your existing logic for determining 'correct', 'present', 'absent'
-  for (let i = 0; i < guess.length; i++) {
-    if (guess[i] === wordOfTheDay[i]) {
-      result[i] = 'correct';
-      wordArray[i] = null; 
+      // Remove the shake class after the animation duration to reset the state
+      setTimeout(() => {
+        currentRow.classList.remove('shake');
+      }, 800); // Assuming 800ms is the CSS animation duration for the shake effect
     } else {
-      result[i] = 'absent'; 
+      console.error('Current row not found for shaking:', this.currentAttempt);
     }
   }
 
-  for (let i = 0; i < guess.length; i++) {
-    if (result[i] !== 'correct' && wordArray.includes(guess[i])) {
-      result[i] = 'present';
-      wordArray[wordArray.indexOf(guess[i])] = null; 
-    }
-  }
+  processGuess(guess) {
+    // Initialize arrays to store the results of each letter comparison
+    let result = new Array(guess.length).fill('absent');
+    let wordOfTheDayArray = this.wordOfTheDay.split('');
 
-  // After determining the result for each letter, update the UI
-  updateTiles(currentAttempt, guess, result);
-
-  // Here's the new part: Add this guess's result to the gameGuessColors array
-  gameGuessColors.push(result);
-
-  gameGuessLetters.push(guess.split('')); // Split the guess into individual letters for storage
-
-
-  // If the game ends (win or lose), save the results to localStorage
-  if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
-    localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
-    localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
-  }
-}
-
-function saveGuessesToLocalStorage() {
-    localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
-    localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
-}
-
-function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-  const tiles = row.querySelectorAll('.tile');
-
-  tiles.forEach((tile, index) => {
-    // Set up the back face with the guessed letter and status class before starting the animation
-    const back = tile.querySelector('.back');
-    back.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
-    back.className = 'back'; // Reset any previous result classes
-    back.classList.add(result[index]); // Preemptively add the result class to the back
-    
-    // Delay each tile's flip animation to visualize them one by one
-    setTimeout(() => {
-      // Start the flip animation
-      tile.classList.add('flipped');
-    }, index * 500); // Stagger the start of each tile's flip
-  });
-
-  updateKeyboard(guess, result);
-}
-
-function updateKeyboard(guess, result) {
-  // Set a fixed delay value in milliseconds
-  const delayBeforeUpdate = 2500; // For example, 2.5 seconds
-
-  setTimeout(() => {
-    // Update the keyboard after the delay
+    // First pass: Check for correct letters in the correct position
     guess.split('').forEach((letter, index) => {
-      const key = document.querySelector(`.key[data-key='${letter}']`);
-      if (result[index] === 'correct') {
-        key.classList.add('correct');
-      } else if (result[index] === 'present') {
-        if (!key.classList.contains('correct')) {
-          key.classList.add('present');
-        }
-      } else {
-        if (!key.classList.contains('correct') && !key.classList.contains('present')) {
-          key.classList.add('absent');
-        }
+      if (letter === wordOfTheDayArray[index]) {
+        result[index] = 'correct';
+        wordOfTheDayArray[index] = null; // Mark this letter as "used"
       }
     });
-  }, delayBeforeUpdate);
-}
 
-function deleteLastCharacter() {
-  // Check if there's at least one character to remove
-  if (currentGuess.length > 0) {
-    currentGuess.pop(); // Remove the last letter from the current guess
-    updateCurrentGuessDisplay(); // Update the display accordingly
+    // Second pass: Check for correct letters in the wrong position
+    guess.split('').forEach((letter, index) => {
+      if (wordOfTheDayArray.includes(letter) && result[index] !== 'correct') {
+        result[index] = 'present';
+        wordOfTheDayArray[wordOfTheDayArray.indexOf(letter)] = null; // Mark this letter as "used"
+      }
+    });
+
+    // Update the game state with the results of this guess
+    this.gameGuessColors.push(result);
+    this.gameGuessLetters.push(guess.split(''));
+
+    // Update UI based on the results
+    this.updateTiles(this.currentAttempt, guess, result);
+
+    // Save game state to local storage
+    this.saveGameState();
+
+    // Check for game end conditions
+    if (guess === this.wordOfTheDay) {
+      this.isGameOver = true;
+      this.displayEndGameMessage(true);
+    } else if (this.currentAttempt >= this.maxAttempts - 1) {
+      this.isGameOver = true;
+      this.displayEndGameMessage(false);
+    }
   }
-}
 
-const defaultStats = {
-  gamesPlayed: 0,
-  wins: 0,
-  currentStreak: 0,
-  maxStreak: 0,
-  guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
-  lastGameWon: false,
-  lastWinGuesses: null,
-  lastPlayedDate: null,
-};
+  displayEndGameMessage(isCorrect) {
+    // Select the elements for displaying the end game message
+    const successMessage = document.querySelector('.success');
+    const failureMessage = document.querySelector('.failure');
+    const hintElement = document.querySelector('.hint');
 
-function loadStats() {
-  const stats = JSON.parse(localStorage.getItem('stats')) || defaultStats;
-  return stats;
-}
+    // Display the hint if it hasn't been shown yet
+    if (!this.hintDisplayed) {
+      this.displayHint();
+    }
 
-function saveStats(stats) {
-  localStorage.setItem('stats', JSON.stringify(stats));
-}
-
-const stats = loadStats(); // Load stats at the start of the game
-
-function updateStats(win, guessesTaken) {
-    stats.gamesPlayed += 1;
-    if (win) {
-        stats.wins += 1;
-        stats.currentStreak += 1;
-        stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-        stats.guessDistribution[guessesTaken] += 1;
-        stats.lastGameWon = true;
-        stats.lastWinGuesses = guessesTaken;
+    if (isCorrect) {
+      // Display the success message
+      successMessage.style.display = 'block';
+      setTimeout(() => successMessage.style.opacity = 1, 10); // Start the fade-in effect
     } else {
-        stats.currentStreak = 0;
-        stats.lastGameWon = false;
+      // Display the failure message and the correct word
+      failureMessage.style.display = 'block';
+      setTimeout(() => failureMessage.style.opacity = 1, 10); // Start the fade-in effect
+      
+      // Also reveal the word of the day
+      const wordElement = document.getElementById('word');
+      const wordContentElement = document.getElementById('word-content');
+      wordContentElement.textContent = this.wordOfTheDay; // Update with the correct word
+      wordElement.style.display = 'flex';
+      setTimeout(() => wordElement.style.opacity = 1, 100); // Fade in the word reveal
     }
-    stats.lastPlayedDate = gameDate;
-    localStorage.setItem('gameOutcome', win ? 'won' : 'lost');
-    saveStats(stats);
-    displayStats(); // Update the display every time stats are updated
-}
 
-function displayStats() {
-  document.getElementById('games-played').textContent = stats.gamesPlayed;
-  const winPercentage = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
-  document.getElementById('win-percentage').textContent = `${winPercentage}%`;
-  document.getElementById('current-streak').textContent = stats.currentStreak;
-  document.getElementById('max-streak').textContent = stats.maxStreak;
+    // Handle additional UI updates or actions that should occur at the end of the game
+    // For example, disabling further input or highlighting the stats button
+    this.disableInput();
 
-  let totalWins = Object.values(stats.guessDistribution).reduce((acc, count) => acc + count, 0);
+    // Optionally, trigger the display of stats or share results
+    // this.displayStatsModal(); // Uncomment if you want to show stats automatically
+  }
 
-  Object.entries(stats.guessDistribution).forEach(([guess, count]) => {
-    const bar = document.getElementById(`distribution-${guess}`);
-    const percentage = totalWins > 0 ? (count / totalWins) * 100 : 0;
-    bar.style.width = `${percentage}%`; // Set the width of the bar to reflect the percentage
-    bar.textContent = count; // Set the text inside the bar to reflect the actual count
-
-    // Optionally, remove 'correct' class from all, then add back to only the relevant one
-    bar.classList.remove('correct');
-    if (stats.lastGameWon && stats.lastWinGuesses.toString() === guess) {
-      bar.classList.add('correct');
+  deleteLastCharacter() {
+    // Check if there's at least one character to remove
+    if (this.currentGuess.length > 0) {
+      // Remove the last character from the current guess
+      this.currentGuess.pop();
+      // Update the display to reflect the change
+      this.updateCurrentGuessDisplay();
     }
-  });
-}
+  }
 
-function generateResultString() {
-    const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+  updateCurrentGuessDisplay() {
+    // Assume the current attempt corresponds to a row of tiles in the UI
+    const currentRowTiles = document.querySelectorAll(`.tile-row-wrapper[data-attempt="${this.currentAttempt}"] .tile`);
+    
+    // Clear all tiles in the current row first
+    currentRowTiles.forEach(tile => {
+      tile.querySelector('.front').textContent = '';
+    });
+    
+    // Set the tiles based on the current guess' letters
+    this.currentGuess.forEach((letter, index) => {
+      const tileFront = currentRowTiles[index].querySelector('.front');
+      tileFront.textContent = letter;
+    });
+  }
+
+  generateResultString() {
     const emojiMap = {
-        'absent': '⬛',
-        'present': '🟨',
-        'correct': '🟥'
+      correct: '🟩',
+      present: '🟨',
+      absent: '⬛'
     };
+    let resultString = 'Horrordle Result:\n\n';
+    this.gameGuessColors.forEach(guess => {
+      const guessString = guess.map(status => emojiMap[status]).join('');
+      resultString += `${guessString}\n`;
+    });
+    return resultString.trim();
+  }
 
-    const resultString = storedGuesses.map(guess =>
-        guess.map(status => emojiMap[status]).join('')
-    ).join('\n');
+  saveGameState() {
+    // Save the current game's progress and outcomes
+    localStorage.setItem('currentAttempt', JSON.stringify(this.currentAttempt));
+    localStorage.setItem('gameGuessColors', JSON.stringify(this.gameGuessColors));
+    localStorage.setItem('gameGuessLetters', JSON.stringify(this.gameGuessLetters));
+    localStorage.setItem('isGameOver', JSON.stringify(this.isGameOver));
+    localStorage.setItem('hintDisplayed', JSON.stringify(this.hintDisplayed));
 
-    const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-    return `Horrordle, ${date}\n\n${resultString}`;
+    // Assuming you have a method or properties to calculate these stats, save them as well
+    localStorage.setItem('stats', JSON.stringify({
+      gamesPlayed: this.stats.gamesPlayed,
+      wins: this.stats.wins,
+      currentStreak: this.stats.currentStreak,
+      maxStreak: this.stats.maxStreak,
+      // Add other statistics as necessary
+    }));
+
+    // Save the outcome of the last game (won or lost)
+    localStorage.setItem('gameOutcome', this.isGameOver && this.currentAttempt < this.maxAttempts ? 'won' : 'lost');
+
+    // Note: This implementation assumes you have a `stats` object in your class for tracking game statistics.
+  }
+
+  displayStats() {
+    // Example stats structure (ensure your class initializes this correctly)
+    // this.stats = { gamesPlayed: 0, wins: 0, currentStreak: 0, maxStreak: 0, guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0} };
+
+    // Calculate win percentage
+    const winPercentage = this.stats.gamesPlayed > 0 ? Math.round((this.stats.wins / this.stats.gamesPlayed) * 100) : 0;
+
+    // Update the UI with the calculated stats
+    document.getElementById('games-played').textContent = this.stats.gamesPlayed;
+    document.getElementById('win-percentage').textContent = `${winPercentage}%`;
+    document.getElementById('current-streak').textContent = this.stats.currentStreak;
+    document.getElementById('max-streak').textContent = this.stats.maxStreak;
+
+    // If you're displaying guess distribution or other stats, update those elements similarly
+    Object.entries(this.stats.guessDistribution).forEach(([guess, count]) => {
+      const distributionElement = document.getElementById(`distribution-${guess}`);
+      if (distributionElement) {
+        // Update distribution display, e.g., setting width of a bar in a bar chart, or simply updating text content
+        distributionElement.textContent = count; // Simplified example
+      }
+    });
+
+    // Optionally, handle visibility or styling changes for the stats display area
+  }
+
+  startNewGame() {
+    // Reset game state properties
+    this.wordOfTheDay = '';
+    this.currentAttempt = 0;
+    this.isGameOver = false;
+    this.incorrectGuesses = 0;
+    this.hintDisplayed = false;
+    this.gameGuessColors = [];
+    this.gameGuessLetters = [];
+    this.currentGuess = [];
+    this.inputDisabled = false;
+
+    // Optionally, clear any game-specific UI elements or messages
+    document.querySelector('.success').style.display = 'none';
+    document.querySelector('.failure').style.display = 'none';
+    document.getElementById('hint').style.display = 'none';
+    document.getElementById('word-content').textContent = ''; // Clear the word of the day reveal
+
+    // Clear the game board for a new game
+    this.clearGameBoard();
+
+    // Load a new game
+    this.loadGame();
+  }
+
+  clearGameBoard() {
+    // Clear the tiles for a new game
+    const tiles = document.querySelectorAll('.tile');
+    tiles.forEach(tile => {
+      tile.querySelector('.front').textContent = '';
+      tile.querySelector('.back').textContent = '';
+      tile.classList.remove('correct', 'present', 'absent', 'flipped');
+    });
+
+    // Reset any other UI elements specific to your game board
+  }
+
+disableInput() {
+  // Flag to disable processing of key inputs
+  this.inputDisabled = true;
+
+  // Optionally, visually indicate that the input is disabled (e.g., by dimming or hiding the virtual keyboard)
+  const keyboard = document.getElementById('keyboard');
+  if (keyboard) {
+    keyboard.classList.add('disabled'); // Assuming 'disabled' class dims or hides the element
+  }
+
+  // Disable individual keys on the virtual keyboard as needed
+  const keys = document.querySelectorAll('.key');
+  keys.forEach(key => {
+    key.setAttribute('disabled', true);
+    key.classList.add('key-disabled'); // Assuming 'key-disabled' visually indicates the key is disabled
+  });
+
+  // Note: This example assumes you have a CSS class named 'disabled' that styles the keyboard
+  // or keys as disabled (e.g., reducing opacity, adding a 'not-allowed' cursor, etc.)
 }
 
-document.getElementById('share-result').addEventListener('click', function() {
-    const resultString = generateResultString();
-    navigator.clipboard.writeText(resultString)
-        .then(() => alert('Result copied to clipboard!'))
-        .catch(err => console.error('Failed to copy result to clipboard:', err));
-});
-
-displayStats(); // Call this function to update the UI with the latest stats
-
-function resetStats() {
-  saveStats(defaultStats);
-  displayStats(); // Refresh the stats display
-}
-
-function startNewGame() {
-  incorrectGuesses = 0;
-  hintDisplayed = false;
-  // Rest of game initialization...
-}
-
-function getLocalDateISOString() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // getMonth() returns 0-11
-    const day = now.getDate();
-    // Format month and day to ensure two digits
-    const formattedMonth = month < 10 ? `0${month}` : month;
-    const formattedDay = day < 10 ? `0${day}` : day;
-    // Construct an ISO-like string with local date components
-    return `${year}-${formattedMonth}-${formattedDay}`;
-}
-
-function restoreGameStateIfPlayedToday() {
-    const stats = JSON.parse(localStorage.getItem('stats')) || {};
-    const today = getLocalDateISOString(); // Use local date
-    const gameOutcome = localStorage.getItem('gameOutcome');
-
-    if (stats.lastPlayedDate === today) {
-        // Prevent further input
-        disableInput();
-
-        // Restore game state
-        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
-
-        // Display the Word of the Day if the user lost their last game
-        if (gameOutcome === 'lost') {
-            const wordElement = document.getElementById('word');
-            wordElement.style.display = 'flex';
-            setTimeout(() => {
-                wordElement.style.opacity = 1;
-            }, 100);
-        }
-
-        gameGuessLetters.forEach((guessLetters, attempt) => {
-            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-            const tiles = row.querySelectorAll('.tile');
-
-            guessLetters.forEach((letter, index) => {
-                if (tiles[index]) {
-                    const tile = tiles[index];
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back');
-
-                    // Set the text for front and back
-                    front.textContent = letter;
-                    back.textContent = letter;
-                    
-                    // Clear previous classes on back and add the new one
-                    back.className = 'back'; // Reset class
-                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
-                    
-                    // Add the flipped class to the tile for the flipping effect
-                    tile.classList.add('flipped');
-                }
-            });
-        });
-
-        // Display stats modal, assuming you have a function or logic to properly display it
-        displayStatsModal();
-    }
-}
-
-function disableInput() {
-    // Here you should disable the keyboard and any other input forms you have.
-    // This could be as simple as not allowing key presses to register or hiding the virtual keyboard if you have one.
-    // Example:
-    document.getElementById('keyboard').style.pointerEvents = 'none'; // Disables click events on the on-screen keyboard
-    // You might also disable physical keyboard input by removing or disabling event listeners.
-}
-
-function displayStatsModal() {
-    const completedMessage = document.querySelector('.completed-message');
+  displayHint() {
     const hintElement = document.getElementById('hint');
-
-    // Display the completed message
-    if (completedMessage) {
-        completedMessage.style.display = 'block';
+    if (hintElement && !this.hintDisplayed) {
+      hintElement.textContent = this.hintOfTheDay;
+      hintElement.style.display = 'block';
+      setTimeout(() => hintElement.style.opacity = 1, 10); // Assuming CSS handles the transition
+      this.hintDisplayed = true;
     }
+  }
 
-    // Also ensure the hint is visible
-    if (hintElement) {
-        hintElement.style.display = 'block';
-        // Start transitioning to visible if it was previously hidden
-        setTimeout(() => {
-            hintElement.style.opacity = 1;
-        }, 100); // A short delay to ensure the display change has taken effect
-    }
+  updateTiles(attempt, guess, result) {
+    // Select the row for the current attempt
+    const currentRowTiles = document.querySelectorAll(`.tile-row-wrapper[data-attempt="${attempt}"] .tile`);
+    
+    // Ensure there's a tile for each letter in the guess
+    currentRowTiles.forEach((tile, index) => {
+      // Assuming the result array contains values like 'correct', 'present', 'absent' for each letter
+      const status = result[index];
 
-    // Wait for 1200ms before simulating a click on the .nav-button-default-state to open the stats modal
-    setTimeout(() => {
-        const navButton = document.querySelector('.nav-button-default-state');
-        if (navButton) {
-            navButton.click();
-        }
-    }, 1200); // Delay of 1200ms
+      // Update the front and back of each tile with the guess letter and color based on the result
+      const front = tile.querySelector('.front');
+      const back = tile.querySelector('.back');
+
+      front.textContent = guess[index]; // Show the letter on the tile
+      back.textContent = guess[index]; // Optionally, also set the letter on the back for a flip animation
+
+      // Reset any previous classes (if the game is being replayed without page reload)
+      back.classList.remove('correct', 'present', 'absent');
+      
+      // Apply the class based on the result for this letter
+      back.classList.add(status);
+
+      // Trigger the flip animation after a short delay to visualize the checking process
+      setTimeout(() => tile.classList.add('flipped'), index * 150); // Adjust timing as needed
+    });
+  }
+
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadGame(); // Make sure this still runs to load the game data
-    restoreGameStateIfPlayedToday(); // Check if we need to restore state
-});
+// Instantiate the game when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => new HorrordleGame());
