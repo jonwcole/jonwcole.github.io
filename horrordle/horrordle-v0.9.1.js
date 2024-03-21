@@ -1,419 +1,407 @@
-class HorrordleGame {
-  constructor() {
-    this.wordOfTheDay = '';
-    this.dictionary = [];
-    this.currentAttempt = 0;
-    this.maxAttempts = 6;
-    this.isGameOver = false;
-    this.incorrectGuesses = 0;
-    this.hintDisplayed = false;
-    this.hintOfTheDay = '';
-    this.gameGuessColors = [];
-    this.gameGuessLetters = [];
-    this.currentGuess = [];
-    this.inputDisabled = false;
+//------------------//
+// Game data module //
+//------------------//
 
-    this.loadGame();
-    this.setupEventListeners();
-  }
+const GameDataModule = (() => {
+  let dictionary = [];
+  let wordOfTheDay = '';
+  let hintOfTheDay = '';
+  const gameStatsKey = 'horrordleStats';
+  const gameStateKey = 'horrordleGameState';
 
-  async fetchData(url) {
+  async function loadDictionary() {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
+      const response = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
+      dictionary = await response.json();
     } catch (error) {
-      console.error("Fetch error: ", error);
-      throw error; // Ensure that the error can be handled by the caller
+      console.error('Error loading dictionary:', error);
     }
   }
 
-  async loadGame() {
+  async function loadWordOfTheDay() {
     try {
-      // Fetch the dictionary data
-      const dictionaryData = await this.fetchData('https://jonwcole.github.io/horrordle/dictionary.json');
-      this.dictionary = dictionaryData.map(word => word.toUpperCase());
-
-      // Fetch the words data and find today's word
-      const wordsData = await this.fetchData('https://jonwcole.github.io/horrordle/words.json');
-      const today = new Date().toISOString().slice(0, 10);
-      const wordData = wordsData[today];
-
+      const response = await fetch('https://jonwcole.github.io/horrordle/words.json');
+      const words = await response.json();
+      const today = getLocalDateISOString();
+      const wordData = words[today];
       if (wordData) {
-        this.wordOfTheDay = wordData.word.toUpperCase();
-        this.hintOfTheDay = wordData.hint;
-        localStorage.setItem('gameDate', today); // Save today's date for comparison on reload
-        document.getElementById('hint').textContent = this.hintOfTheDay;
-        document.getElementById('word-content').textContent = this.wordOfTheDay;
+        wordOfTheDay = wordData.word.toUpperCase();
+        hintOfTheDay = wordData.hint;
+        saveGameState();
       } else {
-        console.error('Word for today not found.');
+        console.error('Word for today not found');
       }
     } catch (error) {
-      console.error('Error loading game data:', error);
-      // Implement any fallback UI update or error handling here
+      console.error('Error loading word of the day:', error);
     }
   }
 
-  setupEventListeners() {
-    document.getElementById('keyboard').addEventListener('click', e => this.handleKeyboardClick(e));
-    document.addEventListener('keydown', e => this.handleKeyPress(e));
-    document.getElementById('share-result').addEventListener('click', () => this.shareResults());
+  function getLocalDateISOString() {
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    const adjustedNow = new Date(now - timezoneOffset);
+    return adjustedNow.toISOString().slice(0, 10);
   }
 
-  handleKeyboardClick(e) {
-    if (e.target.matches('.key')) {
-      const key = e.target.getAttribute('data-key');
-      this.processKey(key);
-    }
+  function saveGameState() {
+    const gameState = {
+      lastPlayedDate: getLocalDateISOString(),
+      wordOfTheDay,
+      hintOfTheDay
+    };
+    localStorage.setItem(gameStateKey, JSON.stringify(gameState));
   }
 
-  handleKeyPress(e) {
-    if (this.inputDisabled) return;
-    
-    if (e.key === 'Enter') {
-      this.submitGuess();
-    } else if (e.key === 'Backspace') {
-      e.preventDefault();
-      this.deleteLastCharacter();
+  function loadGameState() {
+    const gameState = JSON.parse(localStorage.getItem(gameStateKey));
+    if (gameState && gameState.lastPlayedDate === getLocalDateISOString()) {
+      wordOfTheDay = gameState.wordOfTheDay;
+      hintOfTheDay = gameState.hintOfTheDay;
+      // Further restoration if needed
     } else {
-      const key = e.key.toUpperCase();
-      if (/^[A-Z]$/i.test(key)) {
-        this.processKey(key);
-      }
+      // New day or first play, reset as necessary
     }
   }
 
-  processKey(key) {
-    if (this.isGameOver || this.inputDisabled) return;
+  return {
+    loadGame: async () => {
+      await loadDictionary();
+      await loadWordOfTheDay();
+    },
+    getWordOfTheDay: () => wordOfTheDay,
+    getHintOfTheDay: () => hintOfTheDay,
+    // Additional getters or setters as needed
+  };
+})();
 
+
+//--------------//
+// Input module //
+//--------------//
+
+const InputModule = ((gameDataModule, gameLogicModule, uiModule) => {
+  // Assuming these modules are passed as dependencies to handle game logic and UI updates
+
+  function initialize() {
+    document.getElementById('keyboard').addEventListener('click', handleVirtualKeyPress);
+    document.addEventListener('keydown', handlePhysicalKeyPress);
+  }
+
+  function handleVirtualKeyPress(event) {
+    if (event.target.classList.contains('key')) {
+      const key = event.target.getAttribute('data-key');
+      processKey(key);
+    }
+  }
+
+  function handlePhysicalKeyPress(event) {
+    const allowedKeys = ['Enter', 'Backspace'];
+    const key = event.key.toUpperCase();
+
+    if (allowedKeys.includes(event.key) || /^[A-Z]$/i.test(key)) {
+      event.preventDefault(); // Prevent default behavior for handled keys
+      processKey(event.key === 'Enter' ? 'ENTER' : event.key === 'Backspace' ? 'BACKSPACE' : key);
+    }
+  }
+
+  function processKey(key) {
     switch (key) {
       case 'ENTER':
-        this.submitGuess();
+        gameLogicModule.submitGuess();
         break;
       case 'BACKSPACE':
-        this.deleteLastCharacter();
-        this.updateCurrentGuessDisplay();
+        gameLogicModule.deleteLastCharacter();
         break;
       default:
-        if (/^[A-Z]$/i.test(key) && this.currentGuess.length < 5) {
-          this.currentGuess.push(key);
-          this.updateCurrentGuessDisplay();
-        }
+        gameLogicModule.addCharacterToGuess(key);
     }
   }
 
-  submitGuess() {
-    // Ensure we can submit guesses
-    if (this.isGameOver || this.currentGuess.length < 5) return;
-
-    const guess = this.currentGuess.join('').toUpperCase();
-
-    // Validate guess is in dictionary
-    if (!this.dictionary.includes(guess)) {
-      this.shakeCurrentRow();
-      return; // Invalid guess, so exit early
-    }
-
-    // Check if guess matches the word of the day
-    const isCorrect = guess === this.wordOfTheDay;
-
-    if (isCorrect || this.currentAttempt >= this.maxAttempts - 1) {
-      this.isGameOver = true; // Mark game as won
-    } else {
-      this.currentAttempt++; // Increment for hint display logic
-      this.currentGuess = [];
-    }
-
-    // Process guess for feedback
-    this.processGuess(guess);
-
-    // Prepare for next guess or conclude game
-    if (!this.isGameOver) {
-      this.currentAttempt++;
-      this.currentGuess = []; // Reset for next guess
-    } else {
-      // Display end-game message
-      this.displayEndGameMessage(isCorrect);
-    }
-
-    // Always update display regardless of guess outcome
-    this.updateCurrentGuessDisplay();
-  }
-
-  shakeCurrentRow() {
-    // Select the current row based on the current attempt
-    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${this.currentAttempt}"]`);
-    if (currentRow) {
-      currentRow.classList.add('shake');
-
-      // Remove the shake class after the animation duration to reset the state
-      setTimeout(() => {
-        currentRow.classList.remove('shake');
-      }, 800); // Assuming 800ms is the CSS animation duration for the shake effect
-    } else {
-      console.error('Current row not found for shaking:', this.currentAttempt);
-    }
-  }
-
-  processGuess(guess) {
-    // Initialize arrays to store the results of each letter comparison
-    let result = new Array(guess.length).fill('absent');
-    let wordOfTheDayArray = this.wordOfTheDay.split('');
-
-    // First pass: Check for correct letters in the correct position
-    guess.split('').forEach((letter, index) => {
-      if (letter === wordOfTheDayArray[index]) {
-        result[index] = 'correct';
-        wordOfTheDayArray[index] = null; // Mark this letter as "used"
-      }
-    });
-
-    // Second pass: Check for correct letters in the wrong position
-    guess.split('').forEach((letter, index) => {
-      if (wordOfTheDayArray.includes(letter) && result[index] !== 'correct') {
-        result[index] = 'present';
-        wordOfTheDayArray[wordOfTheDayArray.indexOf(letter)] = null; // Mark this letter as "used"
-      }
-    });
-
-    // Update the game state with the results of this guess
-    this.gameGuessColors.push(result);
-    this.gameGuessLetters.push(guess.split(''));
-
-    // Update UI based on the results
-    this.updateTiles(this.currentAttempt, guess, result);
-
-    // Save game state to local storage
-    this.saveGameState();
-
-    // Check for game end conditions
-    if (guess === this.wordOfTheDay) {
-      this.isGameOver = true;
-      this.displayEndGameMessage(true);
-    } else if (this.currentAttempt >= this.maxAttempts - 1) {
-      this.isGameOver = true;
-      this.displayEndGameMessage(false);
-    }
-  }
-
-  displayEndGameMessage(isCorrect) {
-    // Select the elements for displaying the end game message
-    const successMessage = document.querySelector('.success');
-    const failureMessage = document.querySelector('.failure');
-    const hintElement = document.querySelector('.hint');
-
-    // Display the hint if it hasn't been shown yet
-    if (!this.hintDisplayed) {
-      this.displayHint();
-    }
-
-    if (isCorrect) {
-      // Display the success message
-      successMessage.style.display = 'block';
-      setTimeout(() => successMessage.style.opacity = 1, 10); // Start the fade-in effect
-    } else {
-      // Display the failure message and the correct word
-      failureMessage.style.display = 'block';
-      setTimeout(() => failureMessage.style.opacity = 1, 10); // Start the fade-in effect
-      
-      // Also reveal the word of the day
-      const wordElement = document.getElementById('word');
-      const wordContentElement = document.getElementById('word-content');
-      wordContentElement.textContent = this.wordOfTheDay; // Update with the correct word
-      wordElement.style.display = 'flex';
-      setTimeout(() => wordElement.style.opacity = 1, 100); // Fade in the word reveal
-    }
-
-    // Handle additional UI updates or actions that should occur at the end of the game
-    // For example, disabling further input or highlighting the stats button
-    this.disableInput();
-
-    // Optionally, trigger the display of stats or share results
-    // this.displayStatsModal(); // Uncomment if you want to show stats automatically
-  }
-
-  deleteLastCharacter() {
-    // Check if there's at least one character to remove
-    if (this.currentGuess.length > 0) {
-      // Remove the last character from the current guess
-      this.currentGuess.pop();
-      // Update the display to reflect the change
-      this.updateCurrentGuessDisplay();
-    }
-  }
-
-  updateCurrentGuessDisplay() {
-    const currentRowTiles = document.querySelectorAll(`.tile-row-wrapper[data-attempt="${this.currentAttempt}"] .tile`);
-    currentRowTiles.forEach((tile, index) => {
-      const front = tile.querySelector('.front');
-      if (index < this.currentGuess.length) {
-        front.textContent = this.currentGuess[index];
+  function enableInput(enable) {
+    const keys = document.querySelectorAll('.key');
+    keys.forEach(key => {
+      if (enable) {
+        key.removeAttribute('disabled');
+        key.classList.remove('disabled');
       } else {
-        front.textContent = '';
+        key.setAttribute('disabled', 'true');
+        key.classList.add('disabled');
       }
     });
   }
 
-  generateResultString() {
-    const emojiMap = {
-      correct: '🟩',
-      present: '🟨',
-      absent: '⬛'
-    };
-    let resultString = 'Horrordle Result:\n\n';
-    this.gameGuessColors.forEach(guess => {
-      const guessString = guess.map(status => emojiMap[status]).join('');
-      resultString += `${guessString}\n`;
-    });
-    return resultString.trim();
+  return {
+    initialize,
+    enableInput,
+  };
+})(GameDataModule, GameLogicModule, UIModule); // Dependency injection
+
+// Remember to call InputModule.initialize() somewhere in your game initialization logic.
+
+
+//-------------------//
+// Game Logic module //
+//-------------------//
+
+const GameLogicModule = ((gameDataModule, uiModule) => {
+  let currentGuess = [];
+  let attempts = 0;
+  const maxAttempts = 6;
+  let isGameOver = false;
+
+  function addCharacterToGuess(character) {
+    if (isGameOver || currentGuess.length >= 5) return;
+    currentGuess.push(character);
+    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
   }
 
-  saveGameState() {
-    // Save the current game's progress and outcomes
-    localStorage.setItem('currentAttempt', JSON.stringify(this.currentAttempt));
-    localStorage.setItem('gameGuessColors', JSON.stringify(this.gameGuessColors));
-    localStorage.setItem('gameGuessLetters', JSON.stringify(this.gameGuessLetters));
-    localStorage.setItem('isGameOver', JSON.stringify(this.isGameOver));
-    localStorage.setItem('hintDisplayed', JSON.stringify(this.hintDisplayed));
-
-    // Assuming you have a method or properties to calculate these stats, save them as well
-    localStorage.setItem('stats', JSON.stringify({
-      gamesPlayed: this.stats.gamesPlayed,
-      wins: this.stats.wins,
-      currentStreak: this.stats.currentStreak,
-      maxStreak: this.stats.maxStreak,
-      // Add other statistics as necessary
-    }));
-
-    // Save the outcome of the last game (won or lost)
-    localStorage.setItem('gameOutcome', this.isGameOver && this.currentAttempt < this.maxAttempts ? 'won' : 'lost');
-
-    // Note: This implementation assumes you have a `stats` object in your class for tracking game statistics.
+  function deleteLastCharacter() {
+    if (isGameOver || currentGuess.length === 0) return;
+    currentGuess.pop();
+    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
   }
 
-  displayStats() {
-    // Example stats structure (ensure your class initializes this correctly)
-    // this.stats = { gamesPlayed: 0, wins: 0, currentStreak: 0, maxStreak: 0, guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0} };
-
-    // Calculate win percentage
-    const winPercentage = this.stats.gamesPlayed > 0 ? Math.round((this.stats.wins / this.stats.gamesPlayed) * 100) : 0;
-
-    // Update the UI with the calculated stats
-    document.getElementById('games-played').textContent = this.stats.gamesPlayed;
-    document.getElementById('win-percentage').textContent = `${winPercentage}%`;
-    document.getElementById('current-streak').textContent = this.stats.currentStreak;
-    document.getElementById('max-streak').textContent = this.stats.maxStreak;
-
-    // If you're displaying guess distribution or other stats, update those elements similarly
-    Object.entries(this.stats.guessDistribution).forEach(([guess, count]) => {
-      const distributionElement = document.getElementById(`distribution-${guess}`);
-      if (distributionElement) {
-        // Update distribution display, e.g., setting width of a bar in a bar chart, or simply updating text content
-        distributionElement.textContent = count; // Simplified example
-      }
-    });
-
-    // Optionally, handle visibility or styling changes for the stats display area
-  }
-
-  startNewGame() {
-    // Reset game state properties
-    this.wordOfTheDay = '';
-    this.currentAttempt = 0;
-    this.isGameOver = false;
-    this.incorrectGuesses = 0;
-    this.hintDisplayed = false;
-    this.gameGuessColors = [];
-    this.gameGuessLetters = [];
-    this.currentGuess = [];
-    this.inputDisabled = false;
-
-    // Optionally, clear any game-specific UI elements or messages
-    document.querySelector('.success').style.display = 'none';
-    document.querySelector('.failure').style.display = 'none';
-    document.getElementById('hint').style.display = 'none';
-    document.getElementById('word-content').textContent = ''; // Clear the word of the day reveal
-
-    // Clear the game board for a new game
-    this.clearGameBoard();
-
-    // Load a new game
-    this.loadGame();
-  }
-
-  clearGameBoard() {
-    // Clear the tiles for a new game
-    const tiles = document.querySelectorAll('.tile');
-    tiles.forEach(tile => {
-      tile.querySelector('.front').textContent = '';
-      tile.querySelector('.back').textContent = '';
-      tile.classList.remove('correct', 'present', 'absent', 'flipped');
-    });
-
-    // Reset any other UI elements specific to your game board
-  }
-
-disableInput() {
-  // Flag to disable processing of key inputs
-  this.inputDisabled = true;
-
-  // Optionally, visually indicate that the input is disabled (e.g., by dimming or hiding the virtual keyboard)
-  const keyboard = document.getElementById('keyboard');
-  if (keyboard) {
-    keyboard.classList.add('disabled'); // Assuming 'disabled' class dims or hides the element
-  }
-
-  // Disable individual keys on the virtual keyboard as needed
-  const keys = document.querySelectorAll('.key');
-  keys.forEach(key => {
-    key.setAttribute('disabled', true);
-    key.classList.add('key-disabled'); // Assuming 'key-disabled' visually indicates the key is disabled
-  });
-
-  // Note: This example assumes you have a CSS class named 'disabled' that styles the keyboard
-  // or keys as disabled (e.g., reducing opacity, adding a 'not-allowed' cursor, etc.)
-}
-
-  displayHint() {
-    const hintElement = document.getElementById('hint');
-    if (hintElement && !this.hintDisplayed) {
-      hintElement.textContent = this.hintOfTheDay;
-      hintElement.style.display = 'block';
-      setTimeout(() => hintElement.style.opacity = 1, 10); // Assuming CSS handles the transition
-      this.hintDisplayed = true;
+  function submitGuess() {
+    if (isGameOver || currentGuess.length < 5) return;
+    const guessStr = currentGuess.join('');
+    if (!gameDataModule.validateWord(guessStr)) {
+      uiModule.shakeCurrentRow(attempts);
+      return;
+    }
+    processGuess(guessStr);
+    currentGuess = []; // Reset for next guess
+    uiModule.clearCurrentGuessDisplay(attempts); // Prepare for next guess input
+    if (checkGameOver()) {
+      endGame();
+    } else {
+      attempts++;
     }
   }
 
-  updateTiles(attempt, guess, result) {
-    // Select the row for the current attempt
-    const currentRowTiles = document.querySelectorAll(`.tile-row-wrapper[data-attempt="${attempt}"] .tile`);
-    
-    // Ensure there's a tile for each letter in the guess
-    currentRowTiles.forEach((tile, index) => {
-      // Assuming the result array contains values like 'correct', 'present', 'absent' for each letter
-      const status = result[index];
+  function processGuess(guess) {
+    const result = gameDataModule.compareWord(guess);
+    uiModule.updateTiles(attempts, guess, result);
+    if (guess === gameDataModule.getWordOfTheDay()) {
+      isGameOver = true;
+      uiModule.displayWinMessage();
+    }
+  }
 
-      // Update the front and back of each tile with the guess letter and color based on the result
-      const front = tile.querySelector('.front');
-      const back = tile.querySelector('.back');
+  function checkGameOver() {
+    return attempts >= maxAttempts - 1 || currentGuess.join('') === gameDataModule.getWordOfTheDay();
+  }
 
-      front.textContent = guess[index]; // Show the letter on the tile
-      back.textContent = guess[index]; // Optionally, also set the letter on the back for a flip animation
+  function endGame() {
+    isGameOver = true;
+    uiModule.displayEndGameMessage(currentGuess.join('') === gameDataModule.getWordOfTheDay());
+    // Additional end game logic like updating stats could go here
+  }
 
-      // Reset any previous classes (if the game is being replayed without page reload)
-      back.classList.remove('correct', 'present', 'absent');
-      
-      // Apply the class based on the result for this letter
-      back.classList.add(status);
+  return {
+    addCharacterToGuess,
+    deleteLastCharacter,
+    submitGuess,
+    // Other public methods or properties as needed
+  };
+})(GameDataModule, UIModule);
 
-      // Trigger the flip animation after a short delay to visualize the checking process
-      setTimeout(() => tile.classList.add('flipped'), index * 150); // Adjust timing as needed
+
+//-----------//
+// UI module //
+//-----------//
+
+const UIModule = (() => {
+  function updateCurrentGuessDisplay(attempt, currentGuess) {
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+    const tiles = currentRow.querySelectorAll('.tile .front');
+    tiles.forEach((tile, index) => {
+      tile.textContent = index < currentGuess.length ? currentGuess[index] : '';
     });
   }
 
-}
+  function clearCurrentGuessDisplay(attempt) {
+    updateCurrentGuessDisplay(attempt, []); // Clear by updating with an empty guess
+  }
 
-// Instantiate the game when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => new HorrordleGame());
+  function updateTiles(attempt, guess, result) {
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+    const tiles = currentRow.querySelectorAll('.tile');
+    tiles.forEach((tile, index) => {
+      const back = tile.querySelector('.back');
+      back.textContent = guess[index];
+      tile.className = `tile ${result[index]}`; // Add class based on result to tile for CSS styling
+      // Optionally, trigger animation here
+    });
+  }
+
+  function shakeCurrentRow(attempt) {
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+    currentRow.classList.add('shake');
+    setTimeout(() => currentRow.classList.remove('shake'), 1000); // Remove class after animation completes
+  }
+
+  function displayWinMessage() {
+    // Display win message logic here
+  }
+
+  function displayEndGameMessage(won) {
+    const messageElement = document.getElementById(won ? 'win-message' : 'lose-message');
+    messageElement.style.display = 'block';
+    // Optionally, add more UI feedback for end game
+  }
+
+  function updateKeyboard(guess, result) {
+    // Iterate through guess and update keyboard based on result
+    guess.split('').forEach((letter, index) => {
+      const keyElement = document.querySelector(`.keyboard .key[data-key="${letter}"]`);
+      if (result[index] === 'correct') {
+        keyElement.classList.add('correct');
+      } else if (result[index] === 'present') {
+        keyElement.classList.add('present');
+      } else {
+        keyElement.classList.add('absent');
+      }
+    });
+  }
+
+  return {
+    updateCurrentGuessDisplay,
+    clearCurrentGuessDisplay,
+    updateTiles,
+    shakeCurrentRow,
+    displayWinMessage,
+    displayEndGameMessage,
+    updateKeyboard,
+    // Additional UI functions as needed
+  };
+})();
+
+
+
+//----------------//
+// Storage module //
+//---------------//
+
+const StorageModule = (() => {
+  const gameStateKey = 'horrordleGameState';
+  const gameStatsKey = 'horrordleStats';
+
+  function saveGameState(gameState) {
+    localStorage.setItem(gameStateKey, JSON.stringify(gameState));
+  }
+
+  function loadGameState() {
+    const gameStateJSON = localStorage.getItem(gameStateKey);
+    return gameStateJSON ? JSON.parse(gameStateJSON) : null;
+  }
+
+  function saveGameStats(stats) {
+    localStorage.setItem(gameStatsKey, JSON.stringify(stats));
+  }
+
+  function loadGameStats() {
+    const statsJSON = localStorage.getItem(gameStatsKey);
+    return statsJSON ? JSON.parse(statsJSON) : {
+      gamesPlayed: 0,
+      wins: 0,
+      currentStreak: 0,
+      maxStreak: 0,
+      guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+    };
+  }
+
+  function clearGameData() {
+    localStorage.removeItem(gameStateKey);
+    // Optionally, clear other data related to the game
+  }
+
+  function clearGameStats() {
+    localStorage.removeItem(gameStatsKey);
+  }
+
+  return {
+    saveGameState,
+    loadGameState,
+    saveGameStats,
+    loadGameStats,
+    clearGameData,
+    clearGameStats,
+    // Additional utility functions as needed
+  };
+})();
+
+
+//--------------//
+// Stats module //
+//--------------//
+
+const StatsModule = ((storageModule) => {
+  let stats = {
+    gamesPlayed: 0,
+    wins: 0,
+    currentStreak: 0,
+    maxStreak: 0,
+    guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+  };
+
+  function loadStats() {
+    const loadedStats = storageModule.loadGameStats();
+    if (loadedStats) {
+      stats = loadedStats;
+    }
+  }
+
+  function updateStats(gameWon, guessesTaken) {
+    stats.gamesPlayed += 1;
+    if (gameWon) {
+      stats.wins += 1;
+      stats.currentStreak += 1;
+      stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+      stats.guessDistribution[guessesTaken] = (stats.guessDistribution[guessesTaken] || 0) + 1;
+    } else {
+      stats.currentStreak = 0;
+    }
+    storageModule.saveGameStats(stats);
+  }
+
+  function displayStats() {
+    // Assuming there are UI elements with these IDs to display the stats
+    document.getElementById('games-played').textContent = stats.gamesPlayed;
+    document.getElementById('win-percentage').textContent = ((stats.wins / stats.gamesPlayed) * 100).toFixed(2) + '%';
+    document.getElementById('current-streak').textContent = stats.currentStreak;
+    document.getElementById('max-streak').textContent = stats.maxStreak;
+    // Update guess distribution display...
+    Object.entries(stats.guessDistribution).forEach(([guessCount, count]) => {
+      const element = document.getElementById(`distribution-${guessCount}`);
+      if (element) {
+        element.textContent = count;
+        // Additional logic for visual representation of distribution...
+      }
+    });
+  }
+
+  function resetStats() {
+    stats = {
+      gamesPlayed: 0,
+      wins: 0,
+      currentStreak: 0,
+      maxStreak: 0,
+      guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+    };
+    storageModule.saveGameStats(stats);
+    displayStats();
+  }
+
+  return {
+    loadStats,
+    updateStats,
+    displayStats,
+    resetStats
+  };
+})(StorageModule);
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  StatsModule.loadStats();
+  StatsModule.displayStats();
+});
