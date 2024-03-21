@@ -10,7 +10,7 @@ const GameDataModule = (() => {
   const gameStateKey = 'horrordleGameState';
 
 async function loadDictionary() {
-    dictionary = ['TESTA', 'TESTB', 'TESTC']; // Temporary hardcoded dictionary
+    dictionary = ['TESTA', 'TESTB', 'JANET']; // Temporary hardcoded dictionary
     console.log("Dictionary loaded:", dictionary);
 }
 
