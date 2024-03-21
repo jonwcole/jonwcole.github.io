@@ -118,13 +118,12 @@ class HorrordleGame {
 
     // Check if guess matches the word of the day
     const isCorrect = guess === this.wordOfTheDay;
-    if (isCorrect) {
+
+    if (isCorrect || this.currentAttempt >= this.maxAttempts - 1) {
       this.isGameOver = true; // Mark game as won
     } else {
-      this.incorrectGuesses++; // Increment for hint display logic
-      if (this.currentAttempt + 1 >= this.maxAttempts) {
-        this.isGameOver = true; // No more attempts left
-      }
+      this.currentAttempt++; // Increment for hint display logic
+      this.currentGuess = [];
     }
 
     // Process guess for feedback
@@ -246,18 +245,14 @@ class HorrordleGame {
   }
 
   updateCurrentGuessDisplay() {
-    // Assume the current attempt corresponds to a row of tiles in the UI
     const currentRowTiles = document.querySelectorAll(`.tile-row-wrapper[data-attempt="${this.currentAttempt}"] .tile`);
-    
-    // Clear all tiles in the current row first
-    currentRowTiles.forEach(tile => {
-      tile.querySelector('.front').textContent = '';
-    });
-    
-    // Set the tiles based on the current guess' letters
-    this.currentGuess.forEach((letter, index) => {
-      const tileFront = currentRowTiles[index].querySelector('.front');
-      tileFront.textContent = letter;
+    currentRowTiles.forEach((tile, index) => {
+      const front = tile.querySelector('.front');
+      if (index < this.currentGuess.length) {
+        front.textContent = this.currentGuess[index];
+      } else {
+        front.textContent = '';
+      }
     });
   }
 
