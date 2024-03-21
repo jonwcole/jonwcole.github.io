@@ -231,6 +231,9 @@ const GameLogicModule = ((gameDataModule, uiModule) => {
       const gameGuessLetters = gameState.gameGuessLetters || [];
       const gameGuessColors = gameState.gameGuessColors || [];
 
+      // Correctly access gameOutcome from gameState
+      const { gameGuessLetters, gameGuessColors, gameOutcome } = gameState;
+
       gameGuessLetters.forEach((guessLetters, attempt) => {
           guessLetters.forEach((letter, index) => {
               // Update UI for each letter guessed in each attempt
