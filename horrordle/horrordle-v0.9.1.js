@@ -63,6 +63,13 @@ const GameDataModule = (() => {
     }
   }
 
+  function getTodayDate() {
+      const now = new Date();
+      const timezoneOffset = now.getTimezoneOffset() * 60000;
+      const adjustedNow = new Date(now.getTime() - timezoneOffset);
+      return adjustedNow.toISOString().slice(0, 10);
+  }
+
   return {
     loadGame: async () => {
       await loadDictionary();
@@ -70,7 +77,7 @@ const GameDataModule = (() => {
     },
     getWordOfTheDay: () => wordOfTheDay,
     getHintOfTheDay: () => hintOfTheDay,
-    // Additional getters or setters as needed
+    getTodayDate,
   };
 })();
 
