@@ -226,9 +226,6 @@ const GameLogicModule = ((gameDataModule, uiModule) => {
       // or marking the game as 'over' to prevent input processing
       uiModule.disableInput(); // Let's assume UIModule has a method to disable input
 
-      // Ensure gameGuessLetters and gameGuessColors are arrays before calling forEach.
-      // This initializes them to empty arrays if they are undefined.
-      const gameGuessColors = gameState.gameGuessColors || [];
 
       // Correctly access gameOutcome from gameState
       const { gameGuessLetters, gameGuessColors, gameOutcome } = gameState;
