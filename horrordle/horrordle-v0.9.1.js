@@ -18,6 +18,10 @@ const GameDataModule = (() => {
     }
   }
 
+  function validateWord(word) {
+      return dictionary.includes(word.toUpperCase());
+  }
+
   async function loadWordOfTheDay() {
     try {
       const response = await fetch('https://jonwcole.github.io/horrordle/words.json');
@@ -78,6 +82,7 @@ const GameDataModule = (() => {
     getWordOfTheDay: () => wordOfTheDay,
     getHintOfTheDay: () => hintOfTheDay,
     getTodayDate,
+    validateWord,
   };
 })();
 
