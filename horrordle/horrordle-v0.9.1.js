@@ -70,33 +70,6 @@ const GameDataModule = (() => {
       return adjustedNow.toISOString().slice(0, 10);
   }
 
-  function restoreGameState(gameState) {
-      // Disable further input - This might involve disabling keyboard listeners, 
-      // or marking the game as 'over' to prevent input processing
-      uiModule.disableInput(); // Let's assume UIModule has a method to disable input
-
-      // Assuming gameState includes gameGuessLetters, gameGuessColors, and possibly gameOutcome
-      const { gameGuessLetters, gameGuessColors, gameOutcome } = gameState;
-
-      gameGuessLetters.forEach((guessLetters, attempt) => {
-          guessLetters.forEach((letter, index) => {
-              // Update UI for each letter guessed in each attempt
-              uiModule.restoreGuess(attempt, index, letter, gameGuessColors[attempt][index]);
-              // You might need to adjust how the UI module handles this restoration
-          });
-      });
-
-      // Display the Word of the Day if the user lost their last game
-      if (gameOutcome === 'lost') {
-          uiModule.displayWordOfTheDay(); // Assuming a function for this
-      }
-
-      // Optionally, show the hint if it was shown previously
-      if (gameState.hintDisplayed) {
-          uiModule.displayHint(); // Assuming UIModule has a method to show the hint
-      }
-  }
-
   return {
     loadGame: async () => {
       await loadDictionary();
@@ -105,7 +78,6 @@ const GameDataModule = (() => {
     getWordOfTheDay: () => wordOfTheDay,
     getHintOfTheDay: () => hintOfTheDay,
     getTodayDate,
-    restoreGameState,
   };
 })();
 
@@ -241,10 +213,38 @@ const GameLogicModule = ((gameDataModule, uiModule) => {
     // Additional end game logic like updating stats could go here
   }
 
+  function restoreGameState(gameState) {
+      // Disable further input - This might involve disabling keyboard listeners, 
+      // or marking the game as 'over' to prevent input processing
+      uiModule.disableInput(); // Let's assume UIModule has a method to disable input
+
+      // Assuming gameState includes gameGuessLetters, gameGuessColors, and possibly gameOutcome
+      const { gameGuessLetters, gameGuessColors, gameOutcome } = gameState;
+
+      gameGuessLetters.forEach((guessLetters, attempt) => {
+          guessLetters.forEach((letter, index) => {
+              // Update UI for each letter guessed in each attempt
+              uiModule.restoreGuess(attempt, index, letter, gameGuessColors[attempt][index]);
+              // You might need to adjust how the UI module handles this restoration
+          });
+      });
+
+      // Display the Word of the Day if the user lost their last game
+      if (gameOutcome === 'lost') {
+          uiModule.displayWordOfTheDay(); // Assuming a function for this
+      }
+
+      // Optionally, show the hint if it was shown previously
+      if (gameState.hintDisplayed) {
+          uiModule.displayHint(); // Assuming UIModule has a method to show the hint
+      }
+  }
+
   return {
     addCharacterToGuess,
     deleteLastCharacter,
     submitGuess,
+    restoreGameState,
     // Other public methods or properties as needed
   };
 })(GameDataModule, UIModule);
