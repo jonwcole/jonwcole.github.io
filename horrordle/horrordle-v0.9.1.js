@@ -222,30 +222,28 @@ const GameLogicModule = ((gameDataModule, uiModule) => {
   }
 
   function restoreGameState(gameState) {
-      // Disable further input - This might involve disabling keyboard listeners, 
-      // or marking the game as 'over' to prevent input processing
-      uiModule.disableInput(); // Let's assume UIModule has a method to disable input
+      uiModule.disableInput(); // Disable input to prevent further actions during state restoration
 
+      // Use destructuring with default values to ensure we always have arrays
+      const { 
+          gameGuessLetters = [], 
+          gameGuessColors = [], 
+          gameOutcome 
+      } = gameState || {}; // Also protect against gameState being undefined
 
-      // Correctly access gameOutcome from gameState
-      const { gameGuessLetters, gameGuessColors, gameOutcome } = gameState;
-
+      // Now safe to use forEach, as we ensured gameGuessLetters and gameGuessColors are arrays
       gameGuessLetters.forEach((guessLetters, attempt) => {
           guessLetters.forEach((letter, index) => {
-              // Update UI for each letter guessed in each attempt
-              uiModule.restoreGuess(attempt, index, letter, gameGuessColors[attempt][index]);
-              // You might need to adjust how the UI module handles this restoration
+              uiModule.restoreGuess(attempt, index, letter, gameGuessColors[attempt]?.[index]);
           });
       });
 
-      // Display the Word of the Day if the user lost their last game
       if (gameOutcome === 'lost') {
-          uiModule.displayWordOfTheDay(); // Assuming a function for this
+          uiModule.displayWordOfTheDay(); // Show word if the game was lost
       }
 
-      // Optionally, show the hint if it was shown previously
-      if (gameState.hintDisplayed) {
-          uiModule.displayHint(); // Assuming UIModule has a method to show the hint
+      if (gameState?.hintDisplayed) {
+          uiModule.displayHint(); // Show hint if it was displayed in the previous session
       }
   }
 
