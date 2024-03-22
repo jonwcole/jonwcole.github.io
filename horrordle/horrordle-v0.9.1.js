@@ -18,7 +18,7 @@ const Game = (() => {
 
   // Load game setup (moved from global scope)
   const loadGame = () => {
-    Promise.all([
+    return Promise.all([
       fetch('https://jonwcole.github.io/horrordle/dictionary.json').then(response => response.json()),
       fetch('https://jonwcole.github.io/horrordle/words.json').then(response => response.json())
     ]).then(([dictionaryData, wordsData]) => {
@@ -85,12 +85,16 @@ const Game = (() => {
     updateCurrentGuessDisplay(); // Update UI accordingly
   };
 
-  // Init method for starting or restoring game
-  const init = async () => {
-    // Load game data and set up initial state
-    // Possibly involving fetching data and setting up UI
-    return loadGame().then(setupInitialState); // Example promise chain
-  };
+// Init method for starting or restoring game
+const init = async () => {
+  // Await the loadGame function to ensure it completes before proceeding.
+  await loadGame();
+  // After loadGame completes, you can proceed to set up the initial state.
+  // Assuming setupInitialState is another function that sets up the game's initial state,
+  // you can call it here. If setupInitialState is async or returns a Promise, you may await it as well.
+
+  // No need to return anything unless you have a specific reason to.
+};
 
   // Publicly exposed methods
   return {
@@ -278,12 +282,11 @@ const Storage = (() => {
 
 // EVENT LISTENERS
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Initialize game setup and UI
-  Game.init().then(() => {
-    UI.setInitialGameState(Game.getState());
-    Storage.loadGameState();
-  });
+  await Game.init();
+  UI.setInitialGameState(Game.getState());
+  Storage.loadGameState();
 
   // Virtual keyboard click handling
   document.getElementById('keyboard').addEventListener('click', (e) => {
