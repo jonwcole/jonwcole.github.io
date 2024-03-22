@@ -73,12 +73,6 @@ const Game = (() => {
     // Assume other functionalities like updating UI and saving to storage are handled elsewhere
   };
 
-  return {
-    loadGame,
-    submitGuess,
-    getState: () => state,
-    // Additional methods as needed
-  };
 
   // Add any additional methods you want as part of the Game module here
   const addCharacterToGuess = (character) => {
