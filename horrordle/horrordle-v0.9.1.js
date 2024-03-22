@@ -1,504 +1,338 @@
-//------------------//
-// Game data module //
-//------------------//
+// THE GAME MODULE
 
-const GameDataModule = (() => {
-  let dictionary = [];
-  let wordOfTheDay = '';
-  let hintOfTheDay = '';
-  const gameStatsKey = 'horrordleStats';
-  const gameStateKey = 'horrordleGameState';
+const Game = (() => {
+  // Game state
+  let state = {
+    wordOfTheDay: '',
+    dictionary: [],
+    guesses: [],
+    currentAttempt: 0,
+    maxAttempts: 6,
+    isGameOver: false,
+    incorrectGuesses: 0,
+    hintDisplayed: false,
+    hintOfTheDay: '',
+    gameGuessColors: [],
+    gameGuessLetters: [],
+  };
 
-  async function loadDictionary() {
-      try {
-          const response = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
-          dictionary = await response.json();
-      } catch (error) {
-          console.error('Error loading dictionary:', error);
-      }
-  }
+  // Load game setup (moved from global scope)
+  const loadGame = () => {
+    Promise.all([
+      fetch('https://jonwcole.github.io/horrordle/dictionary.json').then(response => response.json()),
+      fetch('https://jonwcole.github.io/horrordle/words.json').then(response => response.json())
+    ]).then(([dictionaryData, wordsData]) => {
+      const now = new Date();
+      const timezoneOffset = now.getTimezoneOffset() * 60000;
+      const adjustedNow = new Date(now - timezoneOffset);
+      const today = adjustedNow.toISOString().slice(0, 10);
 
-  function validateWord(word) {
-      return dictionary.includes(word.toUpperCase());
-  }
-
-  async function loadWordOfTheDay() {
-    try {
-      const response = await fetch('https://jonwcole.github.io/horrordle/words.json');
-      const words = await response.json();
-      const today = getLocalDateISOString();
-      const wordData = words[today];
+      const wordData = wordsData[today];
       if (wordData) {
-        wordOfTheDay = wordData.word.toUpperCase();
-        hintOfTheDay = wordData.hint;
-        saveGameState();
+        state.wordOfTheDay = wordData.word.toUpperCase();
+        state.hintOfTheDay = wordData.hint;
+        state.dictionary = dictionaryData.map(word => word.toUpperCase());
+        // Assume UI is updated elsewhere to reflect these changes
       } else {
         console.error('Word for today not found');
       }
-    } catch (error) {
-      console.error('Error loading word of the day:', error);
+    }).catch(error => {
+      console.error('Error loading game data:', error);
+    });
+  };
+
+  // Submit a guess
+  const submitGuess = (guess) => {
+    if (state.isGameOver || guess.length < 5 || !state.dictionary.includes(guess)) {
+      console.error('Invalid guess');
+      return; // Guess is invalid
     }
-  }
 
-  function getLocalDateISOString() {
-    const now = new Date();
-    const timezoneOffset = now.getTimezoneOffset() * 60000;
-    const adjustedNow = new Date(now - timezoneOffset);
-    return adjustedNow.toISOString().slice(0, 10);
-  }
+    // Process guess
+    const result = guess.split('').map((char, index) => {
+      if (char === state.wordOfTheDay[index]) {
+        return 'correct';
+      } else if (state.wordOfTheDay.includes(char)) {
+        return 'present';
+      } else {
+        return 'absent';
+      }
+    });
 
-  function saveGameState() {
-    const gameState = {
-      lastPlayedDate: getLocalDateISOString(),
-      wordOfTheDay,
-      hintOfTheDay
-    };
-    localStorage.setItem(gameStateKey, JSON.stringify(gameState));
-  }
+    state.guesses.push(guess);
+    state.gameGuessLetters.push(guess.split(''));
+    state.gameGuessColors.push(result);
+    state.currentAttempt++;
 
-  function loadGameState() {
-    const gameState = JSON.parse(localStorage.getItem(gameStateKey));
-    if (gameState && gameState.lastPlayedDate === getLocalDateISOString()) {
-      wordOfTheDay = gameState.wordOfTheDay;
-      hintOfTheDay = gameState.hintOfTheDay;
-      // Further restoration if needed
-    } else {
-      // New day or first play, reset as necessary
+    // Check for game end
+    if (guess === state.wordOfTheDay || state.currentAttempt === state.maxAttempts) {
+      state.isGameOver = true;
+      // Update UI and storage accordingly
     }
-  }
 
-  function getTodayDate() {
-      const now = new Date();
-      const timezoneOffset = now.getTimezoneOffset() * 60000;
-      const adjustedNow = new Date(now.getTime() - timezoneOffset);
-      return adjustedNow.toISOString().slice(0, 10);
-  }
-
-  function compareWord(guess) {
-      // Assuming wordOfTheDay is the correct word players are trying to guess
-      // This function should return an array indicating the result for each letter in the guess
-      // For simplicity, let's just check if the guessed word is exactly the word of the day
-      return guess.split('').map((letter, index) => {
-          if (wordOfTheDay[index] === letter.toUpperCase()) {
-              return 'correct'; // Letter is in the correct position
-          } else if (wordOfTheDay.includes(letter.toUpperCase())) {
-              return 'present'; // Letter is in the word but in the wrong position
-          } else {
-              return 'absent'; // Letter is not in the word
-          }
-      });
-  }
+    // Assume other functionalities like updating UI and saving to storage are handled elsewhere
+  };
 
   return {
-    loadGame: async () => {
-      await loadDictionary();
-      await loadWordOfTheDay();
-    },
-    getWordOfTheDay: () => wordOfTheDay,
-    getHintOfTheDay: () => hintOfTheDay,
-    getTodayDate,
-    validateWord,
-    compareWord,
+    loadGame,
+    submitGuess,
+    getState: () => state,
+    // Additional methods as needed
   };
 })();
 
 
 
-//-----------//
-// UI module //
-//-----------//
 
-const UIModule = (() => {
-  function updateCurrentGuessDisplay(attempt, currentGuess) {
-    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-    const tiles = currentRow.querySelectorAll('.tile .front');
-    tiles.forEach((tile, index) => {
-      tile.textContent = index < currentGuess.length ? currentGuess[index] : '';
-    });
-  }
 
-  function clearCurrentGuessDisplay(attempt) {
-    updateCurrentGuessDisplay(attempt, []); // Clear by updating with an empty guess
-  }
+// THE UI MODULE
 
-  function updateTiles(attempt, guess, result) {
-    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+const UI = (() => {
+  // Update the display with the hint of the day
+  const setHint = (hintOfTheDay) => {
+    const hintElement = document.getElementById('hint');
+    if (hintElement) {
+      hintElement.textContent = hintOfTheDay;
+      hintElement.style.display = hintOfTheDay ? 'block' : 'none';
+    }
+  };
+
+  // Refresh the display to show the current guess state
+  const updateCurrentGuessDisplay = (currentGuess, currentAttempt) => {
+    const rows = document.querySelectorAll('.tile-row-wrapper');
+    const currentRow = rows[currentAttempt];
+    if (!currentRow) return;
+
     const tiles = currentRow.querySelectorAll('.tile');
     tiles.forEach((tile, index) => {
-      const back = tile.querySelector('.back');
-      back.textContent = guess[index];
-      tile.className = `tile ${result[index]}`; // Add class based on result to tile for CSS styling
-      // Optionally, trigger animation here
+      const front = tile.querySelector('.front');
+      front.textContent = currentGuess[index] || '';
     });
-  }
+  };
 
-  function shakeCurrentRow(attempt) {
-    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-    currentRow.classList.add('shake');
-    setTimeout(() => currentRow.classList.remove('shake'), 1000); // Remove class after animation completes
-  }
+  // Visual feedback for incorrect guesses
+  const shakeCurrentRow = (currentAttempt) => {
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
+    if (currentRow) {
+      currentRow.classList.add('shake');
+      setTimeout(() => currentRow.classList.remove('shake'), 800);
+    }
+  };
 
-  function displayWinMessage() {
-    // Display win message logic here
-  }
+  // Update tiles with the result of each guess
+  const updateTiles = (attempt, guess, result) => {
+    const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+    const tiles = row.querySelectorAll('.tile');
+    tiles.forEach((tile, index) => {
+      setTimeout(() => {
+        const back = tile.querySelector('.back');
+        back.textContent = guess[index];
+        back.className = 'back ' + result[index];
+        tile.classList.add('flipped');
+      }, index * 500);
+    });
+  };
 
-  function displayEndGameMessage(won) {
-    const messageElement = document.getElementById(won ? 'win-message' : 'lose-message');
-    messageElement.style.display = 'block';
-    // Optionally, add more UI feedback for end game
-  }
-
-  function updateKeyboard(guess, result) {
-    // Iterate through guess and update keyboard based on result
+  // Update the on-screen keyboard based on the guess result
+  const updateKeyboard = (guess, result) => {
     guess.split('').forEach((letter, index) => {
-      const keyElement = document.querySelector(`.keyboard .key[data-key="${letter}"]`);
-      if (result[index] === 'correct') {
-        keyElement.classList.add('correct');
-      } else if (result[index] === 'present') {
-        keyElement.classList.add('present');
-      } else {
-        keyElement.classList.add('absent');
+      const keyElement = document.querySelector(`.key[data-key='${letter.toUpperCase()}']`);
+      if (!keyElement) return;
+      const className = result[index];
+      if (!keyElement.classList.contains(className)) {
+        keyElement.classList.add(className);
       }
     });
-  }
+  };
 
-  function disableInput() {
-      // Example of disabling input. This could be more complex depending on your application's structure.
-      // Here, we're disabling the on-screen keyboard.
-      const keys = document.querySelectorAll('.key');
-      keys.forEach(key => key.setAttribute('disabled', true));
-  }
+  // Display end-game message
+  const displayEndGameMessage = (won, hintDisplayed) => {
+    const message = won ? 'Congratulations! You won!' : 'Try again tomorrow!';
+    const messageDiv = document.querySelector(won ? '.success' : '.failure');
+    messageDiv.textContent = message;
+    messageDiv.style.display = 'block';
+    setTimeout(() => messageDiv.style.opacity = 1, 10);
+    
+    setTimeout(() => {
+      messageDiv.style.opacity = 0;
+      setTimeout(() => messageDiv.style.display = 'none', 400);
+    }, 2400 + (hintDisplayed ? 1200 : 0));
+  };
 
-  function restoreGuess(attempt, index, letter, color) {
-      // Implementation for restoring a single guess in the UI
-  }
+  // Display stats
+  const displayStats = (stats) => {
+    // Implementation omitted for brevity
+  };
 
-  function restoreUIFromGameState(gameState) {
-      // Example restoration logic
-      // This will likely involve iterating over gameState properties
-      // and updating the UI accordingly
-      const { 
-          gameGuessLetters = [], 
-          gameGuessColors = [], 
-          // Include other properties you might need
-      } = gameState;
-
-      gameGuessLetters.forEach((letters, attempt) => {
-          letters.forEach((letter, index) => {
-              const color = gameGuessColors[attempt] ? gameGuessColors[attempt][index] : 'defaultColor'; // Adjust 'defaultColor' as needed
-              restoreGuess(attempt, index, letter, color);
-          });
-      });
-
-      // Additional UI updates based on gameState (e.g., displaying hints, word of the day, etc.)
-  }
+  // General method to disable input
+  const disableInput = () => {
+    const keyboard = document.getElementById('keyboard');
+    keyboard.style.pointerEvents = 'none';
+  };
 
   return {
+    setHint,
     updateCurrentGuessDisplay,
-    clearCurrentGuessDisplay,
-    updateTiles,
     shakeCurrentRow,
-    displayWinMessage,
-    displayEndGameMessage,
+    updateTiles,
     updateKeyboard,
+    displayEndGameMessage,
+    displayStats,
     disableInput,
-    restoreUIFromGameState,
-    // Additional UI functions as needed
   };
 })();
 
 
 
-//-------------------//
-// Game Logic module //
-//-------------------//
 
-const GameLogicModule = ((gameDataModule, uiModule) => {
-  let currentGuess = [];
-  let attempts = 0;
-  const maxAttempts = 6;
-  let isGameOver = false;
 
-  function addCharacterToGuess(character) {
-    if (isGameOver || currentGuess.length >= 5) return;
-    currentGuess.push(character);
-    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
-  }
+// THE STORAGE MODULE
 
-  function deleteLastCharacter() {
-    if (isGameOver || currentGuess.length === 0) return;
-    currentGuess.pop();
-    uiModule.updateCurrentGuessDisplay(attempts, currentGuess);
-  }
-
-  function submitGuess() {
-    if (isGameOver || currentGuess.length < 5) return;
-    const guessStr = currentGuess.join('');
-    if (!gameDataModule.validateWord(guessStr)) {
-      uiModule.shakeCurrentRow(attempts);
-      return;
-    }
-    processGuess(guessStr);
-    currentGuess = []; // Reset for next guess
-    uiModule.clearCurrentGuessDisplay(attempts); // Prepare for next guess input
-    if (checkGameOver()) {
-      endGame();
-    } else {
-      attempts++;
-    }
-  }
-
-  function processGuess(guess) {
-    const result = gameDataModule.compareWord(guess);
-    uiModule.updateTiles(attempts, guess, result);
-    if (guess === gameDataModule.getWordOfTheDay()) {
-      isGameOver = true;
-      uiModule.displayWinMessage();
-    }
-  }
-
-  function checkGameOver() {
-    return attempts >= maxAttempts - 1 || currentGuess.join('') === gameDataModule.getWordOfTheDay();
-  }
-
-  function endGame() {
-    isGameOver = true;
-    uiModule.displayEndGameMessage(currentGuess.join('') === gameDataModule.getWordOfTheDay());
-    // Additional end game logic like updating stats could go here
-  }
-
-  function restoreGameState(gameState) {
-      uiModule.disableInput(); // Disable input to prevent further actions during state restoration
-
-      // Use destructuring with default values to ensure we always have arrays
-      const { 
-          gameGuessLetters = [], 
-          gameGuessColors = [], 
-          gameOutcome 
-      } = gameState || {}; // Also protect against gameState being undefined
-
-      // Now safe to use forEach, as we ensured gameGuessLetters and gameGuessColors are arrays
-      gameGuessLetters.forEach((guessLetters, attempt) => {
-          guessLetters.forEach((letter, index) => {
-              uiModule.restoreGuess(attempt, index, letter, gameGuessColors[attempt]?.[index]);
-          });
-      });
-
-      if (gameOutcome === 'lost') {
-          uiModule.displayWordOfTheDay(); // Show word if the game was lost
-      }
-
-      if (gameState?.hintDisplayed) {
-          uiModule.displayHint(); // Show hint if it was displayed in the previous session
-      }
-  }
-
-  return {
-    addCharacterToGuess,
-    deleteLastCharacter,
-    submitGuess,
-    restoreGameState,
-    // Other public methods or properties as needed
+const Storage = (() => {
+  // Save game state to localStorage
+  const saveGameState = (state) => {
+    localStorage.setItem('gameState', JSON.stringify({
+      wordOfTheDay: state.wordOfTheDay,
+      currentAttempt: state.currentAttempt,
+      maxAttempts: state.maxAttempts,
+      isGameOver: state.isGameOver,
+      incorrectGuesses: state.incorrectGuesses,
+      hintDisplayed: state.hintDisplayed,
+      gameGuessColors: state.gameGuessColors,
+      gameGuessLetters: state.gameGuessLetters,
+      hintOfTheDay: state.hintOfTheDay,
+      // Additional state properties as needed
+    }));
   };
-})(GameDataModule, UIModule);
 
-
-//--------------//
-// Input module //
-//--------------//
-
-const InputModule = ((gameDataModule, gameLogicModule, uiModule) => {
-  // Assuming these modules are passed as dependencies to handle game logic and UI updates
-
-  function initialize() {
-    document.getElementById('keyboard').addEventListener('click', handleVirtualKeyPress);
-    document.addEventListener('keydown', handlePhysicalKeyPress);
-  }
-
-  function handleVirtualKeyPress(event) {
-    if (event.target.classList.contains('key')) {
-      const key = event.target.getAttribute('data-key');
-      processKey(key);
+  // Load game state from localStorage
+  const loadGameState = () => {
+    const gameState = JSON.parse(localStorage.getItem('gameState'));
+    if (gameState) {
+      // Assuming Game module has methods to set its state
+      Game.setState(gameState);
     }
-  }
-
-  function handlePhysicalKeyPress(event) {
-    const allowedKeys = ['Enter', 'Backspace'];
-    const key = event.key.toUpperCase();
-
-    if (allowedKeys.includes(event.key) || /^[A-Z]$/i.test(key)) {
-      event.preventDefault(); // Prevent default behavior for handled keys
-      processKey(event.key === 'Enter' ? 'ENTER' : event.key === 'Backspace' ? 'BACKSPACE' : key);
-    }
-  }
-
-  function processKey(key) {
-    switch (key) {
-      case 'ENTER':
-        gameLogicModule.submitGuess();
-        break;
-      case 'BACKSPACE':
-        gameLogicModule.deleteLastCharacter();
-        break;
-      default:
-        gameLogicModule.addCharacterToGuess(key);
-    }
-  }
-
-  function enableInput(enable) {
-    const keys = document.querySelectorAll('.key');
-    keys.forEach(key => {
-      if (enable) {
-        key.removeAttribute('disabled');
-        key.classList.remove('disabled');
-      } else {
-        key.setAttribute('disabled', 'true');
-        key.classList.add('disabled');
-      }
-    });
-  }
-
-  return {
-    initialize,
-    enableInput,
   };
-})(GameDataModule, GameLogicModule, UIModule); // Dependency injection
 
-// Remember to call InputModule.initialize() somewhere in your game initialization logic.
+  // Save game statistics to localStorage
+  const saveStats = (stats) => {
+    localStorage.setItem('stats', JSON.stringify(stats));
+  };
 
+  // Load game statistics from localStorage
+  const loadStats = () => {
+    const stats = JSON.parse(localStorage.getItem('stats'));
+    return stats || { /* default stats structure */ };
+  };
 
+  // Save guesses to localStorage
+  const saveGuesses = () => {
+    // Assuming guesses are part of game state, might not need separate handling
+    // If separate, save them like so:
+    const guesses = Game.getGuesses(); // Assuming Game module exposes this
+    localStorage.setItem('guesses', JSON.stringify(guesses));
+  };
 
-//----------------//
-// Storage module //
-//---------------//
-
-const StorageModule = (() => {
-  const gameStateKey = 'horrordleGameState';
-  const gameStatsKey = 'horrordleStats';
-
-  function saveGameState(gameState) {
-    localStorage.setItem(gameStateKey, JSON.stringify(gameState));
-  }
-
-  function loadGameState() {
-    const gameStateJSON = localStorage.getItem(gameStateKey);
-    return gameStateJSON ? JSON.parse(gameStateJSON) : null;
-  }
-
-  function saveGameStats(stats) {
-    localStorage.setItem(gameStatsKey, JSON.stringify(stats));
-  }
-
-  function loadGameStats() {
-    const statsJSON = localStorage.getItem(gameStatsKey);
-    return statsJSON ? JSON.parse(statsJSON) : {
-      gamesPlayed: 0,
-      wins: 0,
-      currentStreak: 0,
-      maxStreak: 0,
-      guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
-    };
-  }
-
-  function clearGameData() {
-    localStorage.removeItem(gameStateKey);
-    // Optionally, clear other data related to the game
-  }
-
-  function clearGameStats() {
-    localStorage.removeItem(gameStatsKey);
-  }
+  // Function to check if a game was played today
+  const wasGamePlayedToday = () => {
+    const lastPlayedDate = localStorage.getItem('lastPlayedDate');
+    return lastPlayedDate === new Date().toISOString().slice(0, 10);
+  };
 
   return {
     saveGameState,
     loadGameState,
-    saveGameStats,
-    loadGameStats,
-    clearGameData,
-    clearGameStats,
-    // Additional utility functions as needed
+    saveStats,
+    loadStats,
+    saveGuesses,
+    wasGamePlayedToday,
   };
 })();
 
 
-//--------------//
-// Stats module //
-//--------------//
 
-const StatsModule = ((storageModule) => {
-  let stats = {
-    gamesPlayed: 0,
-    wins: 0,
-    currentStreak: 0,
-    maxStreak: 0,
-    guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+
+// EVENT LISTENERS
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize game setup and UI
+  Game.init().then(() => {
+    UI.setInitialGameState(Game.getState());
+    Storage.loadGameState();
+  });
+
+  // Virtual keyboard click handling
+  document.getElementById('keyboard').addEventListener('click', (e) => {
+    if (e.target.matches('.key')) {
+      const key = e.target.getAttribute('data-key');
+      handleKeyInput(key);
+    }
+  });
+
+  // Physical keyboard input handling
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      Game.submitGuess();
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      Game.deleteLastCharacter();
+    } else {
+      const key = e.key.toUpperCase();
+      if (/^[A-Z]$/i.test(key)) {
+        Game.addCharacterToGuess(key);
+      }
+    }
+  });
+});
+
+// Handle key input from both virtual and physical keyboards
+function handleKeyInput(key) {
+  switch (key) {
+    case 'ENTER':
+      Game.submitGuess();
+      break;
+    case 'BACKSPACE':
+      Game.deleteLastCharacter();
+      break;
+    default:
+      Game.addCharacterToGuess(key);
+  }
+}
+
+// Game Module Enhancements
+const Game = (() => {
+  // Assuming existing Game module structure
+  // Add methods for handling key inputs directly:
+  const addCharacterToGuess = (character) => {
+    // Logic to add a character to the current guess
+    updateCurrentGuessDisplay(); // Reflect this in UI
   };
 
-  function loadStats() {
-    const loadedStats = storageModule.loadGameStats();
-    if (loadedStats) {
-      stats = loadedStats;
-    }
-  }
+  const deleteLastCharacter = () => {
+    // Logic to remove the last character of the current guess
+    updateCurrentGuessDisplay(); // Update UI accordingly
+  };
 
-  function updateStats(gameWon, guessesTaken) {
-    stats.gamesPlayed += 1;
-    if (gameWon) {
-      stats.wins += 1;
-      stats.currentStreak += 1;
-      stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-      stats.guessDistribution[guessesTaken] = (stats.guessDistribution[guessesTaken] || 0) + 1;
-    } else {
-      stats.currentStreak = 0;
-    }
-    storageModule.saveGameStats(stats);
-  }
+  const submitGuess = () => {
+    // Existing logic to process a guess submission
+    // After processing, update UI and possibly storage
+  };
 
-  function displayStats() {
-      // Ensure gamesPlayed is not zero to avoid division by zero and NaN result.
-      const winPercentage = stats.gamesPlayed > 0
-          ? ((stats.wins / stats.gamesPlayed) * 100).toFixed(2)
-          : 0;
-
-      // Assuming there are UI elements with these IDs to display the stats
-      document.getElementById('games-played').textContent = stats.gamesPlayed;
-      document.getElementById('win-percentage').textContent = winPercentage + '%'; // Use the calculated winPercentage
-      document.getElementById('current-streak').textContent = stats.currentStreak;
-      document.getElementById('max-streak').textContent = stats.maxStreak;
-
-      // Update guess distribution display...
-      Object.entries(stats.guessDistribution).forEach(([guessCount, count]) => {
-          const element = document.getElementById(`distribution-${guessCount}`);
-          if (element) {
-              element.textContent = count;
-              // You might want to adjust the width or style of the element based on count
-              // to visually represent the distribution, if your UI design calls for it.
-          }
-      });
-  }
-
-  function resetStats() {
-    stats = {
-      gamesPlayed: 0,
-      wins: 0,
-      currentStreak: 0,
-      maxStreak: 0,
-      guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
-    };
-    storageModule.saveGameStats(stats);
-    displayStats();
-  }
+  // Init method for starting or restoring game
+  const init = async () => {
+    // Load game data and set up initial state
+    // Possibly involving fetching data and setting up UI
+    return loadData().then(setupInitialState); // Example promise chain
+  };
 
   return {
-    loadStats,
-    updateStats,
-    displayStats,
-    resetStats
+    // Expose necessary methods
+    init,
+    addCharacterToGuess,
+    deleteLastCharacter,
+    submitGuess,
+    // Other methods as needed
   };
-})(StorageModule);
+})();
 
-// Initialization
-document.addEventListener('DOMContentLoaded', () => {
-  StatsModule.loadStats();
-  StatsModule.displayStats();
-});
+// Assuming loadData and setupInitialState are methods to fetch game data and prepare the game state.
