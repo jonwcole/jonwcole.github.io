@@ -261,6 +261,29 @@ function toggleOnScreenKeyboard(enable) {
   });
 }
 
+function updateKeyboard(guess, result) {
+  // Set a fixed delay value in milliseconds
+  const delayBeforeUpdate = 2500; // For example, 2.5 seconds
+
+  setTimeout(() => {
+    // Update the keyboard after the delay
+    guess.split('').forEach((letter, index) => {
+      const key = document.querySelector(`.key[data-key='${letter}']`);
+      if (result[index] === 'correct') {
+        key.classList.add('correct');
+      } else if (result[index] === 'present') {
+        if (!key.classList.contains('correct')) {
+          key.classList.add('present');
+        }
+      } else {
+        if (!key.classList.contains('correct') && !key.classList.contains('present')) {
+          key.classList.add('absent');
+        }
+      }
+    });
+  }, delayBeforeUpdate);
+}
+
 // ================
 // 4. Game State Management
 // ================
