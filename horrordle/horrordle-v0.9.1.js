@@ -418,6 +418,7 @@ function saveStats(stats) {
 }
 
 const stats = loadStats(); // Load stats at the start of the game
+displayStats(); // Call this function to update the UI with the latest stats
 
 function updateStats(win, guessesTaken) {
     stats.gamesPlayed += 1;
