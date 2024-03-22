@@ -89,7 +89,7 @@ const Game = (() => {
   const init = async () => {
     // Load game data and set up initial state
     // Possibly involving fetching data and setting up UI
-    return loadData().then(setupInitialState); // Example promise chain
+    return loadGame().then(setupInitialState); // Example promise chain
   };
 
   // Publicly exposed methods
