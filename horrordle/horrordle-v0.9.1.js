@@ -1,5 +1,8 @@
 // THE GAME MODULE
 
+
+
+
 const Game = (() => {
   // Game state
   let state = {
@@ -79,8 +82,27 @@ const Game = (() => {
     getState: () => state,
     // Additional methods as needed
   };
-})();
 
+  // Add any additional methods you want as part of the Game module here
+  const addCharacterToGuess = (character) => {
+    // Logic to add a character to the current guess
+  };
+
+  const deleteLastCharacter = () => {
+    // Logic to remove the last character of the current guess
+  };
+
+  // More methods can be added here as needed
+
+  // Publicly exposed methods
+  return {
+    loadGame,
+    submitGuess,
+    addCharacterToGuess,
+    deleteLastCharacter,
+    // Expose additional methods as needed
+  };
+})();
 
 
 
