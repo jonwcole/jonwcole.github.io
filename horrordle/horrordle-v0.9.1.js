@@ -413,11 +413,11 @@ function loadStats() {
   return stats;
 }
 
-const stats = loadStats(); // Load stats at the start of the game
-
 function saveStats(stats) {
   localStorage.setItem('stats', JSON.stringify(stats));
 }
+
+const stats = loadStats(); // Load stats at the start of the game
 
 function updateStats(win, guessesTaken) {
     stats.gamesPlayed += 1;
