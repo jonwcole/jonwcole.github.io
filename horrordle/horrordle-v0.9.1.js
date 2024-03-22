@@ -85,11 +85,6 @@ const Game = (() => {
     updateCurrentGuessDisplay(); // Update UI accordingly
   };
 
-  const submitGuess = () => {
-    // Existing logic to process a guess submission
-    // After processing, update UI and possibly storage
-  };
-
   // Init method for starting or restoring game
   const init = async () => {
     // Load game data and set up initial state
@@ -100,9 +95,9 @@ const Game = (() => {
   // Publicly exposed methods
   return {
     loadGame,
+    submitGuess,
     addCharacterToGuess,
     deleteLastCharacter,
-    submitGuess,
     init,
     // Expose additional methods as needed
   };
