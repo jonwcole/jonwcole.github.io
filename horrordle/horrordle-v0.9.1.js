@@ -1,8 +1,5 @@
 // THE GAME MODULE
 
-
-
-
 const Game = (() => {
   // Game state
   let state = {
@@ -86,23 +83,39 @@ const Game = (() => {
   // Add any additional methods you want as part of the Game module here
   const addCharacterToGuess = (character) => {
     // Logic to add a character to the current guess
+    updateCurrentGuessDisplay(); // Reflect this in UI
   };
 
   const deleteLastCharacter = () => {
     // Logic to remove the last character of the current guess
+    updateCurrentGuessDisplay(); // Update UI accordingly
   };
 
-  // More methods can be added here as needed
+  const submitGuess = () => {
+    // Existing logic to process a guess submission
+    // After processing, update UI and possibly storage
+  };
+
+  // Init method for starting or restoring game
+  const init = async () => {
+    // Load game data and set up initial state
+    // Possibly involving fetching data and setting up UI
+    return loadData().then(setupInitialState); // Example promise chain
+  };
 
   // Publicly exposed methods
   return {
     loadGame,
-    submitGuess,
     addCharacterToGuess,
     deleteLastCharacter,
+    submitGuess,
+    init,
     // Expose additional methods as needed
   };
 })();
+
+
+
 
 
 
@@ -321,40 +334,5 @@ function handleKeyInput(key) {
   }
 }
 
-// Game Module Enhancements
-const Game = (() => {
-  // Assuming existing Game module structure
-  // Add methods for handling key inputs directly:
-  const addCharacterToGuess = (character) => {
-    // Logic to add a character to the current guess
-    updateCurrentGuessDisplay(); // Reflect this in UI
-  };
-
-  const deleteLastCharacter = () => {
-    // Logic to remove the last character of the current guess
-    updateCurrentGuessDisplay(); // Update UI accordingly
-  };
-
-  const submitGuess = () => {
-    // Existing logic to process a guess submission
-    // After processing, update UI and possibly storage
-  };
-
-  // Init method for starting or restoring game
-  const init = async () => {
-    // Load game data and set up initial state
-    // Possibly involving fetching data and setting up UI
-    return loadData().then(setupInitialState); // Example promise chain
-  };
-
-  return {
-    // Expose necessary methods
-    init,
-    addCharacterToGuess,
-    deleteLastCharacter,
-    submitGuess,
-    // Other methods as needed
-  };
-})();
 
 // Assuming loadData and setupInitialState are methods to fetch game data and prepare the game state.
