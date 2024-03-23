@@ -577,7 +577,7 @@ function generateResultString() {
     ).join('\n');
 
     const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-    return `Horrordle, ${date}\n\n${resultString}`;
+    return `Horrordle.app, ${date}\n\n${resultString}`;
 }
 
 document.getElementById('share-result').addEventListener('click', function() {
