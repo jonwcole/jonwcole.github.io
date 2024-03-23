@@ -329,20 +329,23 @@ function triggerUIAction(action) {
 }
 
 function updateUIFromRestoredState(guessLetters, guessColors, gameOutcome) {
+    // Update tiles based on restored state
     guessLetters.forEach((letters, attempt) => {
         updateTilesFromState(attempt, letters, guessColors[attempt]);
     });
 
-    if (gameOutcome === 'lost') {
-        revealWordOfTheDay(); // Make sure this function adjusts the UI to reveal the word
-    }
-
-    // Optionally, if you keep track of whether the hint was shown, you can display it again
+    // Display hint if it was previously shown
     if (hintDisplayed) {
-        displayHint();
+        displayHint(); // Ensure this function adjusts the UI to show the hint again
     }
 
-    // Any additional UI updates to reflect the restored state
+    // Update stats UI based on the restored state
+    displayStats(); // Assuming this function can read from the `stats` object and update the UI accordingly
+
+    // Optionally, reveal the word of the day if the game was lost and not won
+    if (gameOutcome === 'lost') {
+        revealWordOfTheDay(); // UI function to reveal the word
+    }
 }
 
 function updateTilesFromState(attempt, letters, guessColors) {
@@ -403,11 +406,17 @@ function restoreGameStateIfPlayedToday() {
         // Restore game state from localStorage
         const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
         const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        isGameOver = gameOutcome !== null; // Ensure isGameOver reflects restored state
 
-        // Trigger UI updates to reflect the restored state
+        // Additional checks for hintDisplayed and stats update
+        hintDisplayed = localStorage.getItem('hintDisplayed') === 'true';
+        incorrectGuesses = gameGuessLetters.length; // Assuming incorrect guesses can be derived from attempts
+
+        // Now that state is restored, trigger UI updates
         updateUIFromRestoredState(gameGuessLetters, gameGuessColors, gameOutcome);
     }
 }
+
 
 
 // ======================================= //
