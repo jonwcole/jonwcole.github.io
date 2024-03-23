@@ -115,19 +115,11 @@ function handleGuessFinalization(guess) {
     currentGuess = [];
     const won = guess === wordOfTheDay;
     const lost = !won && currentAttempt >= maxAttempts;
-    
+
     if (won || lost) {
         isGameOver = true;
-        updateStats(won, currentAttempt); // Updates the stats
-        
-        // This directly manipulates the UI; it should trigger a UI action instead.
-        // showEndGameMessage(won); // Previous direct call
-        triggerUIAction(won ? 'gameWon' : 'gameLost'); // Proposed indirect call
-    }
-    
-    if (incorrectGuesses >= 5 && !hintDisplayed) {
-        // This already calls a UI function which is fine as it's a single purpose.
-        displayHint(); 
+        // Now, instead of directly manipulating UI or stats here, call a new function
+        concludeGame(won);
     }
 }
 
@@ -535,6 +527,20 @@ function displayStatsModal() {
             navButton.click();
         }
     }, 1200); // Delay of 1200ms
+}
+
+function concludeGame(won) {
+    updateStats(won, currentAttempt);
+    // Optionally delay the stats modal display if needed
+    setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
+
+    // Additional UI updates, such as revealing the word of the day on game loss, can be handled here too
+    if (!won) {
+        revealWordOfTheDay(); // Make sure this function exists and reveals the word
+    }
+
+    // Trigger any additional endgame UI updates
+    showEndGameMessage(won);
 }
 
 
