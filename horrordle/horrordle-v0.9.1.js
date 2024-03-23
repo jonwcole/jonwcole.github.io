@@ -288,7 +288,7 @@ function updateKeyboard(guess, result) {
 }
 
 function updateGameUI(word, hint) {
-    const hintElement = document.getElementById('hint');
+    const hintElement = document.getElementById('hint-text');
     if (hintElement) {
         hintElement.textContent = hint || ''; // Update with hint or empty string if not available
     }
