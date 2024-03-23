@@ -328,6 +328,58 @@ function triggerUIAction(action) {
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard for end of the game
 }
 
+function updateUIFromRestoredState(guessLetters, guessColors, gameOutcome) {
+    guessLetters.forEach((letters, attempt) => {
+        updateTilesFromState(attempt, letters, guessColors[attempt]);
+    });
+
+    if (gameOutcome === 'lost') {
+        revealWordOfTheDay(); // Make sure this function adjusts the UI to reveal the word
+    }
+
+    // Optionally, if you keep track of whether the hint was shown, you can display it again
+    if (hintDisplayed) {
+        displayHint();
+    }
+
+    // Any additional UI updates to reflect the restored state
+}
+
+function updateTilesFromState(attempt, letters, guessColors) {
+    // Assuming the game board is structured with rows having a specific attribute or class to identify them
+    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+    if (!row) {
+        console.error('Row not found for attempt:', attempt);
+        return;
+    }
+    
+    const tiles = row.querySelectorAll('.tile');
+    letters.forEach((letter, index) => {
+        if (tiles[index]) {
+            const tile = tiles[index];
+            // Update the front face of the tile with the letter
+            const front = tile.querySelector('.front');
+            if (front) {
+                front.textContent = letter;
+            }
+            
+            // Set the color based on the guessColors array
+            const back = tile.querySelector('.back');
+            if (back) {
+                back.textContent = letter; // Optionally set the letter on the back as well
+                back.className = 'back'; // Reset class list
+                back.classList.add(guessColors[index]); // Add the class based on color status
+            }
+            
+            // Add the flipped class if not already present to show the letter/color
+            if (!tile.classList.contains('flipped')) {
+                tile.classList.add('flipped');
+            }
+        }
+    });
+}
+
+
 // ======================== //
 // 4. Game State Management //
 // ======================== //
@@ -346,48 +398,14 @@ function restoreGameStateIfPlayedToday() {
     const gameOutcome = localStorage.getItem('gameOutcome');
 
     if (stats.lastPlayedDate === today) {
-        // Prevent further input
-        disableInput();
+        disableInput(); // Prevent further input
 
-        // Restore game state
+        // Restore game state from localStorage
         const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
         const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
 
-        // Display the Word of the Day if the user lost their last game
-        if (gameOutcome === 'lost') {
-            const wordElement = document.getElementById('word');
-            wordElement.style.display = 'flex';
-            setTimeout(() => {
-                wordElement.style.opacity = 1;
-            }, 100);
-        }
-
-        gameGuessLetters.forEach((guessLetters, attempt) => {
-            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-            const tiles = row.querySelectorAll('.tile');
-
-            guessLetters.forEach((letter, index) => {
-                if (tiles[index]) {
-                    const tile = tiles[index];
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back');
-
-                    // Set the text for front and back
-                    front.textContent = letter;
-                    back.textContent = letter;
-                    
-                    // Clear previous classes on back and add the new one
-                    back.className = 'back'; // Reset class
-                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
-                    
-                    // Add the flipped class to the tile for the flipping effect
-                    tile.classList.add('flipped');
-                }
-            });
-        });
-
-        // Display stats modal, assuming you have a function or logic to properly display it
-        displayStatsModal();
+        // Trigger UI updates to reflect the restored state
+        updateUIFromRestoredState(gameGuessLetters, gameGuessColors, gameOutcome);
     }
 }
 
