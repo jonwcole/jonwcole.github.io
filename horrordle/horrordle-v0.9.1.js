@@ -173,7 +173,8 @@ function updateTiles(attempt, guess, result) {
   tiles.forEach((tile, index) => {
     // Set up the back face with the guessed letter and status class before starting the animation
     const back = tile.querySelector('.back');
-    back.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
+    const backText = tile.querySelector('.back-text');
+    backText.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
     back.className = 'back'; // Reset any previous result classes
     back.classList.add(result[index]); // Preemptively add the result class to the back
     
