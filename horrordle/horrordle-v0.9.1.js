@@ -111,22 +111,21 @@ function handleGuessFinalization(guess) {
     currentGuess = [];
     const won = guess === wordOfTheDay;
     const lost = !won && currentAttempt >= maxAttempts;
+    
     if (won || lost) {
         isGameOver = true;
-        updateStats(won, currentAttempt);
+        updateStats(won, currentAttempt); // Updates the stats
+        
         if (lost) {
-            const wordElement = document.getElementById('word');
-            wordElement.style.display = 'flex';
-            setTimeout(() => {
-                wordElement.style.opacity = 1;
-            }, 100);
+            revealWordOfTheDay(); // Delegate to a UI function to reveal the word
         }
-        setTimeout(() => {
-            displayEndGameMessage(won);
-        }, hintDisplayed ? 1200 : 0);
+        
+        // Defer the end game message display to the UI module
+        showEndGameMessage(won); // New function to handle UI updates for end game
     }
+    
     if (incorrectGuesses >= 5 && !hintDisplayed) {
-        displayHint();
+        displayHint(); // This is already a UI function
     }
 }
 
@@ -289,7 +288,23 @@ function updateGameUI(word, hint) {
         wordElement.textContent = word || ''; // Update with word or empty string if not available
     }
     
-    // Any other UI elements that depend on the game data can be updated here
+}
+
+// New function to reveal the word of the day if the player has lost
+function revealWordOfTheDay() {
+    const wordElement = document.getElementById('word');
+    if (wordElement) {
+        wordElement.style.display = 'flex';
+        setTimeout(() => {
+            wordElement.style.opacity = 1;
+        }, 100);
+    }
+}
+
+// New function to handle end game UI updates
+function showEndGameMessage(won) {
+    displayEndGameMessage(won); // Calls existing function to show the message
+    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
 }
 
 
