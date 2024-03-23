@@ -10,12 +10,12 @@ let hintOfTheDay = '';
 async function loadGame() {
     try {
         // Fetch and set up the dictionary
-        const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
+        const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary-v1.json');
         const dictionaryData = await dictionaryResponse.json();
         dictionary = dictionaryData.map(word => word.toUpperCase());
 
         // Fetch and set up the word of the day
-        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words.json');
+        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.json');
         const wordsData = await wordsResponse.json();
         
         // Get today's date and word data as before
