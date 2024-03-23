@@ -223,18 +223,14 @@ function displayEndGameMessage(won) {
     }
 
     setTimeout(() => {
-        // After showing the message, fade it out
-        messageDiv.style.opacity = 0;
-        setTimeout(() => {
-            messageDiv.style.display = 'none'; // Hide the message
+        messageDiv.style.display = 'none'; // Hide the message
 
-            // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
-            const navButton = document.querySelector('.nav-button-default-state');
-            if (navButton) {
-                navButton.click();
-            }
-        }, 400); // Wait for fade out
-    }, 2400); // Duration message is shown
+        // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
+        const navButton = document.querySelector('.nav-button-default-state');
+        if (navButton) {
+            navButton.click();
+        }
+    }, 400); // Wait for fade out
 }
 
 function displayHint() {
