@@ -106,6 +106,10 @@ function processGuess(guess) {
     }
 }
 
+function handleInvalidGuess() {
+    triggerUIAction('invalidGuess'); // Proposed indirect call
+}
+
 function handleGuessFinalization(guess) {
     currentAttempt++;
     currentGuess = [];
@@ -116,16 +120,14 @@ function handleGuessFinalization(guess) {
         isGameOver = true;
         updateStats(won, currentAttempt); // Updates the stats
         
-        if (lost) {
-            revealWordOfTheDay(); // Delegate to a UI function to reveal the word
-        }
-        
-        // Defer the end game message display to the UI module
-        showEndGameMessage(won); // New function to handle UI updates for end game
+        // This directly manipulates the UI; it should trigger a UI action instead.
+        // showEndGameMessage(won); // Previous direct call
+        triggerUIAction(won ? 'gameWon' : 'gameLost'); // Proposed indirect call
     }
     
     if (incorrectGuesses >= 5 && !hintDisplayed) {
-        displayHint(); // This is already a UI function
+        // This already calls a UI function which is fine as it's a single purpose.
+        displayHint(); 
     }
 }
 
@@ -307,6 +309,24 @@ function showEndGameMessage(won) {
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
 }
 
+function triggerUIAction(action) {
+    switch (action) {
+        case 'invalidGuess':
+            shakeCurrentRow();
+            break;
+        case 'gameWon':
+            // Any additional UI logic for winning the game goes here
+            break;
+        case 'gameLost':
+            // Any additional UI logic for losing the game goes here
+            revealWordOfTheDay();
+            break;
+    }
+
+    // Common UI updates for end of the game regardless of win or loss
+    displayEndGameMessage(action === 'gameWon'); // This assumes `displayEndGameMessage` takes a boolean for winning
+    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard for end of the game
+}
 
 // ======================== //
 // 4. Game State Management //
