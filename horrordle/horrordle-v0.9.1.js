@@ -113,15 +113,22 @@ function handleInvalidGuess() {
 function handleGuessFinalization(guess) {
     currentAttempt++;
     currentGuess = [];
+    
+    // Check for hint display condition right before concluding the game
+    if (incorrectGuesses >= 5 && !hintDisplayed) {
+        displayHint();
+        hintDisplayed = true; // Prevent the hint from being displayed more than once
+    }
+
     const won = guess === wordOfTheDay;
     const lost = !won && currentAttempt >= maxAttempts;
-
+    
     if (won || lost) {
         isGameOver = true;
-        // Now, instead of directly manipulating UI or stats here, call a new function
         concludeGame(won);
     }
 }
+
 
 
 // ============= //
