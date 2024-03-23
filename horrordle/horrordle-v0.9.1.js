@@ -370,10 +370,11 @@ function restoreGameStateIfPlayedToday() {
                     const tile = tiles[index];
                     const front = tile.querySelector('.front');
                     const back = tile.querySelector('.back');
+                    const backText = tile.querySelector('.back-text');
 
                     // Set the text for front and back
                     front.textContent = letter;
-                    back.textContent = letter;
+                    backText.textContent = letter;
                     
                     // Clear previous classes on back and add the new one
                     back.className = 'back'; // Reset class
