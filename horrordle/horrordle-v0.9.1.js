@@ -223,7 +223,6 @@ function displayEndGameMessage(won) {
     }
 
     setTimeout(() => {
-        messageDiv.style.display = 'none'; // Hide the message
 
         // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
         const navButton = document.querySelector('.nav-button-default-state');
