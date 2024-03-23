@@ -33,8 +33,8 @@ async function loadGame() {
 
             localStorage.setItem('gameDate', gameDate);
 
-            // Update UI elements with the new word and hint
-            // [Your code to update the UI]
+            // Call the UI update function instead of updating UI elements here
+            updateGameUI(wordOfTheDay, hintOfTheDay);
         } else {
             console.error('Word for today not found');
         }
@@ -276,6 +276,20 @@ function updateKeyboard(guess, result) {
       }
     });
   }, delayBeforeUpdate);
+}
+
+function updateGameUI(word, hint) {
+    const hintElement = document.getElementById('hint');
+    if (hintElement) {
+        hintElement.textContent = hint || ''; // Update with hint or empty string if not available
+    }
+    
+    const wordElement = document.getElementById('word-content');
+    if (wordElement) {
+        wordElement.textContent = word || ''; // Update with word or empty string if not available
+    }
+    
+    // Any other UI elements that depend on the game data can be updated here
 }
 
 
