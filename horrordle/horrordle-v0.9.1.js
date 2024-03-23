@@ -209,12 +209,15 @@ function displayEndGameMessage(won) {
 
     // Display the success or failure message
     if (won) {
-        document.querySelector('.success').style.display = 'block';
-        document.querySelector('.success').style.opacity = '1';
+        const successDiv = document.querySelector('.success');
+        successDiv.style.display = 'block';
+        // Delay the opacity transition slightly
+        setTimeout(() => successDiv.style.opacity = '1', 10);
     } else {
         document.querySelectorAll('.splatter-box').forEach(box => {
             box.style.display = 'block';
-            box.style.opacity = '1';
+            // Delay the opacity transition slightly
+            setTimeout(() => box.style.opacity = '1', 10);
         });
     }
 
