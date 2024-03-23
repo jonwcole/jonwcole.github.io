@@ -210,6 +210,7 @@ function displayEndGameMessage(won) {
     // Display the success or failure message
     if (won) {
         document.querySelector('.success').style.display = 'block';
+        document.querySelector('.success').style.opacity = '1';
     } else {
         document.querySelectorAll('.splatter-box').forEach(box => {
             box.style.display = 'block';
@@ -218,21 +219,18 @@ function displayEndGameMessage(won) {
     }
 
     setTimeout(() => {
-        messageDiv.style.opacity = 1;
+        // After showing the message, fade it out
+        messageDiv.style.opacity = 0;
         setTimeout(() => {
-            // After showing the message, fade it out
-            messageDiv.style.opacity = 0;
-            setTimeout(() => {
-                messageDiv.style.display = 'none'; // Hide the message
+            messageDiv.style.display = 'none'; // Hide the message
 
-                // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
-                const navButton = document.querySelector('.nav-button-default-state');
-                if (navButton) {
-                    navButton.click();
-                }
-            }, 400); // Wait for fade out
-        }, 2400); // Duration message is shown
-    }, 600); // Ensure display:block is applied
+            // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
+            const navButton = document.querySelector('.nav-button-default-state');
+            if (navButton) {
+                navButton.click();
+            }
+        }, 400); // Wait for fade out
+    }, 2400); // Duration message is shown
 }
 
 function displayHint() {
