@@ -1,59 +1,52 @@
-// ================
-// 1. Initialization and Data Loading
-// ================
+// ================================== //
+// 1. Initialization and Data Loading //
+// ================================== //
 
 let wordOfTheDay = '';
 let dictionary = [];
 let gameDate = ''; // Ensure this is declared globally for use in stats
 let hintOfTheDay = '';
 
-function loadGame() {
-    // Fetching and setting up the dictionary
-    fetch('https://jonwcole.github.io/horrordle/dictionary.json')
-        .then(response => response.json())
-        .then(data => {
-            dictionary = data.map(word => word.toUpperCase());
-        })
-        .catch(error => console.error('Error loading dictionary:', error));
+async function loadGame() {
+    try {
+        // Fetch and set up the dictionary
+        const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary.json');
+        const dictionaryData = await dictionaryResponse.json();
+        dictionary = dictionaryData.map(word => word.toUpperCase());
 
-    // Fetching and setting up the word of the day
-    fetch('https://jonwcole.github.io/horrordle/words.json')
-        .then(response => response.json())
-        .then(data => {
-            const now = new Date();
-            const timezoneOffset = now.getTimezoneOffset() * 60000;
-            const adjustedNow = new Date(now - timezoneOffset);
-            const today = adjustedNow.toISOString().slice(0, 10);
+        // Fetch and set up the word of the day
+        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words.json');
+        const wordsData = await wordsResponse.json();
+        
+        // Get today's date and word data as before
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        const adjustedNow = new Date(now - timezoneOffset);
+        const today = adjustedNow.toISOString().slice(0, 10);
 
-            const wordData = data[today];
-            if (wordData) {
-                wordOfTheDay = wordData.word.toUpperCase();
-                hintOfTheDay = wordData.hint;
-                gameDate = today; // Set the game date to today, based on words.json
+        const wordData = wordsData[today];
+        if (wordData) {
+            // Set up the game with the word of the day and hint
+            wordOfTheDay = wordData.word.toUpperCase();
+            hintOfTheDay = wordData.hint;
+            gameDate = today;
 
-                localStorage.setItem('gameDate', gameDate); // Store this date in localStorage
+            localStorage.setItem('gameDate', gameDate);
 
-                // UI updates for hint and word, could be refactored into UI Module if needed
-                const hintElement = document.getElementById('hint');
-                if (hintElement && hintOfTheDay) {
-                    hintElement.textContent = hintOfTheDay;
-                }
-                
-                const wordElement = document.getElementById('word-content');
-                if (wordElement && wordOfTheDay) {
-                  wordElement.textContent = wordOfTheDay; 
-                }
-            } else {
-                console.error('Word for today not found');
-            }
-        })
-        .catch(error => console.error('Error loading word of the day:', error));
+            // Update UI elements with the new word and hint
+            // [Your code to update the UI]
+        } else {
+            console.error('Word for today not found');
+        }
+    } catch (error) {
+        console.error('Error loading game data:', error);
+    }
 }
 
 
-// ================
-// 2. Core Game Logic
-// ================
+// ================== //
+// 2. Core Game Logic //
+// ================== //
 
 let currentAttempt = 0;
 let maxAttempts = 6;
@@ -137,9 +130,10 @@ function handleGuessFinalization(guess) {
     }
 }
 
-// ================
-// 3. UI Updates
-// ================
+
+// ============= //
+// 3. UI Updates //
+// ============= //
 
 function updateCurrentGuessDisplay() {
   const rows = document.querySelectorAll('.tile-row-wrapper'); // Get all rows
@@ -284,9 +278,11 @@ function updateKeyboard(guess, result) {
   }, delayBeforeUpdate);
 }
 
-// ================
-// 4. Game State Management
-// ================
+
+// ======================== //
+// 4. Game State Management //
+// ======================== //
+
 let gameGuessColors = []; // Stores the result colors (correct, present, absent) for each guess.
 let gameGuessLetters = []; // Stores the actual letters guessed in each attempt.
 
@@ -346,9 +342,11 @@ function restoreGameStateIfPlayedToday() {
     }
 }
 
-// ================
-// 5. Event Listeners and User Interaction
-// ================
+
+// ======================================= //
+// 5. Event Listeners and User Interaction //
+// ======================================= //
+
 let inputDisabled = false; // flag to control input globally
 
 // Handling virtual keyboard clicks
@@ -393,9 +391,10 @@ function deleteLastCharacter() {
   }
 }
 
-// ================
-// 6. Statistics and Endgame Handling
-// ================
+
+// ================================== //
+// 6. Statistics and Endgame Handling //
+// ================================== //
 
 const defaultStats = {
   gamesPlayed: 0,
@@ -490,9 +489,10 @@ function displayStatsModal() {
 }
 
 
-// ================
-// 7. Utility Functions
-// ================
+// ==================== //
+// 7. Utility Functions //
+// ==================== //
+
 function generateResultString() {
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
@@ -536,7 +536,7 @@ function disableInput() {
     // You might also disable physical keyboard input by removing or disabling event listeners.
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-loadGame(); // Make sure this still runs to load the game data
-restoreGameStateIfPlayedToday(); // Check if we need to restore state
+document.addEventListener('DOMContentLoaded', () => {
+    loadGame(); // Make sure this still runs to load the game data
+    restoreGameStateIfPlayedToday(); // Check if we need to restore state
 });
