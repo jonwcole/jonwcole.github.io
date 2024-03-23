@@ -394,9 +394,6 @@ function restoreGameStateIfPlayedToday() {
                 }
             });
         });
-
-        // Display stats modal, assuming you have a function or logic to properly display it
-        displayStatsModal();
     }
 }
 
