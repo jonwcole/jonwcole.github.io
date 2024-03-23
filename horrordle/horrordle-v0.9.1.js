@@ -329,58 +329,22 @@ function triggerUIAction(action) {
 }
 
 function updateUIFromRestoredState(guessLetters, guessColors, gameOutcome) {
-    // Update tiles based on restored state
     guessLetters.forEach((letters, attempt) => {
         updateTilesFromState(attempt, letters, guessColors[attempt]);
     });
 
-    // Display hint if it was previously shown
-    if (hintDisplayed) {
-        displayHint(); // Ensure this function adjusts the UI to show the hint again
-    }
-
-    // Update stats UI based on the restored state
-    displayStats(); // Assuming this function can read from the `stats` object and update the UI accordingly
-
-    // Optionally, reveal the word of the day if the game was lost and not won
     if (gameOutcome === 'lost') {
-        revealWordOfTheDay(); // UI function to reveal the word
+        revealWordOfTheDay(); // Make sure this function adjusts the UI to reveal the word
     }
+
+    // Optionally, if you keep track of whether the hint was shown, you can display it again
+    if (hintDisplayed) {
+        displayHint();
+    }
+
+    // Any additional UI updates to reflect the restored state
 }
 
-function updateTilesFromState(attempt, letters, guessColors) {
-    // Assuming the game board is structured with rows having a specific attribute or class to identify them
-    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-    if (!row) {
-        console.error('Row not found for attempt:', attempt);
-        return;
-    }
-    
-    const tiles = row.querySelectorAll('.tile');
-    letters.forEach((letter, index) => {
-        if (tiles[index]) {
-            const tile = tiles[index];
-            // Update the front face of the tile with the letter
-            const front = tile.querySelector('.front');
-            if (front) {
-                front.textContent = letter;
-            }
-            
-            // Set the color based on the guessColors array
-            const back = tile.querySelector('.back');
-            if (back) {
-                back.textContent = letter; // Optionally set the letter on the back as well
-                back.className = 'back'; // Reset class list
-                back.classList.add(guessColors[index]); // Add the class based on color status
-            }
-            
-            // Add the flipped class if not already present to show the letter/color
-            if (!tile.classList.contains('flipped')) {
-                tile.classList.add('flipped');
-            }
-        }
-    });
-}
 
 
 // ======================== //
@@ -404,33 +368,13 @@ function restoreGameStateIfPlayedToday() {
         disableInput(); // Prevent further input
 
         // Restore game state from localStorage
-        const restoredGameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-        const restoredGameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
-        isGameOver = gameOutcome !== null; // Ensure isGameOver reflects restored state
+        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
 
-        // Check if hint was displayed and show again if necessary
-        hintDisplayed = localStorage.getItem('hintDisplayed') === 'true';
-        if (hintDisplayed) {
-            displayHint(); // Make sure this function is capable of showing the hint appropriately
-        }
-
-        incorrectGuesses = restoredGameGuessLetters.length; // Assuming incorrect guesses can be derived from attempts
-
-        // Trigger UI updates based on the restored state
-        updateUIFromRestoredState(restoredGameGuessLetters, restoredGameGuessColors, gameOutcome);
-
-        // Display the stats if the game had been completed
-        if (gameOutcome === 'won' || gameOutcome === 'lost') {
-            displayStats(); // Make sure stats are displayed if the game was previously completed
-        }
-
-        // If the game was lost, reveal the word of the day
-        if (gameOutcome === 'lost') {
-            revealWordOfTheDay(); // Ensure this function reveals the word of the day
-        }
+        // Trigger UI updates to reflect the restored state
+        updateUIFromRestoredState(gameGuessLetters, gameGuessColors, gameOutcome);
     }
 }
-
 
 
 // ======================================= //
