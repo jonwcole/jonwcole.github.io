@@ -213,6 +213,7 @@ function displayEndGameMessage(won) {
     } else {
         document.querySelectorAll('.splatter-box').forEach(box => {
             box.style.display = 'block';
+            box.style.opacity = '1';
         });
     }
 
