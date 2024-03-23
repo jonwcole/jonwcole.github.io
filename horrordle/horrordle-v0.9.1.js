@@ -328,25 +328,6 @@ function triggerUIAction(action) {
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard for end of the game
 }
 
-function updateUIFromRestoredState(guessLetters, guessColors, gameOutcome) {
-    guessLetters.forEach((letters, attempt) => {
-        updateTilesFromState(attempt, letters, guessColors[attempt]);
-    });
-
-    if (gameOutcome === 'lost') {
-        revealWordOfTheDay(); // Make sure this function adjusts the UI to reveal the word
-    }
-
-    // Optionally, if you keep track of whether the hint was shown, you can display it again
-    if (hintDisplayed) {
-        displayHint();
-    }
-
-    // Any additional UI updates to reflect the restored state
-}
-
-
-
 // ======================== //
 // 4. Game State Management //
 // ======================== //
@@ -365,14 +346,48 @@ function restoreGameStateIfPlayedToday() {
     const gameOutcome = localStorage.getItem('gameOutcome');
 
     if (stats.lastPlayedDate === today) {
-        disableInput(); // Prevent further input
+        // Prevent further input
+        disableInput();
 
-        // Restore game state from localStorage
+        // Restore game state
         const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
         const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
 
-        // Trigger UI updates to reflect the restored state
-        updateUIFromRestoredState(gameGuessLetters, gameGuessColors, gameOutcome);
+        // Display the Word of the Day if the user lost their last game
+        if (gameOutcome === 'lost') {
+            const wordElement = document.getElementById('word');
+            wordElement.style.display = 'flex';
+            setTimeout(() => {
+                wordElement.style.opacity = 1;
+            }, 100);
+        }
+
+        gameGuessLetters.forEach((guessLetters, attempt) => {
+            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+            const tiles = row.querySelectorAll('.tile');
+
+            guessLetters.forEach((letter, index) => {
+                if (tiles[index]) {
+                    const tile = tiles[index];
+                    const front = tile.querySelector('.front');
+                    const back = tile.querySelector('.back');
+
+                    // Set the text for front and back
+                    front.textContent = letter;
+                    back.textContent = letter;
+                    
+                    // Clear previous classes on back and add the new one
+                    back.className = 'back'; // Reset class
+                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
+                    
+                    // Add the flipped class to the tile for the flipping effect
+                    tile.classList.add('flipped');
+                }
+            });
+        });
+
+        // Display stats modal, assuming you have a function or logic to properly display it
+        displayStatsModal();
     }
 }
 
