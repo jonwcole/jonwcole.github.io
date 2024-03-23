@@ -208,7 +208,7 @@ function displayEndGameMessage(won) {
     }
 
     // Display the success or failure message
-    const messageDiv = won ? document.querySelector('.success') : document.querySelector('.failure');
+    const messageDiv = won ? document.querySelector('.success') : document.querySelector('.splatter-box');
     messageDiv.style.display = 'block';
 
     setTimeout(() => {
