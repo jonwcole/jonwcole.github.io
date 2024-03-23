@@ -208,8 +208,13 @@ function displayEndGameMessage(won) {
     }
 
     // Display the success or failure message
-    const messageDiv = won ? document.querySelector('.success') : document.querySelector('.splatter-box');
-    messageDiv.style.display = 'block';
+    if (won) {
+        document.querySelector('.success').style.display = 'block';
+    } else {
+        document.querySelectorAll('.splatter-box').forEach(box => {
+            box.style.display = 'block';
+        });
+    }
 
     setTimeout(() => {
         messageDiv.style.opacity = 1;
