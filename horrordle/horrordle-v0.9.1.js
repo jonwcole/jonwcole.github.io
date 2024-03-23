@@ -211,7 +211,7 @@ function displayEndGameMessage(won) {
     // Display the success or failure message
     if (won) {
         const successDiv = document.querySelector('.success');
-        successDiv.style.display = 'block';
+        successDiv.style.display = 'flex';
         // Delay the opacity transition slightly
         setTimeout(() => successDiv.style.opacity = '1', 10);
     } else {
