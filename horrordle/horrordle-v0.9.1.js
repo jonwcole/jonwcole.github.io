@@ -201,8 +201,9 @@ function shakeCurrentRow() {
 function displayEndGameMessage(won) {
     
     const hintElement = document.querySelector('.hint');
+    const hintWord = document.getElementById('hint-text');
     if (hintElement && hintOfTheDay) {
-        hintElement.textContent = hintOfTheDay; // Set the hint text
+        hintWord.textContent = hintOfTheDay; // Set the hint text
         hintElement.style.display = 'block';
         setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
     }
