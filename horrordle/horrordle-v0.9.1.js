@@ -404,16 +404,30 @@ function restoreGameStateIfPlayedToday() {
         disableInput(); // Prevent further input
 
         // Restore game state from localStorage
-        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        const restoredGameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+        const restoredGameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
         isGameOver = gameOutcome !== null; // Ensure isGameOver reflects restored state
 
-        // Additional checks for hintDisplayed and stats update
+        // Check if hint was displayed and show again if necessary
         hintDisplayed = localStorage.getItem('hintDisplayed') === 'true';
-        incorrectGuesses = gameGuessLetters.length; // Assuming incorrect guesses can be derived from attempts
+        if (hintDisplayed) {
+            displayHint(); // Make sure this function is capable of showing the hint appropriately
+        }
 
-        // Now that state is restored, trigger UI updates
-        updateUIFromRestoredState(gameGuessLetters, gameGuessColors, gameOutcome);
+        incorrectGuesses = restoredGameGuessLetters.length; // Assuming incorrect guesses can be derived from attempts
+
+        // Trigger UI updates based on the restored state
+        updateUIFromRestoredState(restoredGameGuessLetters, restoredGameGuessColors, gameOutcome);
+
+        // Display the stats if the game had been completed
+        if (gameOutcome === 'won' || gameOutcome === 'lost') {
+            displayStats(); // Make sure stats are displayed if the game was previously completed
+        }
+
+        // If the game was lost, reveal the word of the day
+        if (gameOutcome === 'lost') {
+            revealWordOfTheDay(); // Ensure this function reveals the word of the day
+        }
     }
 }
 
