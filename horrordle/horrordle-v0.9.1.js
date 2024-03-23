@@ -229,7 +229,7 @@ function displayEndGameMessage(won) {
         if (navButton) {
             navButton.click();
         }
-    }, 1200); // Wait for fade out
+    }, 2500); // Wait for fade out
 }
 
 function displayHint() {
