@@ -1,5 +1,7 @@
 import { gameState } from '../state/gameState.js';
                                             console.log(gameState.testProperty);
+                                            console.log(gameState.getGameStatus()); // Test access to getGameStatus method
+
 
 const uiUpdater = {
     updateGuessDisplay() {
