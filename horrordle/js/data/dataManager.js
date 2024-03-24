@@ -51,4 +51,19 @@ class DataManager {
 }
 
 // Export the DataManager class for use in other modules
-export const dataManager = new DataManager();
+export const dataManager = {
+    dictionary: [],
+
+    async loadDictionary() {
+        try {
+            const response = await fetch('path/to/your/dictionary.json');
+            const words = await response.json(); // Assuming the dictionary is a JSON array of words
+            this.dictionary = words;
+            console.log('Dictionary loaded successfully.');
+        } catch (error) {
+            console.error('Failed to load dictionary:', error);
+        }
+    },
+
+    // Other data loading methods...
+};
