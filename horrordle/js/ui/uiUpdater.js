@@ -71,7 +71,7 @@ const uiUpdater = {
             const hintContainer = hintElement.closest('#hint');
             if (hintContainer) {
                 hintContainer.style.display = 'block'; // Make sure the container is visible
-                hintElement.style.opacity = '1';
+                hintContainer.style.opacity = '1';
             }
         } else {
             console.error("Hint element not found");
