@@ -6,7 +6,6 @@ import { gameState } from '../state/gameState.js';
 const uiUpdater = {
 
     updateGuessDisplay() {
-                                            console.log({ gameState, method: gameState?.getGameStatus });
         // Utilizes gameState to access the currentAttempt and currentGuess
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${gameState.currentAttempt}"]`);
         
@@ -88,6 +87,7 @@ const uiUpdater = {
         }
     },
     showEndGameMessage(won, word, hint) {
+                                            console.log({ gameState, method: gameState?.getGameStatus });
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
