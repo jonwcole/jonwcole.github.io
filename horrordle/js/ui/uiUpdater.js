@@ -101,9 +101,10 @@ const uiUpdater = {
                 hintContainer.style.opacity = '1';
             }, 100);
 
-            if (hintElement) {
-                hintElement.textContent = hint; // Update the hint text
-            }
+            // Fill the hintElement with the hint of the day
+//            if (hintElement) {
+//                hintElement.textContent = hint; // Update the hint text
+//            }
         }
 
         // Disable the on-screen keyboard by setting attributes and applying classes
