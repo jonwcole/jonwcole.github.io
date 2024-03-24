@@ -30,8 +30,8 @@ class DataManager {
 
             if (wordData) {
                 this.dailyWord = wordData.word.toUpperCase();
-                this.hint = wordData.hint;
-                console.log('Daily word and hint loaded successfully.');
+                this.hint = wordData.hint; // Ensure this line correctly assigns the hint
+                console.log('Daily word and hint loaded successfully. Hint:', this.hint); // Check the hint
             } else {
                 console.error('Daily word for today not found.');
             }
