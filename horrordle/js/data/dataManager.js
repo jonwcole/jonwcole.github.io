@@ -51,13 +51,17 @@ class DataManager {
 }
 
 // Export the DataManager class for use in other modules
+// dataManager.js
+
 export const dataManager = {
     dictionary: [],
+    dailyWord: '',
+    hint: '',
 
     async loadDictionary() {
         try {
             const response = await fetch('path/to/your/dictionary.json');
-            const words = await response.json(); // Assuming the dictionary is a JSON array of words
+            const words = await response.json();
             this.dictionary = words;
             console.log('Dictionary loaded successfully.');
         } catch (error) {
@@ -65,5 +69,19 @@ export const dataManager = {
         }
     },
 
-    // Other data loading methods...
+    async loadDailyWordAndHint() {
+        // Example logic for loading the daily word and hint
+        try {
+            // Assuming these are stored in a JSON file or fetched from an API
+            const response = await fetch('path/to/dailyWordAndHint.json');
+            const data = await response.json();
+            this.dailyWord = data.dailyWord;
+            this.hint = data.hint;
+            console.log('Daily word and hint loaded successfully.');
+        } catch (error) {
+            console.error('Failed to load daily word and hint:', error);
+        }
+    },
+
+    // Other data loading methods as needed...
 };
