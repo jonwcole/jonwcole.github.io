@@ -7,7 +7,7 @@ const uiUpdater = {
         // Update the tiles to show correct/present/absent
         console.log(`Guess result: ${guess} - ${result}`);
     },
-    function showEndGameMessage(won, word) {
+    showEndGameMessage(won, word) {
         if (won) {
             console.log('Congratulations! You guessed the word:', word);
         } else {
