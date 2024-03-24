@@ -63,7 +63,13 @@ const uiUpdater = {
             });
         }, lastFlipTime + 500); // Adding 500 to ensure it's after the last tile flips
     },
-
+    showHint(hint) {
+        const hintElement = document.getElementById('hint');
+        if (hintElement) {
+            hintElement.textContent = hint; // Update the hint text
+            hintElement.style.display = 'block'; // Make the hint element visible
+        }
+    },
     showEndGameMessage(won, word) {
         if (won) {
             console.log('Congratulations! You guessed the word:', word);
