@@ -81,29 +81,34 @@ const uiUpdater = {
             console.error("Hint element not found");
         }
     },
-    showEndGameMessage(won, word) {
+    showEndGameMessage(won, word, hint) {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
         const hintElement = document.getElementById('hint-text'); // Getting the hint text element
 
-        if (messageContainer) {
+        // Ensure the hintElement and the hintContainer are correctly targeted and updated
+        if (messageContainer && hintElement && hintContainer) {
+            // Display the success or failure message
             messageContainer.style.display = 'flex';
+            // Display the hint container
             hintContainer.style.display = 'block';
+
+            // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
                 hintContainer.style.opacity = '1';
-            }, 100); // Small delay to ensure transition can occur
+            }, 100);
+
+            // Fill the hintElement with the hint of the day
+            hintElement.textContent = hint; // Use the passed hint parameter
         }
 
-        // Fill the hintElement with the hint of the day
-        hintElement.textContent = this.hintOfTheDay; // Assuming this.hintOfTheDay contains the hint text
-
-        // Disable the on-screen keyboard
+        // Disable the on-screen keyboard by setting attributes and applying classes
         const keys = document.querySelectorAll('#keyboard .key');
         keys.forEach(key => {
             key.setAttribute('disabled', 'true');
-            key.classList.add('disabled'); // Assuming you have a CSS class to visually indicate disabled state
+            key.classList.add('disabled'); // Assuming there's a CSS class to visually indicate disabled state
         });
     },
 };
