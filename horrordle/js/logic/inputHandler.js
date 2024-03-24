@@ -3,12 +3,15 @@ import { gameState } from '../state/gameState.js';
 import { uiUpdater } from '../ui/uiUpdater.js';
 
 function handleKeyPress(key) {
-    console.log(`Key pressed: ${key}`);
-    if (key.length === 1 && /^[A-Z]$/i.test(key)) { // Ensures a single, valid letter
+    if (key === 'ENTER') {
+        handleSubmit();
+    } else if (key === 'BACKSPACE') {
+        gameState.removeLastLetter();
+        uiUpdater.updateGuessDisplay();
+    } else if (/^[A-Z]$/i.test(key)) {
         gameState.updateCurrentGuess(key.toUpperCase());
-        uiUpdater.updateGuessDisplay(gameState.currentGuess.join(''));
+        uiUpdater.updateGuessDisplay();
     }
-    // Implement other key handling (Enter, Backspace) here
 }
 
 function handleSubmit() {
@@ -36,3 +39,7 @@ document.addEventListener('keydown', (event) => {
         }
     }
 });
+
+export function handleKeyPress(key) {
+    // Function implementation...
+}
