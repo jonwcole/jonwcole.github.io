@@ -16,3 +16,8 @@ function showEndGameMessage(won, word) {
     }
     // Update the UI with the end game message
 }
+
+function updateGuessDisplay(currentGuess) {
+    // Update the UI to reflect the current guess
+    // This could involve setting the text content of DOM elements representing guess tiles
+}
