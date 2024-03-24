@@ -34,7 +34,7 @@ class GameState {
         this.currentGuess = []; // Prepare for next attempt
     }
 
-    compareGuess(guess) {
+    compareGuess(guess, uiUpdater) {
         // Compare `guess` with `gameState.wordOfTheDay`
         // Update UI to reflect how many letters are correct/placed correctly
         const result = guess.split('').map((letter, index) => {
@@ -48,7 +48,7 @@ class GameState {
         });
 
         // Assuming you have a function in uiUpdater to mark guess results
-        uiUpdater.markGuessResult(gameState.currentAttempt, guess, result);
+        uiUpdater.markGuessResult(this.currentAttempt, guess, result);
         // Check if the game has been won or if max attempts reached, and update the game state accordingly
         if (guess === gameState.wordOfTheDay) {
             // Handle win
