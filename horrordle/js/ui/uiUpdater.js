@@ -1,4 +1,5 @@
 import { gameState } from '../state/gameState.js';
+                                            console.log(gameState.testProperty);
 
 const uiUpdater = {
     updateGuessDisplay() {
@@ -111,7 +112,7 @@ const uiUpdater = {
             key.setAttribute('disabled', 'true');
             key.classList.add('disabled'); // Assuming there's a CSS class to visually indicate disabled state
         });
-    },
+    }
 };
 
 export { uiUpdater };
