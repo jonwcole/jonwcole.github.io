@@ -66,7 +66,7 @@ class GameState {
             const revealDelay = result.length * 500 + 500; // Assuming a 500ms flip delay per tile, plus an extra 500ms buffer
 
             setTimeout(() => {
-                uiUpdater.showEndGameMessage(won, this.wordOfTheDay);
+                uiUpdater.showEndGameMessage(gameStatus.won, gameState.wordOfTheDay, gameState.hintOfTheDay);
             }, revealDelay); // Delay showing the end game message until after the last tile has flipped
             
         } else {
