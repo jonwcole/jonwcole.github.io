@@ -27,9 +27,35 @@ const uiUpdater = {
         // Ideally, this would update the DOM to display the message visibly to the player
     },
     markGuessResult(attempt, guess, result) {
-        // Update the tiles to show correct/present/absent based on the result
-        console.log(`Guess result for attempt ${attempt}: ${guess} - ${result}`);
-        // Here, you would add logic to visually update each tile based on 'correct', 'present', 'absent'
+        const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+        if (!currentRow) {
+            console.error('Current row not found:', attempt);
+            return;
+        }
+
+        const tiles = currentRow.querySelectorAll('.tile');
+
+        result.forEach((status, index) => {
+            if (!tiles[index]) {
+                console.error('Tile not found for index:', index);
+                return;
+            }
+
+            const tile = tiles[index];
+            const back = tile.querySelector('.back');
+            const backText = tile.querySelector('.back-text');
+
+            // Setting text for the back
+            backText.textContent = guess[index];
+
+            // Adding the status class to back to change its color
+            back.classList.add(status);
+
+            // Adding flip animation
+            setTimeout(() => {
+                tile.classList.add('flipped');
+            }, index * 500); // Adding a delay between flips for dramatic effect
+        });
     },
     showEndGameMessage(won, word) {
         if (won) {
