@@ -1,3 +1,5 @@
+import { gameState } from '../state/gameState.js';
+
 const uiUpdater = {
     updateGuessDisplay() {
         // Utilizes gameState to access the currentAttempt and currentGuess
