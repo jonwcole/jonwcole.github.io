@@ -20,22 +20,18 @@ class GameState {
     }
 
     submitGuess(guess) {
-        // Ensure guess is in uppercase for consistency
         guess = guess.toUpperCase();
-
-        // Add guess to the list of guesses
         this.guesses.push(guess);
-
-        // Increment attempt counter
         this.currentAttempt++;
-
-        // Check if the guess is correct or if the player has reached the max attempts
-        if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
+        
+        // Directly evaluate and react to the guess here
+        this.compareGuess(guess); // Now, compareGuess does UI updates and checks win condition
+        
+        if (this.currentAttempt >= this.maxAttempts || guess === this.wordOfTheDay) {
             this.isGameOver = true;
         }
 
-        // Reset currentGuess after submitting
-        this.currentGuess = [];
+        this.currentGuess = []; // Prepare for next attempt
     }
 
     compareGuess(guess) {
