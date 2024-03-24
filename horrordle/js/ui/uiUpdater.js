@@ -87,6 +87,7 @@ const uiUpdater = {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
+        const hintElement = document.getElementById('hint-text'); // Getting the hint text element
 
         // Ensure the hintElement and the hintContainer are correctly targeted and updated
         if (messageContainer && hintElement && hintContainer) {
@@ -101,6 +102,8 @@ const uiUpdater = {
                 hintContainer.style.opacity = '1';
             }, 100);
 
+            // Fill the hintElement with the hint of the day
+            hintElement.textContent = hint; // Use the passed hint parameter
         }
 
         // Disable the on-screen keyboard by setting attributes and applying classes
