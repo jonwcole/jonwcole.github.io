@@ -17,7 +17,7 @@ function handleSubmit() {
         gameState.submitGuess(currentGuess, uiUpdater);
         gameState.compareGuess(currentGuess, uiUpdater); // Updates the game state with the guess
         uiUpdater.updateGuessDisplay('');
-        compareGuess(currentGuess); // Function to compare guess with the word of the day
+        compareGuess(currentGuess, uiUpdater); // Function to compare guess with the word of the day
     } else {
         console.error("Guess too short.");
         // Optionally, provide user feedback for an invalid guess
