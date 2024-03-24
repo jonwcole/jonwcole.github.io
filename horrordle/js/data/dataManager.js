@@ -60,7 +60,7 @@ export const dataManager = {
 
     async loadDictionary() {
         try {
-            const response = await fetch('path/to/your/dictionary.json');
+            const response = await fetch('https://jonwcole.github.io/horrordle/dictionary-v1.json');
             const words = await response.json();
             this.dictionary = words;
             console.log('Dictionary loaded successfully.');
@@ -73,7 +73,7 @@ export const dataManager = {
         // Example logic for loading the daily word and hint
         try {
             // Assuming these are stored in a JSON file or fetched from an API
-            const response = await fetch('path/to/dailyWordAndHint.json');
+            const response = await fetch('https://jonwcole.github.io/horrordle/words-v1.json');
             const data = await response.json();
             this.dailyWord = data.dailyWord;
             this.hint = data.hint;
