@@ -69,7 +69,6 @@ const uiUpdater = {
         }, lastFlipTime + 500);
     },
     showHint(hint) {
-        console.log("Displaying hint again:", hint); // Confirm what hint is at this moment
         const hintElement = document.getElementById('hint-text');
         if (hintElement) {
             hintElement.textContent = hint; // Update the hint text
@@ -83,7 +82,8 @@ const uiUpdater = {
             console.error("Hint element not found");
         }
     },
-    showEndGameMessage(won, word) {
+    showEndGameMessage(won, word, hint) {
+        console.log("Displaying hint again:", hint); // Confirm what hint is at this moment
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
