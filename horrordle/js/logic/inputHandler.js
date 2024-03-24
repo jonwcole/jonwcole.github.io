@@ -12,15 +12,20 @@ function handleKeyPress(key) {
 }
 
 function handleSubmit() {
-    const currentGuess = gameState.currentGuess.join('');
-    if (currentGuess.length === 5) {
-        // Assuming submitGuess is designed to also handle comparison logic
-        gameState.submitGuess(currentGuess, uiUpdater); // Passed uiUpdater here if needed
+    const currentGuess = gameState.currentGuess.join('').toUpperCase();
+    if (!gameState.isValidGuess(currentGuess)) {
+        // Inform the player the guess is not a valid word
+        uiUpdater.showInvalidGuessMessage(currentGuess);
+        return;
     } else {
         console.error("Guess too short.");
         // Optional: Provide feedback to the user through UI
     }
+
+    // Proceed to compare the guess with the Word of the Day
+    gameState.submitGuess(currentGuess);
 }
+
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
