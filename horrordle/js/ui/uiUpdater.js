@@ -102,7 +102,6 @@ const uiUpdater = {
             }, 100);
 
             // Fill the hintElement with the hint of the day
-            hintElement.textContent = hint; // Use the passed hint parameter
             if (hintElement) {
                 hintElement.textContent = hint; // Update the hint text
             }
