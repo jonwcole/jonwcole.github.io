@@ -26,7 +26,7 @@ const uiUpdater = {
         console.error("Invalid guess. Please try a word from the dictionary.");
         // Ideally, this would update the DOM to display the message visibly to the player
     },
-    markGuessResult(attempt, guess, result) {
+    markGuessResult(attempt, guess, result, gameState) {
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
         if (!currentRow) {
             console.error('Current row not found:', attempt);
@@ -34,34 +34,37 @@ const uiUpdater = {
         }
 
         const tiles = currentRow.querySelectorAll('.tile');
-
-        // Assume all tiles will flip; calculate when the last tile flips
-        const lastFlipTime = (tiles.length - 1) * 500; // Based on your delay calculation
+        const lastFlipTime = (tiles.length - 1) * 500; // Time when the last tile will have flipped
 
         tiles.forEach((tile, index) => {
             const back = tile.querySelector('.back');
             const backText = tile.querySelector('.back-text');
 
-            // Set the guessed letter and apply the result class
+            // Set the guessed letter and result class
             backText.textContent = guess[index];
             back.classList.add(result[index]);
 
-            // Trigger the flip animation
-            setTimeout(() => {
-                tile.classList.add('flipped');
-            }, index * 500);
+            // Trigger flip animation with a delay for each tile
+            setTimeout(() => tile.classList.add('flipped'), index * 500);
         });
 
-        // Update the onscreen keyboard after the last tile has flipped
+        // Wait for all tiles to flip before updating the onscreen keyboard
         setTimeout(() => {
             result.forEach((status, index) => {
-                const letter = guess[index];
-                const keyElement = document.querySelector(`.key[data-key="${letter.toUpperCase()}"]`);
+                const letter = guess[index].toUpperCase();
+                const keyElement = document.querySelector(`.key[data-key="${letter}"]`);
                 if (keyElement && !keyElement.classList.contains('correct')) {
                     keyElement.classList.add(status);
                 }
             });
-        }, lastFlipTime + 500); // Adding 500 to ensure it's after the last tile flips
+
+            // After updating the onscreen keyboard, check the game status
+            const gameStatus = gameState.getGameStatus();
+            if (gameStatus.isGameOver) {
+                // Wait a bit longer to show the end game message, ensuring it's after the keyboard update
+                setTimeout(() => this.showEndGameMessage(gameStatus.won, gameState.wordOfTheDay), 500);
+            }
+        }, lastFlipTime + 500);
     },
     showHint(hint) {
         console.log("Displaying hint again:", hint); // Confirm what hint is at this moment
@@ -99,6 +102,24 @@ const uiUpdater = {
             key.classList.add('disabled'); // Assuming you have a CSS class to visually indicate disabled state
         });
     }
+    showEndGameMessage(won, word) {
+        // Disable input and show either the success or failure message
+        const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
+
+        if (messageContainer) {
+            messageContainer.style.display = 'block';
+            setTimeout(() => {
+                messageContainer.style.opacity = '1';
+            }, 100); // Small delay to ensure transition can occur
+        }
+
+        // Disable the on-screen keyboard
+        const keys = document.querySelectorAll('#keyboard .key');
+        keys.forEach(key => {
+            key.setAttribute('disabled', 'true');
+            key.classList.add('disabled'); // Assuming you have a CSS class to visually indicate disabled state
+        });
+    },
 };
 
 export { uiUpdater };
