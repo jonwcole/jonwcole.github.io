@@ -84,27 +84,35 @@ const uiUpdater = {
         }
     },
     showEndGameMessage(won, word, hint) {
-        // Ensure the hintElement and the hintContainer are correctly targeted and updated
+        // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
         const hintElement = document.getElementById('hint-text'); // Getting the hint text element
 
+        // Ensure the hintElement and the hintContainer are correctly targeted and updated
         if (messageContainer && hintElement && hintContainer) {
+            // Display the success or failure message
             messageContainer.style.display = 'flex';
+            // Display the hint container
             hintContainer.style.display = 'block';
 
+            // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
                 hintContainer.style.opacity = '1';
             }, 100);
 
-            hintElement.textContent = hint; // Set the hint text
+            // Fill the hintElement with the hint of the day
+            hintElement.textContent = hintOfTheDay; // Use the passed hint parameter
         }
 
-        // Disable further inputs as the game has ended
-        disableInputs();
+        // Disable the on-screen keyboard by setting attributes and applying classes
+        const keys = document.querySelectorAll('#keyboard .key');
+        keys.forEach(key => {
+            key.setAttribute('disabled', 'true');
+            key.classList.add('disabled'); // Assuming there's a CSS class to visually indicate disabled state
+        });
     }
-
 };
 
 export { uiUpdater };
