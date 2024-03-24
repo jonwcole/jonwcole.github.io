@@ -48,8 +48,7 @@ class GameState {
         }
 
         // Update the UI with the result of the guess
-        // Note: Passing the gameState reference might not be necessary unless the uiUpdater needs to access gameState directly
-        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result, this); // Adjusted to pass gameState if needed
+        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result); // -1 because currentAttempt was just incremented
 
         // Reveal the hint if 5 incorrect guesses have been made
         if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
@@ -57,20 +56,18 @@ class GameState {
             this.hintDisplayed = true;
         }
 
-        // Check for game over conditions
-        if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
-            this.isGameOver = true;
-            const won = guess === this.wordOfTheDay;
+        // Assuming a delay based on the length of the result array for animation purposes
+        const delay = result.length * 500 + 500; // Adjust as necessary based on your animation timing
 
-            // Determine the delay after which the end game message should be shown
-            const revealDelay = result.length * 500 + 500; // Assuming a 500ms flip delay per tile, plus an extra 500ms buffer
-
+        // Check for game over conditions after a delay
+        if (this.currentAttempt >= this.maxAttempts || guess === this.wordOfTheDay) {
             setTimeout(() => {
-                uiUpdater.showEndGameMessage(gameStatus.won, gameState.wordOfTheDay, gameState.hintOfTheDay);
-            }, revealDelay); // Delay showing the end game message until after the last tile has flipped
-            
+                this.isGameOver = true;
+                const won = guess === this.wordOfTheDay;
+                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+            }, delay); // Delay showing the end game message until after the animations complete
         } else {
-            // Prepare for the next guess if the game is not over
+            // Prepare for the next guess if the game is not over, immediately, without waiting for delay
             this.currentGuess = [];
         }
     }
