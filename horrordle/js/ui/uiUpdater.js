@@ -83,7 +83,7 @@ const uiUpdater = {
             console.error("Hint element not found");
         }
     },
-    showEndGameMessage(won, word, hint) {
+    showEndGameMessage(won, word) {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
