@@ -13,15 +13,12 @@ function handleKeyPress(key) {
 
 function handleSubmit() {
     const currentGuess = gameState.currentGuess.join('');
-    if (currentGuess.length === 5) { // Assuming a 5-letter word game
-        gameState.submitGuess(currentGuess, uiUpdater);
-        gameState.compareGuess(currentGuess, uiUpdater); // Updates the game state with the guess
-        uiUpdater.updateGuessDisplay('');
-        compareGuess(currentGuess, uiUpdater); // Function to compare guess with the word of the day
+    if (currentGuess.length === 5) {
+        // Assuming submitGuess is designed to also handle comparison logic
+        gameState.submitGuess(currentGuess, uiUpdater); // Passed uiUpdater here if needed
     } else {
         console.error("Guess too short.");
-        // Optionally, provide user feedback for an invalid guess
-        uiUpdater.showInvalidGuessMessage(); // This would be a new UI function
+        // Optional: Provide feedback to the user through UI
     }
 }
 
