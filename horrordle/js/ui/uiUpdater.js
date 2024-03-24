@@ -84,11 +84,14 @@ const uiUpdater = {
     showEndGameMessage(won, word) {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
+        const hintContainer = hintElement.closest('#hint');
 
         if (messageContainer) {
-            messageContainer.style.display = 'block';
+            messageContainer.style.display = 'flex';
+            hintContainer.style.display = 'block';
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
+                hintContainer.style.opacity = '1';
             }, 100); // Small delay to ensure transition can occur
         }
 
