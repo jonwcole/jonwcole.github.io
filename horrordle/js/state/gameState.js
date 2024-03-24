@@ -134,3 +134,4 @@ class GameState {
 
 // Export the GameState class for use in other modules
 export const gameState = new GameState();
+
