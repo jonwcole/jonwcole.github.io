@@ -1,26 +1,22 @@
 const uiUpdater = {
-    updateGuessDisplay(currentGuess) {
-        // Assuming 'currentAttempt' is available globally or passed in some way
+    updateGuessDisplay() {
+        // Utilizes gameState to access the currentAttempt and currentGuess
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${gameState.currentAttempt}"]`);
-
-        if (!currentRow) return; // Exit if the current row isn't found (shouldn't happen)
+        
+        if (!currentRow) {
+            console.error('Current row not found:', gameState.currentAttempt);
+            return;
+        }
 
         const tiles = currentRow.querySelectorAll('.tile');
-        
-        // Loop through each tile and update it with the corresponding letter from 'currentGuess'
+
+        // Clear existing letters in the current row's tiles before setting new ones
         tiles.forEach((tile, index) => {
-            const letter = currentGuess[index]; // Get the letter at the current index
-            if (letter) {
-                // Update both the .front and .back-text elements
-                const front = tile.querySelector('.front');
-                const backText = tile.querySelector('.back-text');
-                front.textContent = letter;
-                backText.textContent = letter;
-            } else {
-                // If no letter for this tile, clear it
-                tile.querySelector('.front').textContent = '';
-                tile.querySelector('.back-text').textContent = '';
-            }
+            const front = tile.querySelector('.front');
+            const backText = tile.querySelector('.back-text');
+            // Reset content for both front and back-text
+            front.textContent = gameState.currentGuess[index] || '';
+            backText.textContent = gameState.currentGuess[index] || '';
         });
     },
     markGuessResult(guess, result) {
