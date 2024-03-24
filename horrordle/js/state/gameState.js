@@ -2,6 +2,7 @@ class GameState {
     constructor() {
         this.dictionary = []; // Ensure this is populated as needed, e.g., via an initialization method
         this.reset();
+        this.incorrectGuessCount = 0;
     }
 
     reset() {
@@ -23,8 +24,9 @@ class GameState {
 
     submitGuess(guess, uiUpdater) {
         if (!this.isValidGuess(guess)) {
-            uiUpdater.showInvalidGuessMessage(); // This method needs to be defined in uiUpdater
-            return; // Stop processing this guess
+            uiUpdater.showInvalidGuessMessage(); // Show a message for invalid guess
+            // If the guess is invalid, consider if it should count towards the incorrect guess limit
+            return; // Stop further processing for this guess
         }
 
         guess = guess.toUpperCase();
@@ -34,12 +36,22 @@ class GameState {
         // UI update based on the comparison
         uiUpdater.markGuessResult(this.currentAttempt, guess, result);
 
+        if (guess !== this.wordOfTheDay) {
+            this.incorrectGuessCount++; // Increment incorrect guess count only if the guess is wrong
+        }
+
+        // Check if it's time to reveal the hint
+        if (this.incorrectGuessCount >= 5) {
+            uiUpdater.showHint(this.hint);
+        }
+
+        // Handle game over conditions
         if (guess === this.wordOfTheDay) {
             this.isGameOver = true;
-            uiUpdater.showEndGameMessage(true, this.wordOfTheDay);
+            uiUpdater.showEndGameMessage(true, this.wordOfTheDay); // Player wins
         } else if (this.currentAttempt >= this.maxAttempts - 1) {
             this.isGameOver = true;
-            uiUpdater.showEndGameMessage(false, this.wordOfTheDay);
+            uiUpdater.showEndGameMessage(false, this.wordOfTheDay); // Game over, player didn't guess the word
         }
 
         this.currentAttempt++;
