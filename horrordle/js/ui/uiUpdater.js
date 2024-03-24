@@ -95,16 +95,17 @@ const uiUpdater = {
             // Display the hint container
             hintContainer.style.display = 'block';
 
+            // Check if hintElement is empty or needs updating
+            if (!hintElement.textContent || hintElement.textContent !== hint) {
+                // Apply the hint if it's not already set or needs to be updated
+                hintElement.textContent = hint;
+            }
+
             // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
                 hintContainer.style.opacity = '1';
             }, 100);
-
-            // Fill the hintElement with the hint of the day
-//            if (hintElement) {
-//                hintElement.textContent = hint; // Update the hint text
-//            }
         }
 
         // Disable the on-screen keyboard by setting attributes and applying classes
