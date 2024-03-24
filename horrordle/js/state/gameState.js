@@ -29,56 +29,58 @@ class GameState {
         this.currentGuess.pop();
     }
 
-    submitGuess(guess, uiUpdater) {
-        // First, validate the guess
-        if (!this.isValidGuess(guess)) {
-            uiUpdater.showInvalidGuessMessage();
-            uiUpdater.shakeCurrentRow(this.currentAttempt);
-            return;
-        }
-
-        guess = guess.toUpperCase();
-        this.guesses.push(guess);
-        const result = this.compareGuess(guess);
-
-        // Increment attempt count
-        this.currentAttempt++;
-        
-        // Update incorrect guess count if the guess is incorrect
-        if (guess !== this.wordOfTheDay) {
-            this.incorrectGuessCount++;
-        }
-
-        // Update UI with the result of the guess
-        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result);
-
-        // Reveal the hint if 5 incorrect guesses have been made and hint is not yet displayed
-        if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
-            uiUpdater.showHint(this.hintOfTheDay);
-            this.hintDisplayed = true;
-        }
-
-        // Check for game over conditions
-        if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
-            this.isGameOver = true; // Mark the game as over
-            // Provide a default hint if hintOfTheDay isn't set
-            const hintForEndMessage = this.hintOfTheDay || "No hint available.";
-            this.endGame(guess === this.wordOfTheDay, uiUpdater, hintForEndMessage);
-        } else {
-            // Prepare for the next guess if the game is not over
-            this.currentGuess = [];
-        }
+submitGuess(guess, uiUpdater) {
+    // Validate the guess
+    if (!this.isValidGuess(guess)) {
+        uiUpdater.showInvalidGuessMessage();
+        uiUpdater.shakeCurrentRow(this.currentAttempt);
+        return;
     }
 
-    // Assuming the endGame method exists within the GameState class
-    endGame(won, uiUpdater, hint) {
-        // Depending on the game's outcome, show the appropriate end game message
-        setTimeout(() => {
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, hint);
-        }, 2500); // Adjust this value based on your animation timing
+    guess = guess.toUpperCase();
+    this.guesses.push(guess);
+    const result = this.compareGuess(guess);
 
-        // Optionally disable further input here or ensure input handlers check the isGameOver state
+    // Increment attempt count
+    this.currentAttempt++;
+
+    // Check if the guess is incorrect
+    if (guess !== this.wordOfTheDay) {
+        this.incorrectGuessCount++;
     }
+
+    // Update UI with the guess result
+    uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result); // Adjust to currentAttempt - 1 if needed
+
+    // Reveal hint after 5 incorrect guesses
+    if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
+        uiUpdater.showHint(this.hintOfTheDay);
+        this.hintDisplayed = true;
+    }
+
+    // Game over logic
+    if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
+        this.endGame(guess === this.wordOfTheDay, uiUpdater);
+    } else {
+        // Prepare for the next guess
+        this.currentGuess = [];
+    }
+}
+
+// Assuming you have an endGame method in your GameState class
+endGame(won, uiUpdater) {
+    // Set game over state
+    this.isGameOver = true;
+
+    // Depending on the outcome, show the end game message
+    setTimeout(() => {
+        uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+    }, 2500); // Use a delay to allow for any animations or transitions
+
+    // Disable further input if necessary
+    this.disableInput();
+}
+
 
     compareGuess(guess) {
         const result = guess.split('').map((letter, index) => {
