@@ -66,9 +66,9 @@ class GameState {
 
         // Depending on the game's outcome, show the appropriate end game message
         // We use a timeout to ensure that any animations complete before showing the message
-        setTimeout(() => {
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-        }, 2500); // Adjust this value based on your animation timing
+//        setTimeout(() => {
+//            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+//        }, 2500); // Adjust this value based on your animation timing
 
         // Optionally disable further input here or ensure input handlers check the isGameOver state
     }
