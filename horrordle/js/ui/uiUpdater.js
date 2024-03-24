@@ -82,27 +82,6 @@ const uiUpdater = {
         }
     },
     showEndGameMessage(won, word) {
-        gameState.disableInput(); // Disable further input
-        const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
-        const hintContainer = document.getElementById('hint');
-
-        if (messageContainer) {
-            messageContainer.style.display = 'flex';
-            hintContainer.style.display = 'block';
-            setTimeout(() => {
-                messageContainer.style.opacity = '1';
-                hintContainer.style.opacity = '1';
-            }, 100); // Small delay to ensure transition can occur
-        }
-
-        // Optionally, disable on-screen keyboard here
-        const keys = document.querySelectorAll('#keyboard .key');
-        keys.forEach(key => {
-            key.setAttribute('disabled', 'true');
-            key.classList.add('disabled'); // Assuming you have a CSS class to visually indicate disabled state
-        });
-    }
-    showEndGameMessage(won, word) {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
 
