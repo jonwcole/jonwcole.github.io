@@ -1,7 +1,5 @@
 const uiUpdater = {
     updateGuessDisplay(currentGuess) {
-        // Update the DOM elements representing the current guess
-        console.log(`Update display with current guess: ${currentGuess}`);
         // Assuming 'currentAttempt' is available globally or passed in some way
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${gameState.currentAttempt}"]`);
 
@@ -35,10 +33,6 @@ const uiUpdater = {
         } else {
             console.log('Game over. The word was:', word);
         }
-    },
-    updateGuessDisplay(currentGuess) {
-        // Implementation...
-        console.log(`Update display with current guess: ${currentGuess}`);
     }
 };
 
