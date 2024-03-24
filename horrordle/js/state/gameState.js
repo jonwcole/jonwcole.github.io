@@ -43,9 +43,10 @@ class GameState {
     }
 
     getGameStatus() {
+        const lastGuess = this.guesses[this.guesses.length - 1];
         return {
             isGameOver: this.isGameOver,
-            won: this.isCorrectGuess(this.guesses[this.guesses.length - 1]),
+            won: lastGuess ? this.isCorrectGuess(lastGuess) : false,
             remainingAttempts: this.getRemainingAttempts(),
         };
     }
