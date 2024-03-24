@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initializeGame() {
     await dataManager.loadDictionary();
-    await dataManager.loadDailyWordAndHint(); // Only necessary if this is asynchronous and not yet called
+    await dataManager.loadDailyWord(); // Only necessary if this is asynchronous and not yet called
     gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
 }
 
