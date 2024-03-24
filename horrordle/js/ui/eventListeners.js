@@ -2,6 +2,7 @@ import { handleKeyPress } from '../logic/inputHandler.js'; // Adjust the path as
 
 document.getElementById('keyboard').addEventListener('click', function(event) {
     event.preventDefault();
+    if (!gameState.isInputEnabled()) return; // Ignore clicks if input is disabled
     const key = event.target.getAttribute('data-key');
     if (key) {
         handleKeyPress(key);
