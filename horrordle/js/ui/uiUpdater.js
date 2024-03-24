@@ -4,9 +4,9 @@ import { gameState } from '../state/gameState.js';
 
 
 const uiUpdater = {
-    console.log({ gameState, method: gameState?.getGameStatus });
 
     updateGuessDisplay() {
+                                            console.log({ gameState, method: gameState?.getGameStatus });
         // Utilizes gameState to access the currentAttempt and currentGuess
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${gameState.currentAttempt}"]`);
         
