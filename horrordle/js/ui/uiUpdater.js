@@ -101,5 +101,3 @@ const uiUpdater = {
 };
 
 export { uiUpdater };
-
-
