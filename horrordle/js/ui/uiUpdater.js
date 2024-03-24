@@ -62,7 +62,7 @@ const uiUpdater = {
             const gameStatus = gameState.getGameStatus();
             if (gameStatus.isGameOver) {
                 // Wait a bit longer to show the end game message, ensuring it's after the keyboard update
-                setTimeout(() => this.showEndGameMessage(gameStatus.won, gameState.wordOfTheDay), 500);
+                setTimeout(() => uiUpdater.showEndGameMessage(gameStatus.won, gameState.wordOfTheDay), 500);
             }
         }, lastFlipTime + 500);
     },
