@@ -3,6 +3,7 @@ class GameState {
         this.dictionary = []; // Ensure this is populated as needed, e.g., via an initialization method
         this.reset();
         this.incorrectGuessCount = 0;
+        this.inputEnabled = true;
     }
 
     reset() {
@@ -26,47 +27,46 @@ class GameState {
         this.currentGuess.pop();
     }
 
-submitGuess(guess, uiUpdater) {
-    // First, check if the guess is a valid word in the dictionary
-    if (!this.isValidGuess(guess)) {
-        uiUpdater.showInvalidGuessMessage(); // Display message for invalid guess
-        // Consider shaking the current row as feedback for invalid guess
-        uiUpdater.shakeCurrentRow(this.currentAttempt);
-        return; // Stop further processing of this guess
+    submitGuess(guess, uiUpdater) {
+        // First, check if the guess is a valid word in the dictionary
+        if (!this.isValidGuess(guess)) {
+            uiUpdater.showInvalidGuessMessage(); // Display message for invalid guess
+            // Consider shaking the current row as feedback for invalid guess
+            uiUpdater.shakeCurrentRow(this.currentAttempt);
+            return; // Stop further processing of this guess
+        }
+
+        guess = guess.toUpperCase(); // Normalize the guess to uppercase
+        this.guesses.push(guess); // Record the guess
+
+        // Compare the guess to the word of the day and get the result
+        const result = this.compareGuess(guess);
+
+        // Increment the attempt count and incorrect guess count if necessary
+        this.currentAttempt++;
+        if (guess !== this.wordOfTheDay) {
+            this.incorrectGuessCount++;
+        }
+
+        // Update the UI with the result of the guess
+        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result); // -1 because currentAttempt was just incremented
+
+        // Reveal the hint if 5 incorrect guesses have been made
+        if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
+            uiUpdater.showHint(this.hintOfTheDay);
+            this.hintDisplayed = true;
+        }
+
+        // Check for game over conditions
+        if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
+            this.isGameOver = true;
+            const won = guess === this.wordOfTheDay;
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay);
+        } else {
+            // Prepare for the next guess if the game is not over
+            this.currentGuess = [];
+        }
     }
-
-    guess = guess.toUpperCase(); // Normalize the guess to uppercase
-    this.guesses.push(guess); // Record the guess
-
-    // Compare the guess to the word of the day and get the result
-    const result = this.compareGuess(guess);
-
-    // Increment the attempt count and incorrect guess count if necessary
-    this.currentAttempt++;
-    if (guess !== this.wordOfTheDay) {
-        this.incorrectGuessCount++;
-    }
-
-    // Update the UI with the result of the guess
-    uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result); // -1 because currentAttempt was just incremented
-
-    // Reveal the hint if 5 incorrect guesses have been made
-    if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
-        uiUpdater.showHint(this.hintOfTheDay);
-        this.hintDisplayed = true;
-    }
-
-    // Check for game over conditions
-    if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
-        this.isGameOver = true;
-        const won = guess === this.wordOfTheDay;
-        uiUpdater.showEndGameMessage(won, this.wordOfTheDay);
-    } else {
-        // Prepare for the next guess if the game is not over
-        this.currentGuess = [];
-    }
-}
-
 
     compareGuess(guess) {
         const result = guess.split('').map((letter, index) => {
@@ -113,6 +113,14 @@ submitGuess(guess, uiUpdater) {
         if (this.currentGuess.length < 5) {
             this.currentGuess.push(letter);
         }
+    }
+
+    disableInput() {
+        this.inputEnabled = false;
+    }
+
+    isInputEnabled() {
+        return this.inputEnabled;
     }
 
     prepareNextAttempt() {
