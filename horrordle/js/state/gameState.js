@@ -4,6 +4,8 @@ class GameState {
         this.reset();
         this.incorrectGuessCount = 0;
         this.inputEnabled = true;
+                                            this.testProperty = "Test successful";
+
     }
 
     reset() {
