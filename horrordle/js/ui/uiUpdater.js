@@ -56,6 +56,13 @@ const uiUpdater = {
                 tile.classList.add('flipped');
             }, index * 500); // Adding a delay between flips for dramatic effect
         });
+        result.forEach((status, index) => {
+            const letter = guess[index];
+            const keyElement = document.querySelector(`.key[data-key="${letter}"]`);
+            if (keyElement && !keyElement.classList.contains('correct')) {
+                keyElement.classList.add(status);
+            }
+        });
     },
     showEndGameMessage(won, word) {
         if (won) {
