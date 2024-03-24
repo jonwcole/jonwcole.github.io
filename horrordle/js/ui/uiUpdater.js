@@ -68,6 +68,7 @@ const uiUpdater = {
         if (hintElement) {
             hintElement.textContent = hint; // Update the hint text
             hintElement.style.display = 'block'; // Make the hint element visible
+            hintElement.style.opacity = '1';
         }
     },
     showEndGameMessage(won, word) {
