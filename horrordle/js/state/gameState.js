@@ -40,34 +40,41 @@ class GameState {
         guess = guess.toUpperCase();
         this.guesses.push(guess);
         const result = this.compareGuess(guess);
+
+        // Increment attempt count
         this.currentAttempt++;
         
+        // Update incorrect guess count if the guess is incorrect
         if (guess !== this.wordOfTheDay) {
             this.incorrectGuessCount++;
         }
 
+        // Update UI with the result of the guess
         uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result);
 
+        // Reveal the hint if 5 incorrect guesses have been made and hint is not yet displayed
         if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
             uiUpdater.showHint(this.hintOfTheDay);
             this.hintDisplayed = true;
         }
 
-        // Handle the game over logic here
+        // Check for game over conditions
         if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
-            this.endGame(guess === this.wordOfTheDay, uiUpdater);
+            this.isGameOver = true; // Mark the game as over
+            // Provide a default hint if hintOfTheDay isn't set
+            const hintForEndMessage = this.hintOfTheDay || "No hint available.";
+            this.endGame(guess === this.wordOfTheDay, uiUpdater, hintForEndMessage);
         } else {
+            // Prepare for the next guess if the game is not over
             this.currentGuess = [];
         }
     }
 
-    endGame(won, uiUpdater) {
-        this.isGameOver = true; // Set the game over state to true
-
+    // Assuming the endGame method exists within the GameState class
+    endGame(won, uiUpdater, hint) {
         // Depending on the game's outcome, show the appropriate end game message
-        // We use a timeout to ensure that any animations complete before showing the message
         setTimeout(() => {
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, hint);
         }, 2500); // Adjust this value based on your animation timing
 
         // Optionally disable further input here or ensure input handlers check the isGameOver state
