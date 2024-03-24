@@ -48,6 +48,8 @@ const uiUpdater = {
             setTimeout(() => tile.classList.add('flipped'), index * 500);
         });
 
+        console.log(gameState);
+
         // Wait for all tiles to flip before updating the onscreen keyboard
         setTimeout(() => {
             result.forEach((status, index) => {
@@ -57,8 +59,6 @@ const uiUpdater = {
                     keyElement.classList.add(status);
                 }
             });
-
-            console.log(gameState);
 
             // After updating the onscreen keyboard, check the game status
             const gameStatus = gameState.getGameStatus();
