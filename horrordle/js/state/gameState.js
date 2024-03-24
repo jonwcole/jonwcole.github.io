@@ -24,28 +24,29 @@ class GameState {
 
     submitGuess(guess, uiUpdater) {
         if (!this.isValidGuess(guess)) {
-            uiUpdater.showInvalidGuessMessage(); // Show a message for invalid guess
-            // If the guess is invalid, consider if it should count towards the incorrect guess limit
-            return; // Stop further processing for this guess
+            uiUpdater.showInvalidGuessMessage(); // Show a message for an invalid guess
+            // If the guess is invalid, you might decide whether or not to count it towards the incorrect guess limit
+            return; // Stop processing this guess further
         }
 
-        guess = guess.toUpperCase();
-        this.guesses.push(guess);
-        const result = this.compareGuess(guess);
+        guess = guess.toUpperCase(); // Normalize the guess to uppercase
+        this.guesses.push(guess); // Add the guess to the list of attempts
+        const result = this.compareGuess(guess); // Determine the result of the guess (correct, present, absent)
 
-        // UI update based on the comparison
+        // Update the UI based on the comparison result
         uiUpdater.markGuessResult(this.currentAttempt, guess, result);
 
+        // Increment incorrect guess count only if the guess is wrong and not equal to the word of the day
         if (guess !== this.wordOfTheDay) {
-            this.incorrectGuessCount++; // Increment incorrect guess count only if the guess is wrong
+            this.incorrectGuessCount++;
         }
 
-        // Check if it's time to reveal the hint
+        // Reveal the hint if the player has made 5 incorrect guesses
         if (this.incorrectGuessCount >= 5) {
-            uiUpdater.showHint(this.hint);
+            uiUpdater.showHint(this.hint); // This assumes uiUpdater.showHint correctly handles displaying the hint
         }
 
-        // Handle game over conditions
+        // Handle game over conditions: player wins or runs out of attempts
         if (guess === this.wordOfTheDay) {
             this.isGameOver = true;
             uiUpdater.showEndGameMessage(true, this.wordOfTheDay); // Player wins
@@ -54,9 +55,10 @@ class GameState {
             uiUpdater.showEndGameMessage(false, this.wordOfTheDay); // Game over, player didn't guess the word
         }
 
-        this.currentAttempt++;
-        this.currentGuess = []; // Reset for the next guess
+        this.currentAttempt++; // Move to the next attempt
+        this.currentGuess = []; // Prepare for the next guess
     }
+
 
     compareGuess(guess) {
         const result = guess.split('').map((letter, index) => {
