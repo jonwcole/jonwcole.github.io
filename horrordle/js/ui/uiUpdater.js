@@ -71,7 +71,7 @@ const uiUpdater = {
     showHint(hint) {
         const hintElement = document.getElementById('hint-text');
         if (hintElement) {
-            hintElement.textContent = hintOfTheDay; // Update the hint text
+            hintElement.textContent = hint; // Update the hint text
             // Optionally, if the hint container itself is hidden, reveal it:
             const hintContainer = hintElement.closest('#hint');
             if (hintContainer) {
