@@ -14,7 +14,7 @@ function handleKeyPress(key) {
 function handleSubmit() {
     const currentGuess = gameState.currentGuess.join('');
     if (currentGuess.length === 5) { // Assuming a 5-letter word game
-        gameState.submitGuess(currentGuess); // Updates the game state with the guess
+        gameState.compareGuess(currentGuess, uiUpdater); // Updates the game state with the guess
         uiUpdater.updateGuessDisplay('');
         compareGuess(currentGuess); // Function to compare guess with the word of the day
     } else {
