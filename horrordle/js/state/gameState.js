@@ -43,7 +43,7 @@ class GameState {
 
         // Reveal the hint if the player has made 5 incorrect guesses
         if (this.incorrectGuessCount >= 5) {
-            uiUpdater.showHint(this.hint); // This assumes uiUpdater.showHint correctly handles displaying the hint
+            uiUpdater.showHint(this.hintOfTheDay); // This assumes uiUpdater.showHint correctly handles displaying the hint
         }
 
         // Handle game over conditions: player wins or runs out of attempts
