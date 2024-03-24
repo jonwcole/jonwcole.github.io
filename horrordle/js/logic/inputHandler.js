@@ -7,20 +7,6 @@ function handleKeyPress(key) {
     // Implement other key handling (Enter, Backspace) here
 }
 
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        // Submit guess
-    } else if (event.key === 'Backspace') {
-        gameState.removeLastLetter();
-        uiUpdater.updateGuessDisplay(gameState.currentGuess.join(''));
-    } else {
-        const key = event.key.toUpperCase();
-        if (/^[A-Z]$/i.test(key)) {
-            handleKeyPress(key);
-        }
-    }
-});
-
 function handleSubmit() {
     const currentGuess = gameState.currentGuess.join('');
     // Validate guess length, dictionary membership, etc., before proceeding
@@ -32,10 +18,21 @@ function handleSubmit() {
         // Update game board to reflect guess results
     } else {
         // Handle error (e.g., guess too short)
+        console.error("Guess too short.");
     }
 }
 
-// Add to your 'keydown' event listener
-if (event.key === 'Enter') {
-    handleSubmit();
-}
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        handleSubmit();
+    } else if (event.key === 'Backspace') {
+        event.preventDefault(); // Prevent the default backspace behavior (e.g., going back in browser history)
+        gameState.removeLastLetter();
+        uiUpdater.updateGuessDisplay(gameState.currentGuess.join(''));
+    } else {
+        const key = event.key.toUpperCase();
+        if (/^[A-Z]$/i.test(key)) {
+            handleKeyPress(key);
+        }
+    }
+});
