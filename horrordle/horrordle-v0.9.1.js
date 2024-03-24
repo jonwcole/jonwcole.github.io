@@ -592,7 +592,7 @@ document.getElementById('share-result').addEventListener('click', function() {
             setTimeout(() => {
                 document.getElementById('copy-confirmation').style.display = 'none';
                 document.getElementById('copy-confirmation').style.opacity = '0';
-            }, 3000); // Adjust time as needed
+            }, 6000); // Adjust time as needed
         })
         .catch(err => console.error('Failed to copy result to clipboard:', err));
 });
