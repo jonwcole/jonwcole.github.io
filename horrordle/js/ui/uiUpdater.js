@@ -24,11 +24,12 @@ const uiUpdater = {
     showInvalidGuessMessage() {
         // Implementation to show an invalid guess message to the player
         console.error("Invalid guess. Please try a word from the dictionary.");
-        // You might update the DOM to display this message visibly to the player
+        // Ideally, this would update the DOM to display the message visibly to the player
     },
-    markGuessResult(guess, result) {
-        // Update the tiles to show correct/present/absent
-        console.log(`Guess result: ${guess} - ${result}`);
+    markGuessResult(attempt, guess, result) {
+        // Update the tiles to show correct/present/absent based on the result
+        console.log(`Guess result for attempt ${attempt}: ${guess} - ${result}`);
+        // Here, you would add logic to visually update each tile based on 'correct', 'present', 'absent'
     },
     showEndGameMessage(won, word) {
         if (won) {
@@ -36,15 +37,8 @@ const uiUpdater = {
         } else {
             console.log('Game over. The word was:', word);
         }
+        // This method can be expanded to update the UI with a victory or defeat message
     }
 };
 
-export const uiUpdater = {
-    markGuessResult(attempt, guess, result) {
-        // Implementation to visually mark the guess result on the UI
-    },
-    showInvalidGuessMessage() {
-        // Implementation to show a message for invalid/short guesses
-    },
-    // Other UI-related methods...
-};
+export { uiUpdater };
