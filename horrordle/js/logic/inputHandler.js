@@ -4,14 +4,20 @@ import { uiUpdater } from '../ui/uiUpdater.js';
 
 // Correctly handle key presses, including 'ENTER' and 'BACKSPACE'
 export function handleKeyPress(key) {
+    // Check if the game is over before handling any key presses
+    if (gameState.isGameOver) {
+        console.log("Game is over. No input accepted.");
+        return; // Exit the function early if the game is over
+    }
+
     if (key === 'ENTER') {
         handleSubmit();
     } else if (key === 'BACKSPACE') {
         gameState.removeLastLetter();
-        uiUpdater.updateGuessDisplay(gameState.currentGuess.join('')); // Ensure gameState.currentGuess is properly updated
+        uiUpdater.updateGuessDisplay(gameState.currentGuess.join(''));
     } else if (/^[A-Z]$/i.test(key)) {
         gameState.updateCurrentGuess(key.toUpperCase());
-        uiUpdater.updateGuessDisplay(gameState.currentGuess.join('')); // Update display with the new guess
+        uiUpdater.updateGuessDisplay(gameState.currentGuess.join(''));
     }
 }
 
