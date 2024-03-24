@@ -42,7 +42,7 @@ class GameState {
 
         // Check if it's time to reveal the hint
         if (this.incorrectGuessCount >= 5) {
-            uiUpdater.showHint(this.hint);
+            uiUpdater.showHint(dataManager.hint);
         }
 
         // Handle game over conditions
