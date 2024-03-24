@@ -19,13 +19,13 @@ class GameState {
         this.hintOfTheDay = hintOfTheDay;
     }
 
-    submitGuess(guess) {
+    submitGuess(guess, uiUpdater) {
         guess = guess.toUpperCase();
         this.guesses.push(guess);
         this.currentAttempt++;
         
         // Directly evaluate and react to the guess here
-        this.compareGuess(guess); // Now, compareGuess does UI updates and checks win condition
+        this.compareGuess(guess, uiUpdater); // Now, compareGuess does UI updates and checks win condition
         
         if (this.currentAttempt >= this.maxAttempts || guess === this.wordOfTheDay) {
             this.isGameOver = true;
@@ -49,6 +49,7 @@ class GameState {
 
         // Assuming you have a function in uiUpdater to mark guess results
         uiUpdater.markGuessResult(this.currentAttempt, guess, result);
+        
         // Check if the game has been won or if max attempts reached, and update the game state accordingly
         if (guess === gameState.wordOfTheDay) {
             // Handle win
