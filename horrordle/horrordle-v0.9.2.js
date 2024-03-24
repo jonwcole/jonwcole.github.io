@@ -586,10 +586,12 @@ document.getElementById('share-result').addEventListener('click', function() {
         .then(() => {
             // Display the copy confirmation instead of an alert
             document.getElementById('copy-confirmation').style.display = 'block';
+            document.getElementById('copy-confirmation').style.opacity = '1';
             
             // Optionally, you might want to hide the confirmation after a few seconds
             setTimeout(() => {
                 document.getElementById('copy-confirmation').style.display = 'none';
+                document.getElementById('copy-confirmation').style.opacity = '0';
             }, 3000); // Adjust time as needed
         })
         .catch(err => console.error('Failed to copy result to clipboard:', err));
