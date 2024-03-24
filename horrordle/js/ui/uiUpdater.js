@@ -31,6 +31,8 @@ const uiUpdater = {
         // Ideally, this would update the DOM to display the message visibly to the player
     },
     markGuessResult(attempt, guess, result, gameState) {
+
+                                            console.log({ gameState, method: gameState?.getGameStatus });
         console.log(gameState);
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
         if (!currentRow) {
@@ -87,7 +89,6 @@ const uiUpdater = {
         }
     },
     showEndGameMessage(won, word, hint) {
-                                            console.log({ gameState, method: gameState?.getGameStatus });
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
