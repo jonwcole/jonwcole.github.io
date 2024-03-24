@@ -35,35 +35,35 @@ const uiUpdater = {
 
         const tiles = currentRow.querySelectorAll('.tile');
 
-        result.forEach((status, index) => {
-            if (!tiles[index]) {
-                console.error('Tile not found for index:', index);
-                return;
-            }
+        // Assume all tiles will flip; calculate when the last tile flips
+        const lastFlipTime = (tiles.length - 1) * 500; // Based on your delay calculation
 
-            const tile = tiles[index];
+        tiles.forEach((tile, index) => {
             const back = tile.querySelector('.back');
             const backText = tile.querySelector('.back-text');
 
-            // Setting text for the back
+            // Set the guessed letter and apply the result class
             backText.textContent = guess[index];
+            back.classList.add(result[index]);
 
-            // Adding the status class to back to change its color
-            back.classList.add(status);
-
-            // Adding flip animation
+            // Trigger the flip animation
             setTimeout(() => {
                 tile.classList.add('flipped');
-            }, index * 500); // Adding a delay between flips for dramatic effect
+            }, index * 500);
         });
-        result.forEach((status, index) => {
-            const letter = guess[index];
-            const keyElement = document.querySelector(`.key[data-key="${letter}"]`);
-            if (keyElement && !keyElement.classList.contains('correct')) {
-                keyElement.classList.add(status);
-            }
-        });
-    },
+
+        // Update the onscreen keyboard after the last tile has flipped
+        setTimeout(() => {
+            result.forEach((status, index) => {
+                const letter = guess[index];
+                const keyElement = document.querySelector(`.key[data-key="${letter.toUpperCase()}"]`);
+                if (keyElement && !keyElement.classList.contains('correct')) {
+                    keyElement.classList.add(status);
+                }
+            });
+        }, lastFlipTime + 500); // Adding 500 to ensure it's after the last tile flips
+    }
+
     showEndGameMessage(won, word) {
         if (won) {
             console.log('Congratulations! You guessed the word:', word);
