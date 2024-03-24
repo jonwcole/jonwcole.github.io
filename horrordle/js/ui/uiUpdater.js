@@ -84,7 +84,7 @@ const uiUpdater = {
     showEndGameMessage(won, word) {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
-        const hintContainer = getElementById('hint');
+        const hintContainer = document.getElementById('hint');
 
         if (messageContainer) {
             messageContainer.style.display = 'flex';
