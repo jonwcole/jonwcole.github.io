@@ -64,11 +64,17 @@ const uiUpdater = {
         }, lastFlipTime + 500); // Adding 500 to ensure it's after the last tile flips
     },
     showHint(hint) {
-        const hintElement = document.getElementById('hint');
+        const hintElement = document.getElementById('hint-text');
         if (hintElement) {
             hintElement.textContent = hint; // Update the hint text
-            hintElement.style.display = 'block'; // Make the hint element visible
-            hintElement.style.opacity = '1';
+            // Optionally, if the hint container itself is hidden, reveal it:
+            const hintContainer = hintElement.closest('#hint');
+            if (hintContainer) {
+                hintContainer.style.display = 'block'; // Make sure the container is visible
+                hintElement.style.opacity = '1';
+            }
+        } else {
+            console.error("Hint element not found");
         }
     },
     showEndGameMessage(won, word) {
