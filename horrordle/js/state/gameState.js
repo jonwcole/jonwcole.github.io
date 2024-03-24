@@ -38,6 +38,37 @@ class GameState {
         this.currentGuess = [];
     }
 
+    compareGuess(guess) {
+        // Compare `guess` with `gameState.wordOfTheDay`
+        // Update UI to reflect how many letters are correct/placed correctly
+        const result = guess.split('').map((letter, index) => {
+            if (letter === gameState.wordOfTheDay[index]) {
+                return 'correct';
+            } else if (gameState.wordOfTheDay.includes(letter)) {
+                return 'present';
+            } else {
+                return 'absent';
+            }
+        });
+
+        // Assuming you have a function in uiUpdater to mark guess results
+        uiUpdater.markGuessResult(gameState.currentAttempt, guess, result);
+        // Check if the game has been won or if max attempts reached, and update the game state accordingly
+        if (guess === gameState.wordOfTheDay) {
+            // Handle win
+            gameState.winGame();
+            uiUpdater.showEndGameMessage(true, gameState.wordOfTheDay);
+        } else if (gameState.currentAttempt >= gameState.maxAttempts) {
+            // Handle loss
+            gameState.endGame();
+            uiUpdater.showEndGameMessage(false, gameState.wordOfTheDay);
+        } else {
+            // Prepare for next attempt
+            gameState.prepareNextAttempt();
+        }
+    }
+
+
     isCorrectGuess(guess) {
         return guess.toUpperCase() === this.wordOfTheDay;
     }
