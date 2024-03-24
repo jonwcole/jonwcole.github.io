@@ -64,6 +64,13 @@ class GameState {
         }
     }
 
+    prepareNextAttempt() {
+        // Logic to prepare for the next guess attempt
+        // For example, this could reset the currentGuess array for a new guess:
+        this.currentGuess = [];
+        
+        // And potentially other preparation logic...
+    }
 
     isCorrectGuess(guess) {
         return guess.toUpperCase() === this.wordOfTheDay;
