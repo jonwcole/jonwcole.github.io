@@ -1,7 +1,4 @@
 import { gameState } from '../state/gameState.js';
-                                            console.log(gameState.testProperty);
-                                            console.log(gameState.getGameStatus()); // Test access to getGameStatus method
-
 
 const uiUpdater = {
 
@@ -31,7 +28,6 @@ const uiUpdater = {
         // Ideally, this would update the DOM to display the message visibly to the player
     },
     markGuessResult(attempt, guess, result) {
-                                            console.log({ gameState, method: gameState?.getGameStatus });
         console.log(gameState);
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
         if (!currentRow) {
