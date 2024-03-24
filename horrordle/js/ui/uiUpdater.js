@@ -27,6 +27,7 @@ const uiUpdater = {
         // Ideally, this would update the DOM to display the message visibly to the player
     },
     markGuessResult(attempt, guess, result, gameState) {
+        console.log(gameState);
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
         if (!currentRow) {
             console.error('Current row not found:', attempt);
@@ -47,8 +48,6 @@ const uiUpdater = {
             // Trigger flip animation with a delay for each tile
             setTimeout(() => tile.classList.add('flipped'), index * 500);
         });
-
-        console.log(gameState);
 
         // Wait for all tiles to flip before updating the onscreen keyboard
         setTimeout(() => {
