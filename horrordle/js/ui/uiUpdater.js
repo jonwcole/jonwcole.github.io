@@ -84,8 +84,10 @@ const uiUpdater = {
 
         if (messageContainer) {
             messageContainer.style.display = 'block';
+            hintContainer.style.display = 'block';
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
+                hintContainer.style.opacity = '1';
             }, 100); // Small delay to ensure transition can occur
         }
 
