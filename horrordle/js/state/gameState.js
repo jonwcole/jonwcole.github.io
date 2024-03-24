@@ -1,5 +1,6 @@
 class GameState {
     constructor() {
+        this.dictionary = []; // Ensure this is populated as needed, e.g., via an initialization method
         this.reset();
     }
 
@@ -13,64 +14,55 @@ class GameState {
         this.currentGuess = []; // Initialize the current guess as an empty array
     }
 
-    startNewGame(wordOfTheDay, hintOfTheDay) {
+    startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
         this.reset(); // Reset the game state for a new game
         this.wordOfTheDay = wordOfTheDay.toUpperCase();
         this.hintOfTheDay = hintOfTheDay;
+        this.dictionary = dictionary; // Assuming the dictionary is passed here or loaded before calling this method
     }
 
     submitGuess(guess, uiUpdater) {
-        guess = guess.toUpperCase();
-        this.guesses.push(guess);
-        this.currentAttempt++;
-        
-        // Directly evaluate and react to the guess here
-        this.compareGuess(guess, uiUpdater); // Now, compareGuess does UI updates and checks win condition
-        
-        if (this.currentAttempt >= this.maxAttempts || guess === this.wordOfTheDay) {
-            this.isGameOver = true;
+        if (!this.isValidGuess(guess)) {
+            uiUpdater.showInvalidGuessMessage(); // This method needs to be defined in uiUpdater
+            return; // Stop processing this guess
         }
 
-        this.currentGuess = []; // Prepare for next attempt
+        guess = guess.toUpperCase();
+        this.guesses.push(guess);
+        const result = this.compareGuess(guess);
+
+        // UI update based on the comparison
+        uiUpdater.markGuessResult(this.currentAttempt, guess, result);
+
+        if (guess === this.wordOfTheDay) {
+            this.isGameOver = true;
+            uiUpdater.showEndGameMessage(true, this.wordOfTheDay);
+        } else if (this.currentAttempt >= this.maxAttempts - 1) {
+            this.isGameOver = true;
+            uiUpdater.showEndGameMessage(false, this.wordOfTheDay);
+        }
+
+        this.currentAttempt++;
+        this.currentGuess = []; // Reset for the next guess
     }
 
-    compareGuess(guess, uiUpdater) {
-        // Compare `guess` with `gameState.wordOfTheDay`
-        // Update UI to reflect how many letters are correct/placed correctly
+    compareGuess(guess) {
         const result = guess.split('').map((letter, index) => {
-            if (letter === gameState.wordOfTheDay[index]) {
+            if (letter === this.wordOfTheDay[index]) {
                 return 'correct';
-            } else if (gameState.wordOfTheDay.includes(letter)) {
+            } else if (this.wordOfTheDay.includes(letter)) {
                 return 'present';
             } else {
                 return 'absent';
             }
         });
 
-        // Assuming you have a function in uiUpdater to mark guess results
-        uiUpdater.markGuessResult(this.currentAttempt, guess, result);
-        
-        // Check if the game has been won or if max attempts reached, and update the game state accordingly
-        if (guess === gameState.wordOfTheDay) {
-            // Handle win
-            gameState.winGame();
-            uiUpdater.showEndGameMessage(true, gameState.wordOfTheDay);
-        } else if (gameState.currentAttempt >= gameState.maxAttempts) {
-            // Handle loss
-            gameState.endGame();
-            uiUpdater.showEndGameMessage(false, gameState.wordOfTheDay);
-        } else {
-            // Prepare for next attempt
-            gameState.prepareNextAttempt();
-        }
+        return result;
     }
 
-    prepareNextAttempt() {
-        // Logic to prepare for the next guess attempt
-        // For example, this could reset the currentGuess array for a new guess:
-        this.currentGuess = [];
-        
-        // And potentially other preparation logic...
+    isValidGuess(guess) {
+        // Make sure to load your dictionary somewhere before checks
+        return this.dictionary.includes(guess.toUpperCase());
     }
 
     isCorrectGuess(guess) {
@@ -95,6 +87,14 @@ class GameState {
         if (this.currentGuess.length < 5) {
             this.currentGuess.push(letter);
         }
+    }
+
+    prepareNextAttempt() {
+        // Logic to prepare for the next guess attempt
+        // For example, this could reset the currentGuess array for a new guess:
+        this.currentGuess = [];
+        
+        // And potentially other preparation logic...
     }
 
     removeLastLetter() {
