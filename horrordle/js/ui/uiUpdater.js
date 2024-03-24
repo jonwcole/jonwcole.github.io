@@ -64,6 +64,7 @@ const uiUpdater = {
         }, lastFlipTime + 500); // Adding 500 to ensure it's after the last tile flips
     },
     showHint(hint) {
+        console.log("Displaying hint again:", hint); // Confirm what hint is at this moment
         const hintElement = document.getElementById('hint-text');
         if (hintElement) {
             hintElement.textContent = hint; // Update the hint text
