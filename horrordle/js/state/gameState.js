@@ -22,6 +22,10 @@ class GameState {
         this.dictionary = dictionary; // Assuming the dictionary is passed here or loaded before calling this method
     }
 
+    removeLastLetter() {
+        this.currentGuess.pop();
+    }
+
     submitGuess(guess, uiUpdater) {
         if (!this.isValidGuess(guess)) {
             uiUpdater.showInvalidGuessMessage(); // Show a message for an invalid guess
@@ -113,10 +117,6 @@ class GameState {
         this.currentGuess = [];
         
         // And potentially other preparation logic...
-    }
-
-    removeLastLetter() {
-        this.currentGuess.pop();
     }
 }
 
