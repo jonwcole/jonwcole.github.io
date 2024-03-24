@@ -3,7 +3,7 @@ import { gameState } from '../state/gameState.js';
 import { uiUpdater } from '../ui/uiUpdater.js';
 
 // Correctly handle key presses, including 'ENTER' and 'BACKSPACE'
-function handleKeyPress(key) {
+export function handleKeyPress(key) {
     if (key === 'ENTER') {
         handleSubmit();
     } else if (key === 'BACKSPACE') {
