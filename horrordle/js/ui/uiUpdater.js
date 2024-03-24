@@ -63,9 +63,9 @@ const uiUpdater = {
             });
         }, lastFlipTime + 500); // Adding 500 to ensure it's after the last tile flips
     },
+    const hintElement = document.getElementById('hint-text');
     showHint(hint) {
         console.log("Displaying hint again:", hint); // Confirm what hint is at this moment
-        const hintElement = document.getElementById('hint-text');
         if (hintElement) {
             hintElement.textContent = hint; // Update the hint text
             // Optionally, if the hint container itself is hidden, reveal it:
