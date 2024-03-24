@@ -524,7 +524,7 @@ function displayStatsModal() {
 
     // Display the completed message
     if (completedMessage) {
-        completedMessage.style.display = 'block';
+        completedMessage.style.display = 'flex';
     }
 
     // Also ensure the hint is visible
