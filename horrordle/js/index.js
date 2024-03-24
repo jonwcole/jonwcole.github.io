@@ -1,6 +1,8 @@
 // Assuming ES6 module syntax
 import { dataManager } from './data/dataManager.js';
 import { gameState } from './state/gameState.js';
+import { uiUpdater } from './ui/uiUpdater.js';
+import { inputHandler } from './logic/inputHandler.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeGame();
