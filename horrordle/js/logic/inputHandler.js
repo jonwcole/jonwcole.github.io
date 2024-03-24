@@ -47,6 +47,7 @@ function showInvalidGuessAnimation() {
 
 // Listen for keyboard events
 document.addEventListener('keydown', (event) => {
+    if (!gameState.isInputEnabled()) return; // Ignore input if disabled
     // Check for modifier keys
     if (event.ctrlKey || event.altKey || event.metaKey) {
         // Ignore the key press if any modifier key is pressed
