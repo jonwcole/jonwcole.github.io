@@ -28,14 +28,21 @@ function handleSubmit() {
 
 // Listen for keyboard events
 document.addEventListener('keydown', (event) => {
+    // Check for modifier keys
+    if (event.ctrlKey || event.altKey || event.metaKey) {
+        // Ignore the key press if any modifier key is pressed
+        return;
+    }
+
     if (event.key === 'Enter') {
         handleSubmit();
     } else if (event.key === 'Backspace') {
-        event.preventDefault(); // Prevent the default backspace action
+        event.preventDefault(); // Prevent default backspace action
         gameState.removeLastLetter();
         uiUpdater.updateGuessDisplay(gameState.currentGuess.join(''));
     } else {
         const key = event.key.toUpperCase();
+        // Only accept single letter inputs without any modifier keys
         if (/^[A-Z]$/i.test(key)) {
             handleKeyPress(key);
         }
