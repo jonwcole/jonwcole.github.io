@@ -21,6 +21,11 @@ const uiUpdater = {
             backText.textContent = gameState.currentGuess[index] || '';
         });
     },
+    showInvalidGuessMessage() {
+        // Implementation to show an invalid guess message to the player
+        console.error("Invalid guess. Please try a word from the dictionary.");
+        // You might update the DOM to display this message visibly to the player
+    },
     markGuessResult(guess, result) {
         // Update the tiles to show correct/present/absent
         console.log(`Guess result: ${guess} - ${result}`);
