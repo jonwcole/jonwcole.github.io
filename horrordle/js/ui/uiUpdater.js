@@ -1,5 +1,5 @@
 const uiUpdater = {
-    updateCurrentGuessDisplay(currentGuess) {
+    updateGuessDisplay(currentGuess) {
         // Update the DOM elements representing the current guess
         console.log(`Update display with current guess: ${currentGuess}`);
         // Assuming 'currentAttempt' is available globally or passed in some way
