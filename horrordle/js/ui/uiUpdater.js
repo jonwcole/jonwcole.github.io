@@ -62,7 +62,7 @@ const uiUpdater = {
                 }
             });
         }, lastFlipTime + 500); // Adding 500 to ensure it's after the last tile flips
-    }
+    },
 
     showEndGameMessage(won, word) {
         if (won) {
