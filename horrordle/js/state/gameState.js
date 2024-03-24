@@ -10,6 +10,7 @@ class GameState {
         this.wordOfTheDay = '';
         this.hintOfTheDay = '';
         this.guesses = [];
+        this.currentGuess = []; // Initialize the current guess as an empty array
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay) {
@@ -32,6 +33,9 @@ class GameState {
         if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
             this.isGameOver = true;
         }
+
+        // Reset currentGuess after submitting
+        this.currentGuess = [];
     }
 
     isCorrectGuess(guess) {
@@ -49,6 +53,17 @@ class GameState {
             won: lastGuess ? this.isCorrectGuess(lastGuess) : false,
             remainingAttempts: this.getRemainingAttempts(),
         };
+    }
+
+    updateCurrentGuess(letter) {
+        // Ensure the current guess doesn't exceed the maximum length (e.g., 5 for Wordle)
+        if (this.currentGuess.length < 5) {
+            this.currentGuess.push(letter);
+        }
+    }
+
+    removeLastLetter() {
+        this.currentGuess.pop();
     }
 }
 
