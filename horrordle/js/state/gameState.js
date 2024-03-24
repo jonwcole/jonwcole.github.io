@@ -30,48 +30,47 @@ class GameState {
     }
 
     submitGuess(guess, uiUpdater) {
-        // First, check if the guess is a valid word in the dictionary
+        // First, validate the guess
         if (!this.isValidGuess(guess)) {
-            uiUpdater.showInvalidGuessMessage(); // Display message for invalid guess
-            uiUpdater.shakeCurrentRow(this.currentAttempt); // Shake the current row as feedback for invalid guess
-            return; // Stop further processing of this guess
+            uiUpdater.showInvalidGuessMessage();
+            uiUpdater.shakeCurrentRow(this.currentAttempt);
+            return;
         }
 
-        guess = guess.toUpperCase(); // Normalize the guess to uppercase
-        this.guesses.push(guess); // Record the guess
-
-        // Compare the guess to the word of the day and get the result
+        guess = guess.toUpperCase();
+        this.guesses.push(guess);
         const result = this.compareGuess(guess);
-
-        // Increment the attempt count and incorrect guess count if necessary
         this.currentAttempt++;
+        
         if (guess !== this.wordOfTheDay) {
             this.incorrectGuessCount++;
         }
 
-        // Update the UI with the result of the guess
-        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result); // -1 because currentAttempt was just incremented
+        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result);
 
-        // Reveal the hint if 5 incorrect guesses have been made
         if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
             uiUpdater.showHint(this.hintOfTheDay);
             this.hintDisplayed = true;
         }
 
-        // Assuming a delay based on the length of the result array for animation purposes
-        const delay = result.length * 500 + 500; // Adjust as necessary based on your animation timing
-
-        // Check for game over conditions after a delay
-        if (this.currentAttempt >= this.maxAttempts || guess === this.wordOfTheDay) {
-            setTimeout(() => {
-                this.isGameOver = true;
-                const won = guess === this.wordOfTheDay;
-                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-            }, delay); // Delay showing the end game message until after the animations complete
+        // Handle the game over logic here
+        if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
+            this.endGame(guess === this.wordOfTheDay, uiUpdater);
         } else {
-            // Prepare for the next guess if the game is not over, immediately, without waiting for delay
             this.currentGuess = [];
         }
+    }
+
+    endGame(won, uiUpdater) {
+        this.isGameOver = true; // Set the game over state to true
+
+        // Depending on the game's outcome, show the appropriate end game message
+        // We use a timeout to ensure that any animations complete before showing the message
+        setTimeout(() => {
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+        }, 2500); // Adjust this value based on your animation timing
+
+        // Optionally disable further input here or ensure input handlers check the isGameOver state
     }
 
     compareGuess(guess) {
