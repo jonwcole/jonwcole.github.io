@@ -18,13 +18,32 @@ export function handleKeyPress(key) {
 // Submit the current guess
 function handleSubmit() {
     const currentGuess = gameState.currentGuess.join('');
+
     if (currentGuess.length === 5) {
-        gameState.submitGuess(currentGuess, uiUpdater); // Pass uiUpdater here
+        // Check if the guess is a valid dictionary word
+        if (!gameState.isValidGuess(currentGuess)) {
+            // If not valid, shake the current row and show an error message
+            showInvalidGuessAnimation();
+            uiUpdater.showInvalidGuessMessage(); // Show a message indicating the guess is invalid
+        } else {
+            // If valid, proceed to submit the guess
+            gameState.submitGuess(currentGuess, uiUpdater); // Pass uiUpdater to handle UI updates
+        }
     } else {
         console.error("Guess too short.");
-        uiUpdater.showInvalidGuessMessage(); // Ensure this method exists in uiUpdater
+        uiUpdater.showInvalidGuessMessage("Guess too short."); // Optionally, customize the message for short guesses
     }
 }
+
+function showInvalidGuessAnimation() {
+    const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${gameState.currentAttempt}"]`);
+    if (currentRow) {
+        currentRow.classList.add('shake');
+        // Remove the class after the animation ends to allow re-application in future
+        setTimeout(() => currentRow.classList.remove('shake'), 820); // Match the duration of the animation
+    }
+}
+
 
 // Listen for keyboard events
 document.addEventListener('keydown', (event) => {
