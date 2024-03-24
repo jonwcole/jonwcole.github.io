@@ -79,12 +79,22 @@ const uiUpdater = {
         }
     },
     showEndGameMessage(won, word) {
-        if (won) {
-            console.log('Congratulations! You guessed the word:', word);
-        } else {
-            console.log('Game over. The word was:', word);
+        gameState.disableInput(); // Disable further input
+        const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
+
+        if (messageContainer) {
+            messageContainer.style.display = 'block';
+            setTimeout(() => {
+                messageContainer.style.opacity = '1';
+            }, 100); // Small delay to ensure transition can occur
         }
-        // This method can be expanded to update the UI with a victory or defeat message
+
+        // Optionally, disable on-screen keyboard here
+        const keys = document.querySelectorAll('#keyboard .key');
+        keys.forEach(key => {
+            key.setAttribute('disabled', 'true');
+            key.classList.add('disabled'); // Assuming you have a CSS class to visually indicate disabled state
+        });
     }
 };
 
