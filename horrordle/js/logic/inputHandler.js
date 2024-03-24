@@ -13,13 +13,17 @@ function handleKeyPress(key) {
 
 function handleSubmit() {
     const currentGuess = gameState.currentGuess.join('');
-    if (currentGuess.length === 5) {
-        gameState.submitGuess(currentGuess);
+    if (currentGuess.length === 5) { // Assuming a 5-letter word game
+        gameState.submitGuess(currentGuess); // Updates the game state with the guess
         uiUpdater.updateGuessDisplay('');
+        compareGuess(currentGuess); // Function to compare guess with the word of the day
     } else {
         console.error("Guess too short.");
+        // Optionally, provide user feedback for an invalid guess
+        uiUpdater.showInvalidGuessMessage(); // This would be a new UI function
     }
 }
+
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
