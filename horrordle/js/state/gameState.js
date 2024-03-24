@@ -31,8 +31,7 @@ class GameState {
         // First, check if the guess is a valid word in the dictionary
         if (!this.isValidGuess(guess)) {
             uiUpdater.showInvalidGuessMessage(); // Display message for invalid guess
-            // Consider shaking the current row as feedback for invalid guess
-            uiUpdater.shakeCurrentRow(this.currentAttempt);
+            uiUpdater.shakeCurrentRow(this.currentAttempt); // Shake the current row as feedback for invalid guess
             return; // Stop further processing of this guess
         }
 
@@ -49,7 +48,8 @@ class GameState {
         }
 
         // Update the UI with the result of the guess
-        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result); // -1 because currentAttempt was just incremented
+        // Note: Passing the gameState reference might not be necessary unless the uiUpdater needs to access gameState directly
+        uiUpdater.markGuessResult(this.currentAttempt - 1, guess, result, this); // Adjusted to pass gameState if needed
 
         // Reveal the hint if 5 incorrect guesses have been made
         if (this.incorrectGuessCount >= 5 && !this.hintDisplayed) {
@@ -61,7 +61,14 @@ class GameState {
         if (guess === this.wordOfTheDay || this.currentAttempt >= this.maxAttempts) {
             this.isGameOver = true;
             const won = guess === this.wordOfTheDay;
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay);
+
+            // Determine the delay after which the end game message should be shown
+            const revealDelay = result.length * 500 + 500; // Assuming a 500ms flip delay per tile, plus an extra 500ms buffer
+
+            setTimeout(() => {
+                uiUpdater.showEndGameMessage(won, this.wordOfTheDay);
+            }, revealDelay); // Delay showing the end game message until after the last tile has flipped
+            
         } else {
             // Prepare for the next guess if the game is not over
             this.currentGuess = [];
