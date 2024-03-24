@@ -83,7 +83,7 @@ const uiUpdater = {
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
 
         if (messageContainer) {
-            messageContainer.style.display = 'block';
+            messageContainer.style.display = 'flex';
             hintContainer.style.display = 'block';
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
