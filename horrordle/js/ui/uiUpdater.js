@@ -58,6 +58,8 @@ const uiUpdater = {
                 }
             });
 
+            console.log(gameState);
+
             // After updating the onscreen keyboard, check the game status
             const gameStatus = gameState.getGameStatus();
             if (gameStatus.isGameOver) {
