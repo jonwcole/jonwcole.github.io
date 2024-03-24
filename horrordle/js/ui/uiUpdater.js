@@ -102,7 +102,7 @@ const uiUpdater = {
             }, 100);
 
             // Fill the hintElement with the hint of the day
-            hintElement.textContent = hint; // Use the passed hint parameter
+            hintElement.textContent = hintOfTheDay; // Use the passed hint parameter
         }
 
         // Disable the on-screen keyboard by setting attributes and applying classes
