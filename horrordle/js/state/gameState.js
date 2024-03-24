@@ -61,7 +61,11 @@ class GameState {
     }
 
     isValidGuess(guess) {
-        // Make sure to load your dictionary somewhere before checks
+        // Check if dictionary is defined and is an array
+        if (!Array.isArray(this.dictionary)) {
+            console.error("Dictionary is not loaded or not an array.");
+            return false; // Or handle this scenario as needed
+        }
         return this.dictionary.includes(guess.toUpperCase());
     }
 
