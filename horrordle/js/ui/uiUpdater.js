@@ -85,6 +85,7 @@ const uiUpdater = {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
+        const hintElement = document.getElementById('hint-text'); // Getting the hint text element
 
         if (messageContainer) {
             messageContainer.style.display = 'flex';
@@ -94,6 +95,9 @@ const uiUpdater = {
                 hintContainer.style.opacity = '1';
             }, 100); // Small delay to ensure transition can occur
         }
+
+        // Fill the hintElement with the hint of the day
+        hintElement.textContent = this.hintOfTheDay; // Assuming this.hintOfTheDay contains the hint text
 
         // Disable the on-screen keyboard
         const keys = document.querySelectorAll('#keyboard .key');
