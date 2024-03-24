@@ -101,7 +101,6 @@ const uiUpdater = {
                 hintContainer.style.opacity = '1';
             }, 100);
 
-            // Fill the hintElement with the hint of the day
             if (hintElement) {
                 hintElement.textContent = hint; // Update the hint text
             }
