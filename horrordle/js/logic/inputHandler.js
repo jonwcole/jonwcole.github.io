@@ -1,6 +1,6 @@
 // Assuming gameState.js and uiUpdater.js are in 'state' and 'ui' subdirectories, respectively
-import { gameState } from './state/gameState.js';
-import { uiUpdater } from './ui/uiUpdater.js';
+import { gameState } from '../state/gameState.js';
+import { uiUpdater } from '../ui/uiUpdater.js';
 
 function handleKeyPress(key) {
     console.log(`Key pressed: ${key}`);
