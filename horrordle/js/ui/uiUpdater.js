@@ -6,7 +6,6 @@ import { gameState } from '../state/gameState.js';
 const uiUpdater = {
 
     updateGuessDisplay() {
-                                            console.log({ gameState, method: gameState?.getGameStatus });
         // Utilizes gameState to access the currentAttempt and currentGuess
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${gameState.currentAttempt}"]`);
         
@@ -32,6 +31,7 @@ const uiUpdater = {
         // Ideally, this would update the DOM to display the message visibly to the player
     },
     markGuessResult(attempt, guess, result, gameState) {
+                                            console.log({ gameState, method: gameState?.getGameStatus });
         console.log(gameState);
         const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
         if (!currentRow) {
