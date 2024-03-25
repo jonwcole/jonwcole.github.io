@@ -88,17 +88,19 @@ const uiUpdater = {
         const hintContainer = document.getElementById('hint');
         const hintElement = document.getElementById('hint-text'); // Getting the hint text element
 
+
         // Ensure the hintElement and the hintContainer are correctly targeted and updated
         if (messageContainer && hintElement && hintContainer) {
+                hintElement.textContent = hint;
             // Display the success or failure message
             messageContainer.style.display = 'flex';
             // Display the hint container
             hintContainer.style.display = 'block';
 
             // Check if hintElement is empty or needs updating
- //           if (!hintElement.textContent || hintElement.textContent !== hint) {
-                // Apply the hint if it's not already set or needs to be updated
-                hintElement.textContent = hint;
+//            if (!hintElement.textContent || hintElement.textContent !== hint) {
+//                // Apply the hint if it's not already set or needs to be updated
+//                hintElement.textContent = hint;
 //            }
 
             // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
