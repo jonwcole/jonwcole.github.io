@@ -96,9 +96,9 @@ const uiUpdater = {
             hintContainer.style.display = 'block';
 
             // Check if hintElement is empty or needs updating
-//            if (!hintElement.textContent || hintElement.textContent !== hint) {
-//                // Apply the hint if it's not already set or needs to be updated
-//                hintElement.textContent = hint;
+ //           if (!hintElement.textContent || hintElement.textContent !== hint) {
+                // Apply the hint if it's not already set or needs to be updated
+                hintElement.textContent = hint;
 //            }
 
             // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
