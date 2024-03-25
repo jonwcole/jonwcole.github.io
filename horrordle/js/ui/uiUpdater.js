@@ -119,13 +119,6 @@ const uiUpdater = {
         });
     }
 
-        // Disable the on-screen keyboard by setting attributes and applying classes
-        const keys = document.querySelectorAll('#keyboard .key');
-        keys.forEach(key => {
-            key.setAttribute('disabled', 'true');
-            key.classList.add('disabled'); // Assuming there's a CSS class to visually indicate disabled state
-        });
-    }
 };
 
 export { uiUpdater };
