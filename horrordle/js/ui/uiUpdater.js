@@ -123,6 +123,13 @@ const uiUpdater = {
             key.setAttribute('disabled', 'true');
             key.classList.add('disabled');
         });
+    },
+    updateStatsDisplay(stats) {
+        document.getElementById('games-played').textContent = stats.gamesPlayed;
+        document.getElementById('wins').textContent = stats.wins;
+        document.getElementById('current-streak').textContent = stats.currentStreak;
+        document.getElementById('max-streak').textContent = stats.maxStreak;
+        // Update other stats as needed...
     }
 
 };
