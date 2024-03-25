@@ -90,7 +90,7 @@ const uiUpdater = {
 
 
         // Ensure the hintElement and the hintContainer are correctly targeted and updated
-        if (messageContainer) {
+        if (messageContainer && hintElement && hintContainer) {
             // Display the success or failure message
             messageContainer.style.display = 'flex';
             // Display the hint container
@@ -103,10 +103,10 @@ const uiUpdater = {
             }
 
             // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
-            setTimeout(() => {
-                messageContainer.style.opacity = '1';
-                hintContainer.style.opacity = '1';
-            }, 100);
+//            setTimeout(() => {
+//                messageContainer.style.opacity = '1';
+//                hintContainer.style.opacity = '1';
+//            }, 100);
         }
 
         // Disable the on-screen keyboard by setting attributes and applying classes
