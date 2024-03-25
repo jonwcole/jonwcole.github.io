@@ -1,11 +1,19 @@
 class GameState {
     constructor() {
-        this.dictionary = []; // Ensure this is populated as needed, e.g., via an initialization method
+        this.dictionary = [];
         this.reset();
         this.incorrectGuessCount = 0;
         this.inputEnabled = true;
-                                            this.testProperty = "Test successful";
-
+        // Initialize stats
+        this.stats = {
+            gamesPlayed: 0,
+            wins: 0,
+            currentStreak: 0,
+            maxStreak: 0,
+            guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+            lastPlayedDate: '',
+        };
+        this.loadStats();
     }
 
     reset() {
@@ -15,7 +23,39 @@ class GameState {
         this.wordOfTheDay = '';
         this.hintOfTheDay = '';
         this.guesses = [];
-        this.currentGuess = []; // Initialize the current guess as an empty array
+        this.currentGuess = [];
+    }
+
+    loadStats() {
+        const statsFromStorage = localStorage.getItem('stats');
+        if (statsFromStorage) {
+            this.stats = JSON.parse(statsFromStorage);
+        }
+    }
+
+    saveStats() {
+        localStorage.setItem('stats', JSON.stringify(this.stats));
+    }
+
+    updateStats(won) {
+        const today = new Date().toISOString().slice(0, 10);
+        if (this.stats.lastPlayedDate !== today) {
+            this.stats.currentStreak = 0; // Reset streak if playing on a new day
+        }
+        this.stats.gamesPlayed++;
+        if (won) {
+            this.stats.wins++;
+            this.stats.currentStreak++;
+            this.stats.maxStreak = Math.max(this.stats.maxStreak, this.stats.currentStreak);
+            const guessCount = this.guesses.length;
+            if (this.stats.guessDistribution[guessCount] !== undefined) {
+                this.stats.guessDistribution[guessCount]++;
+            }
+        } else {
+            this.stats.currentStreak = 0;
+        }
+        this.stats.lastPlayedDate = today;
+        this.saveStats();
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
@@ -143,6 +183,19 @@ class GameState {
         
         // And potentially other preparation logic...
     }
+
+    endGame(won, uiUpdater) {
+        // Update stats and save them
+        this.updateStats(won);
+
+        this.isGameOver = true;
+        setTimeout(() => {
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+        }, 2500);
+
+        this.disableInput();
+    }
+
 }
 
 // Export the GameState class for use in other modules
