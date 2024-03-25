@@ -1,5 +1,14 @@
 import { gameState } from '../state/gameState.js';
 
+const setHintText = (hint) => {
+    const hintElement = document.getElementById('hint-text');
+    if (hintElement) {
+        hintElement.textContent = hint;
+    } else {
+        console.error("Hint element not found");
+    }
+};
+
 const uiUpdater = {
 
     updateGuessDisplay() {
@@ -68,38 +77,28 @@ const uiUpdater = {
             }
         }, lastFlipTime + 500);
     },
+
     showHint(hint) {
-        const hintElement = document.getElementById('hint-text');
-        if (hintElement) {
-            hintElement.textContent = hint; // Update the hint text
-            // Optionally, if the hint container itself is hidden, reveal it:
-            const hintContainer = hintElement.closest('#hint');
-            if (hintContainer) {
-                hintContainer.style.display = 'block'; // Make sure the container is visible
-                hintContainer.style.opacity = '1';
-            }
-        } else {
-            console.error("Hint element not found");
+        // Display the hint container if not already visible
+        const hintContainer = document.getElementById('hint');
+        if (hintContainer && hintContainer.style.display !== 'block') {
+            hintContainer.style.display = 'block';
+            hintContainer.style.opacity = '1';
         }
+        // Use the utility function to set the hint text
+        setHintText(hint);
     },
+
     showEndGameMessage(won, word, hint) {
         // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
-        const hintElement = document.getElementById('hint-text'); // Getting the hint text element
 
-        // Ensure the hintElement and the hintContainer are correctly targeted and updated
-        if (messageContainer && hintElement && hintContainer) {
+        if (messageContainer && hintContainer) {
             // Display the success or failure message
             messageContainer.style.display = 'flex';
             // Display the hint container
             hintContainer.style.display = 'block';
-
-            // Check if hintElement is empty or needs updating
-            if (!hintElement.textContent || hintElement.textContent !== hint) {
-                // Apply the hint if it's not already set or needs to be updated
-                hintElement.textContent = hint;
-            }
 
             // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
             setTimeout(() => {
@@ -107,6 +106,9 @@ const uiUpdater = {
                 hintContainer.style.opacity = '1';
             }, 100);
         }
+
+        // Use the utility function to ensure the hint text is updated
+        setHintText(hint);
 
         // Disable the on-screen keyboard by setting attributes and applying classes
         const keys = document.querySelectorAll('#keyboard .key');
