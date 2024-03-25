@@ -111,6 +111,7 @@ class GameState {
     endGame(won, uiUpdater) {
         // Set game over state
         this.isGameOver = true;
+        this.updateStats(won);
 
         // Depending on the outcome, show the end game message
         setTimeout(() => {
@@ -195,7 +196,6 @@ class GameState {
 
         this.disableInput();
     }
-    uiUpdater.updateStatsDisplay(gameState.stats);
 
 }
 
