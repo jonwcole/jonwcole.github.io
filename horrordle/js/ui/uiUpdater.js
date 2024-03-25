@@ -89,7 +89,7 @@ const uiUpdater = {
         } else {
             console.error("Hint element or container not found");
         }
-    }
+    },
     showEndGameMessage(won, word, hint) {
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
