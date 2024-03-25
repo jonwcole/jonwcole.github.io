@@ -7,6 +7,7 @@ import './ui/eventListeners.js';
 // Wait for the DOM to be fully loaded before initializing the game
 document.addEventListener('DOMContentLoaded', () => {
     initializeGame();
+    uiUpdater.updateStatsDisplay(gameState.stats);
 });
 
 // Define the async function to initialize the game
@@ -14,5 +15,6 @@ async function initializeGame() {
     await dataManager.loadDictionary();
     await dataManager.loadDailyWord(); // Only necessary if this is asynchronous and not yet called
     gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
+    uiUpdater.updateStatsDisplay(gameState.stats);
 }
 
