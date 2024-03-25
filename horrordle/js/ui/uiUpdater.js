@@ -133,8 +133,12 @@ const uiUpdater = {
         const distributionElements = [1, 2, 3, 4, 5, 6].map(number => 
             document.getElementById(`distribution-${number}`));
 
-        if (gamesPlayedElement) gamesPlayedElement.textContent = stats.gamesPlayed;
-        if (winPercentageElement) winPercentageElement.textContent = stats.winPercentage + '%'; // Assuming you calculate this
+        if (gamesPlayedElement) gamesPlayedElement.textContent = stats.gamesPlayed || 0;
+        const winPercentage = stats.winPercentage !== undefined ? stats.winPercentage 
+                          : stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) 
+                          : 0;
+
+        if (winPercentageElement) winPercentageElement.textContent = `${winPercentage}%`;
         if (currentStreakElement) currentStreakElement.textContent = stats.currentStreak;
         if (maxStreakElement) maxStreakElement.textContent = stats.maxStreak;
 
