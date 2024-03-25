@@ -150,6 +150,17 @@ const uiUpdater = {
             }
         });
     },
+    updateGuessDistribution(stats) {
+        const totalWins = Object.values(stats.guessDistribution).reduce((total, num) => total + num, 0);
+        Object.entries(stats.guessDistribution).forEach(([guessNumber, count]) => {
+            const percentage = totalWins > 0 ? (count / totalWins) * 100 : 0;
+            const barElement = document.getElementById(`distribution-${guessNumber}`);
+            if (barElement) {
+                barElement.style.width = `${percentage}%`;
+                barElement.textContent = count; // Update the text to show the count
+            }
+        });
+    },
 
 };
 
