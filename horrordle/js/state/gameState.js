@@ -195,6 +195,7 @@ class GameState {
 
         this.disableInput();
     }
+    uiUpdater.updateStatsDisplay(gameState.stats);
 
 }
 
