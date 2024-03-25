@@ -1,4 +1,5 @@
-import { handleKeyPress } from '../logic/inputHandler.js'; // Adjust the path as needed
+import { handleKeyPress } from '../logic/inputHandler.js';
+import { gameState } from '../state/gameState.js';
 
 document.getElementById('keyboard').addEventListener('click', function(event) {
     event.preventDefault();
