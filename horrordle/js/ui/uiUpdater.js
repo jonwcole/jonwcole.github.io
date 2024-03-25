@@ -87,27 +87,37 @@ const uiUpdater = {
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
         const hintElement = document.getElementById('hint-text'); // Getting the hint text element
-
+        const wordElement = document.getElementById('word-content'); // Getting the Word of the Day element
 
         // Ensure the hintElement and the hintContainer are correctly targeted and updated
-        if (messageContainer && hintElement && hintContainer) {
+        if (messageContainer && hintElement && hintContainer && wordElement) {
             // Display the success or failure message
             messageContainer.style.display = 'flex';
             // Display the hint container
             hintContainer.style.display = 'block';
-
-            // Check if hintElement is empty or needs updating
-            if (hint) {
-                // Apply the hint if it's not already set or needs to be updated
-                hintElement.textContent = hint;
-            }
 
             // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
                 hintContainer.style.opacity = '1';
             }, 100);
+
+            // Update the Word of the Day
+            wordElement.textContent = word; // Update with the Word of the Day
+
+            // Optionally, check and update the hint if necessary
+            if (hint) {
+                hintElement.textContent = hint; // Apply the hint if it's not already set or needs to be updated
+            }
         }
+
+        // Disable the on-screen keyboard by setting attributes and applying classes
+        const keys = document.querySelectorAll('#keyboard .key');
+        keys.forEach(key => {
+            key.setAttribute('disabled', 'true');
+            key.classList.add('disabled'); // Assuming there's a CSS class to visually indicate disabled state
+        });
+    }
 
         // Disable the on-screen keyboard by setting attributes and applying classes
         const keys = document.querySelectorAll('#keyboard .key');
