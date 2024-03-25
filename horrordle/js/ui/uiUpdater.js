@@ -83,39 +83,37 @@ const uiUpdater = {
         }
     },
     showEndGameMessage(won, word, hint) {
-        // Disable input and show either the success or failure message
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
-        const hintElement = document.getElementById('hint-text'); // Getting the hint text element
-        const wordElement = document.getElementById('word-content'); // Getting the Word of the Day element
+        const hintElement = document.getElementById('hint-text');
+        const wordElement = document.getElementById('word-content');
+        const splatterBoxes = document.querySelectorAll('.splatter-box'); // Select all splatter-box divs
 
-        // Ensure the hintElement and the hintContainer are correctly targeted and updated
         if (messageContainer && hintElement && hintContainer && wordElement) {
-            // Display the success or failure message
             messageContainer.style.display = 'flex';
-            // Display the hint container
             hintContainer.style.display = 'block';
 
-            // After a brief delay, adjust opacity to make them visible. This creates a fade-in effect.
             setTimeout(() => {
                 messageContainer.style.opacity = '1';
                 hintContainer.style.opacity = '1';
+                if (!won) { // Only show the splatter effect if the user loses
+                    splatterBoxes.forEach(box => {
+                        box.style.display = 'block';
+                        setTimeout(() => box.style.opacity = '1', 100); // Use a timeout to allow for CSS transitions
+                    });
+                }
             }, 100);
 
-            // Update the Word of the Day
-            wordElement.textContent = word; // Update with the Word of the Day
-
-            // Optionally, check and update the hint if necessary
-            if (hint) {
-                hintElement.textContent = hint; // Apply the hint if it's not already set or needs to be updated
+            wordElement.textContent = word;
+            if (hint && hintElement.textContent !== hint) {
+                hintElement.textContent = hint;
             }
         }
 
-        // Disable the on-screen keyboard by setting attributes and applying classes
         const keys = document.querySelectorAll('#keyboard .key');
         keys.forEach(key => {
             key.setAttribute('disabled', 'true');
-            key.classList.add('disabled'); // Assuming there's a CSS class to visually indicate disabled state
+            key.classList.add('disabled');
         });
     }
 
