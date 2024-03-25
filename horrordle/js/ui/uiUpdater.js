@@ -80,12 +80,16 @@ const uiUpdater = {
             setTimeout(() => {
                 hintElement.textContent = hint; // Update the hint text
                 hintContainer.style.display = 'block'; // Make sure the container is visible
-                hintContainer.style.opacity = '1'; // Fade in the hint container
+                
+                // Delay the opacity change slightly to ensure the transition is visible
+                setTimeout(() => {
+                    hintContainer.style.opacity = '1'; // Fade in the hint container
+                }, 10); // 10ms delay before starting the opacity transition
             }, totalFlipTime); // Delay showing the hint until after the tiles have flipped
         } else {
             console.error("Hint element or container not found");
         }
-    },
+    }
     showEndGameMessage(won, word, hint) {
         const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
         const hintContainer = document.getElementById('hint');
