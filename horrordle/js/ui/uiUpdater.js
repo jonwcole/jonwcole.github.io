@@ -125,12 +125,27 @@ const uiUpdater = {
         });
     },
     updateStatsDisplay(stats) {
-        document.getElementById('games-played').textContent = stats.gamesPlayed;
-        document.getElementById('wins').textContent = stats.wins;
-        document.getElementById('current-streak').textContent = stats.currentStreak;
-        document.getElementById('max-streak').textContent = stats.maxStreak;
-        // Update other stats as needed...
-    }
+        // Make sure to check for null to avoid errors
+        const gamesPlayedElement = document.getElementById('games-played');
+        const winPercentageElement = document.getElementById('win-percentage');
+        const currentStreakElement = document.getElementById('current-streak');
+        const maxStreakElement = document.getElementById('max-streak');
+        const distributionElements = [1, 2, 3, 4, 5, 6].map(number => 
+            document.getElementById(`distribution-${number}`));
+
+        if (gamesPlayedElement) gamesPlayedElement.textContent = stats.gamesPlayed;
+        if (winPercentageElement) winPercentageElement.textContent = stats.winPercentage + '%'; // Assuming you calculate this
+        if (currentStreakElement) currentStreakElement.textContent = stats.currentStreak;
+        if (maxStreakElement) maxStreakElement.textContent = stats.maxStreak;
+
+        // Update guess distribution bars
+        distributionElements.forEach((element, index) => {
+            if (element && element.firstChild) { // Check if element and its first child exist
+                element.firstChild.textContent = stats.guessDistribution[index + 1];
+                // Optionally, adjust the width of the bar based on the distribution value
+            }
+        });
+    },
 
 };
 
