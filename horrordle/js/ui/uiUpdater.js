@@ -70,16 +70,20 @@ const uiUpdater = {
     },
     showHint(hint) {
         const hintElement = document.getElementById('hint-text');
-        if (hintElement) {
-            hintElement.textContent = hint; // Update the hint text
-            // Optionally, if the hint container itself is hidden, reveal it:
-            const hintContainer = hintElement.closest('#hint');
-            if (hintContainer) {
+        const hintContainer = hintElement.closest('#hint');
+
+        if (hintElement && hintContainer) {
+            // Calculate total flip animation time
+            // Assuming 5 tiles and 500ms delay per tile flip
+            const totalFlipTime = 5 * 500;
+
+            setTimeout(() => {
+                hintElement.textContent = hint; // Update the hint text
                 hintContainer.style.display = 'block'; // Make sure the container is visible
-                hintContainer.style.opacity = '1';
-            }
+                hintContainer.style.opacity = '1'; // Fade in the hint container
+            }, totalFlipTime); // Delay showing the hint until after the tiles have flipped
         } else {
-            console.error("Hint element not found");
+            console.error("Hint element or container not found");
         }
     },
     showEndGameMessage(won, word, hint) {
