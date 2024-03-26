@@ -183,11 +183,9 @@ class GameState {
         // And potentially other preparation logic...
     }
 
-    restoreGameState(wordOfTheDay, hintOfTheDay) {
+    restoreGameState() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        this.wordOfTheDay = wordOfTheDay;
-        this.hintOfTheDay = hintOfTheDay;
 
         if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
             this.isGameOver = true;
@@ -221,23 +219,23 @@ class GameState {
             });
 
             // Update the Word of the Day and Hint of the Day
-            const wordWord = document.getElementById('word-content');
-            const hintWord = document.getElementById('hint-text');
+            const wordElement = document.getElementById('word-content');
+            const hintElement = document.getElementById('hint-text');
 
             // Display the failure or word reveal and hint elements
-            const outcomeElement = localStorage.getItem('gameOutcome') === 'lost' ? document.getElementById('failure') : document.getElementById('word-reveal');
-            if (outcomeElement) {
-                outcomeElement.style.display = 'flex';
+            const wordContainer = localStorage.getItem('gameOutcome') === 'lost' ? document.getElementById('failure') : document.getElementById('word-reveal');
+            if (wordContainer) {
+                wordContainer.style.display = 'flex';
                 setTimeout(() => {
-                    outcomeElement.style.opacity = '1';
+                    wordContainer.style.opacity = '1';
                 }, 100);
             }
 
-            const hintElement = document.getElementById('hint');
-            if (hintElement) {
-                hintElement.style.display = 'block';
+            const hintContainer = document.getElementById('hint');
+            if (hintContainer) {
+                hintContainer.style.display = 'block';
                 setTimeout(() => {
-                    hintElement.style.opacity = '1';
+                    hintContainer.style.opacity = '1';
                 }, 100);
             }
         } else {
