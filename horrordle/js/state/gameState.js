@@ -23,6 +23,7 @@ class GameState {
         const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
         this.gameGuessLetters = gameGuessLettersFromStorage ? JSON.parse(gameGuessLettersFromStorage) : [];
         this.gameGuessColors = gameGuessColorsFromStorage ? JSON.parse(gameGuessColorsFromStorage) : [];
+        this.loadGameState();
 
     }
 
@@ -51,6 +52,16 @@ class GameState {
         } else {
             // Reset or start new game logic...
         }
+    }
+
+    loadGameState() {
+        const gameGuessLetters = localStorage.getItem('gameGuessLetters');
+        const gameGuessColors = localStorage.getItem('gameGuessColors');
+
+        this.gameGuessLetters = gameGuessLetters ? JSON.parse(gameGuessLetters) : [];
+        this.gameGuessColors = gameGuessColors ? JSON.parse(gameGuessColors) : [];
+
+        // Handle other state loading here...
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
@@ -190,9 +201,19 @@ class GameState {
     endGame(won, uiUpdater) {
         const today = new Date().toISOString().slice(0, 10);
 
-        // Save game outcome, date, and guess details
-        localStorage.setItem('gameOutcome', won ? "won" : "lost");
+        // Update game outcome
+        const gameOutcome = won ? "won" : "lost";
+        localStorage.setItem('gameOutcome', gameOutcome);
+
+        // Save the game date
+        const today = new Date().toISOString().slice(0, 10);
         localStorage.setItem('gameDate', today);
+
+        const gameGuessLetters = this.guesses;
+        const gameGuessColors = this.guesses.map(guess => this.compareGuess(guess).map(result => result === 'correct' ? 'green' : result === 'present' ? 'yellow' : 'grey'));
+
+        localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
+        localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
 
         // Update stats and save them
         this.updateStats(won, this.guesses.length);
