@@ -15,6 +15,12 @@ class GameState {
             guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
             lastPlayedDate: '',
         };
+
+        // Ensure methods are bound to the instance
+        this.saveStats = this.saveStats.bind(this);
+        this.updateStats = this.updateStats.bind(this);
+        this.endGame = this.endGame.bind(this);
+
         this.loadStats();
         this.loadGameDetails();
         // Directly display stats on page load
@@ -228,39 +234,11 @@ class GameState {
         });
     }
 
-    endGame(won, uiUpdater) {
-
-        // Update game outcome
-        const gameOutcome = won ? "won" : "lost";
-        localStorage.setItem('gameOutcome', gameOutcome);
-
-        // Save the game date
-        const today = new Date().toISOString().slice(0, 10);
-        localStorage.setItem('gameDate', today);
-
-        const gameGuessLetters = this.guesses;
-        const gameGuessColors = this.guesses.map(guess => this.compareGuess(guess));
-
-        localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
-        localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
-
-        // Update stats and save them
-        this.updateStats(won, this.guesses.length);
-
-        // Save updated stats to localStorage immediately after updating
-        this.saveStats();
-
-        this.isGameOver = true;
-
-        // Disable further input as game is over
-        this.disableInput();
-
-        // Use a delay to allow for animations or other UI updates before showing the end game message
-        setTimeout(() => {
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-            // Refresh stats UI
-            uiUpdater.updateStatsDisplay(this.stats);
-        }, 2500);
+    loadStats() {
+        const statsFromStorage = localStorage.getItem('stats');
+        if (statsFromStorage) {
+            this.stats = JSON.parse(statsFromStorage);
+        }
     }
 
     saveStats() {
@@ -288,12 +266,39 @@ class GameState {
         this.saveStats();
     }
 
-    loadStats() {
-        const statsFromStorage = localStorage.getItem('stats');
-        if (statsFromStorage) {
-          this.stats = JSON.parse(statsFromStorage);
-          console.log("Loaded stats:", this.stats); // Verify the loaded stats
-        }
+    endGame(won, uiUpdater) {
+
+        // Update game outcome
+        const gameOutcome = won ? "won" : "lost";
+        localStorage.setItem('gameOutcome', gameOutcome);
+
+        // Save the game date
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('gameDate', today);
+
+        const gameGuessLetters = this.guesses;
+        const gameGuessColors = this.guesses.map(guess => this.compareGuess(guess));
+
+        localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
+        localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
+
+        // Update stats and save them
+        this.updateStats(won, this.currentAttempt);
+
+        // Save updated stats to localStorage immediately after updating
+        this.saveStats();
+
+        this.isGameOver = true;
+
+        // Disable further input as game is over
+        this.disableInput();
+
+        // Use a delay to allow for animations or other UI updates before showing the end game message
+        setTimeout(() => {
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+            // Refresh stats UI
+            uiUpdater.updateStatsDisplay(this.stats);
+        }, 2500);
     }
 
     disableInput() {
