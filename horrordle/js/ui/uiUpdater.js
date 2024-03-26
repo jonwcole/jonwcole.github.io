@@ -125,12 +125,16 @@ const uiUpdater = {
         });
     },
     updateStatsDisplay(stats) {
-        // Update basic stats like games played, win percentage, current streak, and max streak
+        // Update basic stats
         document.getElementById('games-played').textContent = stats.gamesPlayed || 0;
         const winPercentage = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
         document.getElementById('win-percentage').textContent = `${winPercentage}%`;
         document.getElementById('current-streak').textContent = stats.currentStreak || 0;
         document.getElementById('max-streak').textContent = stats.maxStreak || 0;
+
+        // Remove the .correct class from all guess bars first
+        const guessBars = document.querySelectorAll('.guess-bar');
+        guessBars.forEach(bar => bar.classList.remove('correct'));
 
         // Calculate total wins for distribution calculation
         const totalWins = Object.values(stats.guessDistribution).reduce((sum, count) => sum + count, 0);
@@ -141,10 +145,13 @@ const uiUpdater = {
             const percentage = totalWins ? (count / totalWins) * 100 : 0;
             const barElement = document.getElementById(`distribution-${guessCount}`);
             if (barElement && barElement.firstChild) {
-                // Set the text content to the count of guesses for this guessCount
                 barElement.firstChild.textContent = count;
-                // Adjust the width of the bar based on the distribution value
                 barElement.style.width = `${percentage}%`;
+
+                // If the last game was won and the guessCount matches the last win's guess count, add .correct class
+                if (stats.lastGameWon && stats.lastWinGuesses && parseInt(guessCount) === stats.lastWinGuesses) {
+                    barElement.classList.add('correct');
+                }
             }
         });
     },
