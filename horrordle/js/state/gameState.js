@@ -231,6 +231,8 @@ class GameState {
 
 
             if (localStorage.getItem('gameOutcome') === 'lost') {
+                const tiles = row.querySelectorAll('.tile');
+                const tile = tiles[letterIndex];
                 const splatterBox = tile.querySelector('.splatter-box');
                 document.getElementById('failure').style.display = 'block';
                 document.getElementById('hint').style.display = 'block';
