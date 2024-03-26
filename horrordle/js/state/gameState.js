@@ -183,57 +183,73 @@ class GameState {
         // And potentially other preparation logic...
     }
 
-restoreGameState() {
-    const gameDate = localStorage.getItem('gameDate');
-    const today = new Date().toISOString().slice(0, 10);
+    restoreGameState() {
+        const gameDate = localStorage.getItem('gameDate');
+        const today = new Date().toISOString().slice(0, 10);
 
-    if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
-        this.isGameOver = true;
-        this.disableInput();
+        if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
+            this.isGameOver = true;
+            this.disableInput();
 
-        // Restore guesses on the board
-        this.gameGuessLetters.forEach((letters, attemptIndex) => {
-            letters.forEach((letter, letterIndex) => {
-                const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-                if (row) {
-                    const tiles = row.querySelectorAll('.tile');
-                    const tile = tiles[letterIndex];
-                    if (tile) {
-                        const front = tile.querySelector('.front');
-                        const backText = tile.querySelector('.back-text'); 
-                        const splatterBox = tile.querySelector('.splatter-box');
+            // Restore guesses on the board
+            this.gameGuessLetters.forEach((letters, attemptIndex) => {
+                letters.forEach((letter, letterIndex) => {
+                    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                    if (row) {
+                        const tiles = row.querySelectorAll('.tile');
+                        const tile = tiles[letterIndex];
+                        if (tile) {
+                            const front = tile.querySelector('.front');
+                            const backText = tile.querySelector('.back-text'); 
+                            const splatterBox = tile.querySelector('.splatter-box');
 
-                        front.textContent = letter;
-                        backText.textContent = letter; 
-                        backText.parentElement.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex]; 
+                            front.textContent = letter;
+                            backText.textContent = letter; 
+                            backText.parentElement.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex]; 
 
-                        // Apply splatter effect for lost games
-                        if (splatterBox) {
-                            splatterBox.style.display = 'block';
-                            splatterBox.style.opacity = '1';
+                            // Apply splatter effect for lost games
+                            if (splatterBox) {
+                                splatterBox.style.display = 'block';
+                                splatterBox.style.opacity = '1';
+                            }
+
+                            setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
                         }
-
-                        setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
                     }
-                }
+                });
             });
-        });
 
-        // Update #word-reveal and #hint for both win and loss situations
-        document.getElementById('word-reveal').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('word-reveal').style.opacity = '1';
-        }, 100); // Adjust timing if needed
+            // Safely update .word-content
+            const wordContentElement = document.getElementById('word-content');
+            if (wordContentElement) {
+                wordContentElement.textContent = this.wordOfTheDay;
+            } else {
+                console.error('.word-content element not found');
+            }
 
-        document.getElementById('hint').style.display = 'block';
-        setTimeout(() => {
-            document.getElementById('hint').style.opacity = '1';
-        }, 100); // Adjust timing if needed
+            // Safely update .hint-text
+            const hintTextElement = document.getElementById('hint-text');
+            if (hintTextElement) {
+                hintTextElement.textContent = this.hintOfTheDay;
+            } else {
+                console.error('.hint-text element not found');
+            }
 
-    } else {
-        // Handle non-restoration scenarios as needed
+            // Update #word-reveal and #hint for both win and loss situations
+            document.getElementById('word-reveal').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('word-reveal').style.opacity = '1';
+            }, 100); // Adjust timing if needed
+
+            document.getElementById('hint').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('hint').style.opacity = '1';
+            }, 100); // Adjust timing if needed
+
+        } else {
+            // Handle non-restoration scenarios as needed
+        }
     }
-}
 
     replayGuess(guessLetters, resultColors, attemptIndex) {
         const rowSelector = `.tile-row-wrapper[data-attempt="${attemptIndex}"]`;
