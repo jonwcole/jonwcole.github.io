@@ -183,7 +183,7 @@ class GameState {
         // And potentially other preparation logic...
     }
 
-    restoreGameState() {
+    restoreGameState(word, hint) {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
@@ -223,8 +223,8 @@ class GameState {
             const hintWord = document.getElementById('hint-text');
 
             if (hintWord && wordWord) {
-                wordWord.textContent = wordOfTheDay;
-                hintWord.textContent = hintOfTheDay;
+                wordWord.textContent = word;
+                hintWord.textContent = hint;
             }
 
             // Display the failure or word reveal and hint elements
