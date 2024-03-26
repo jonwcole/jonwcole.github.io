@@ -19,6 +19,9 @@ class GameState {
         this.loadGameDetails();
         // Directly display stats on page load
         uiUpdater.updateStatsDisplay(this.stats);
+        this.gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        this.gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+
     }
 
     init() {
@@ -67,9 +70,16 @@ class GameState {
             return;
         }
 
+        // Save the guess letters
+        this.gameGuessLetters.push([...guess]); // Spread the guess into an array of its characters
+
         guess = guess.toUpperCase();
         this.guesses.push(guess);
         const result = this.compareGuess(guess);
+        this.gameGuessColors.push(result);
+
+        localStorage.setItem('gameGuessLetters', JSON.stringify(this.gameGuessLetters));
+        localStorage.setItem('gameGuessColors', JSON.stringify(this.gameGuessColors));
 
         // Increment attempt count
         this.currentAttempt++;
@@ -181,10 +191,6 @@ class GameState {
         // Save game outcome, date, and guess details
         localStorage.setItem('gameOutcome', won ? "won" : "lost");
         localStorage.setItem('gameDate', today);
-
-        // Save guess letters and colors
-        localStorage.setItem('gameGuessLetters', JSON.stringify(this.guesses));
-        localStorage.setItem('gameGuessColors', JSON.stringify(this.guessResults));
 
         // Update stats and save them
         this.updateStats(won, this.guesses.length);
