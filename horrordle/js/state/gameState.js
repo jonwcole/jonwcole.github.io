@@ -37,24 +37,29 @@ class GameState {
         localStorage.setItem('stats', JSON.stringify(this.stats));
     }
 
-    updateStats(won) {
+    updateStats(won, guessCount) {
         const today = new Date().toISOString().slice(0, 10);
-        if (this.stats.lastPlayedDate !== today) {
-            this.stats.currentStreak = 0; // Reset streak if playing on a new day
-        }
         this.stats.gamesPlayed++;
+        this.stats.lastPlayedDate = today;
+        
         if (won) {
             this.stats.wins++;
-            this.stats.currentStreak++;
-            this.stats.maxStreak = Math.max(this.stats.maxStreak, this.stats.currentStreak);
-            const guessCount = this.guesses.length;
-            if (this.stats.guessDistribution[guessCount] !== undefined) {
-                this.stats.guessDistribution[guessCount]++;
+            this.stats.lastWinGuesses = guessCount;
+            this.stats.lastGameWon = true;
+            this.stats.guessDistribution[guessCount] = (this.stats.guessDistribution[guessCount] || 0) + 1;
+
+            // Update streaks
+            if (this.stats.lastPlayedDate === today) {
+                this.stats.currentStreak++;
+            } else {
+                this.stats.currentStreak = 1; // Reset streak if not consecutive
             }
+            this.stats.maxStreak = Math.max(this.stats.maxStreak, this.stats.currentStreak);
         } else {
+            this.stats.lastGameWon = false;
             this.stats.currentStreak = 0;
         }
-        this.stats.lastPlayedDate = today;
+
         this.saveStats();
     }
 
@@ -186,6 +191,18 @@ class GameState {
     }
 
     endGame(won, uiUpdater) {
+        // Update game outcome
+        const gameOutcome = won ? "won" : "lost";
+        localStorage.setItem('gameOutcome', gameOutcome);
+
+        // Save the game date
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('gameDate', today);
+
+        // Save guess letters and colors
+        localStorage.setItem('gameGuessLetters', JSON.stringify(this.guesses));
+        localStorage.setItem('gameGuessColors', JSON.stringify(this.guesses.map((guess, index) => this.compareGuess(guess))));
+        
         // Update stats and save them
         this.updateStats(won);
 
