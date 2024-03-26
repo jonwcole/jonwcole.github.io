@@ -19,10 +19,21 @@ class GameState {
         this.loadGameDetails();
         // Directly display stats on page load
         uiUpdater.updateStatsDisplay(this.stats);
-        const gameGuessLettersFromStorage = localStorage.getItem('gameGuessLetters');
+
         const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
-        this.gameGuessLetters = gameGuessLettersFromStorage ? JSON.parse(gameGuessLettersFromStorage) : [];
-        this.gameGuessColors = gameGuessColorsFromStorage ? JSON.parse(gameGuessColorsFromStorage) : [];
+        if (gameGuessColorsFromStorage) {
+            this.gameGuessColors = JSON.parse(gameGuessColorsFromStorage);
+        } else {
+            // Initialize gameGuessColors to a default value if not found in localStorage
+        }
+
+        const gameGuessLettersFromStorage = localStorage.getItem('gameGuessLetters');
+        if (gameGuessLettersFromStorage) {
+            this.gameGuessLetters = JSON.parse(gameGuessLettersFromStorage);
+        } else {
+            // Initialize gameGuessLetters to a default value if not found in localStorage
+        }
+
         this.loadGameState();
 
     }
@@ -255,11 +266,10 @@ class GameState {
     }
 
     loadStats() {
-    const statsFromStorage = localStorage.getItem('stats');
-    if (statsFromStorage) {
-      this.stats = JSON.parse(statsFromStorage);
-      console.log("Loaded stats:", this.stats); // Verify the loaded stats
-    }
+        const statsFromStorage = localStorage.getItem('stats');
+        if (statsFromStorage) {
+          this.stats = JSON.parse(statsFromStorage);
+          console.log("Loaded stats:", this.stats); // Verify the loaded stats
     }
 
     saveStats() {
