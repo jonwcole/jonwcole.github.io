@@ -219,8 +219,13 @@ class GameState {
             });
 
             // Update the Word of the Day and Hint of the Day
-            const wordContentElement = document.getElementById('word-content');
-            const hintTextElement = document.getElementById('hint-text');
+            const wordElement = document.getElementById('word-content');
+            const hintElement = document.getElementById('hint-text');
+
+            if (hintElement && wordElement) {
+                wordElement.textContent = word;
+                hintElement.textContent = hint;
+            }
 
             // Display the failure or word reveal and hint elements
             const outcomeElement = localStorage.getItem('gameOutcome') === 'lost' ? document.getElementById('failure') : document.getElementById('word-reveal');
