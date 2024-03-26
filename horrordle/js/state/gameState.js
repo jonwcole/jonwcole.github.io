@@ -227,10 +227,12 @@ class GameState {
     replayGuesses(guessLetters, guessColors) {
         // Iterate through the guesses and colors to update the UI
         guessLetters.forEach((letters, index) => {
-            const guess = letters.join('');
-            const result = guessColors[index];
-            // You might have a method to update the UI for a single guess
-            uiUpdater.markGuessResult(index, guess, result, this);
+            if (Array.isArray(letters)) { // Ensure letters is an array
+                const guess = letters.join(''); // Join only if it's an array
+                const result = guessColors[index];
+                // Assuming markGuessResult is equipped to handle the guess and result correctly
+                uiUpdater.markGuessResult(index, guess, result, this);
+            }
         });
     }
 
