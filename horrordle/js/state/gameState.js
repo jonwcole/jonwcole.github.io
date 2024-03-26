@@ -221,11 +221,8 @@ class GameState {
 
             // Safely update .word-content
             const wordContentElement = document.getElementById('word-content');
-            if (wordContentElement) {
                 wordContentElement.textContent = this.wordOfTheDay;
-            } else {
-                console.error('.word-content element not found');
-            }
+
 
             // Safely update .hint-text
             const hintTextElement = document.getElementById('hint-text');
