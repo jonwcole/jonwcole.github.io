@@ -187,66 +187,51 @@ class GameState {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
-        if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
+        // Proceed only if the game date matches today
+        if (gameDate === today) {
             this.isGameOver = true;
             this.disableInput();
 
             this.gameGuessLetters.forEach((letters, attemptIndex) => {
-                if (!Array.isArray(letters)) {
-                    console.error('Expected letters to be an array', letters);
-                    return; // Skip this iteration if letters isn't an array
+                if (Array.isArray(letters)) {
+                    letters.forEach((letter, letterIndex) => {
+                        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                        if (row) {
+                            const tiles = row.querySelectorAll('.tile');
+                            const tile = tiles[letterIndex];
+                            if (tile) {
+                                tile.querySelector('.front').textContent = letter;
+                                const back = tile.querySelector('.back');
+                                back.textContent = letter;
+                                back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
+                                setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
+
+                                // Check if the game outcome was a loss to apply the splatter effect
+                                if (localStorage.getItem('gameOutcome') === 'lost') {
+                                    const splatterBox = tile.querySelector('.splatter-box');
+                                    if (splatterBox) {
+                                        splatterBox.style.display = 'block';
+                                        splatterBox.style.opacity = '1';
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
-
-                const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-                if (!row) {
-                    console.error('Row not found for attempt', attemptIndex);
-                    return; // Skip this iteration if the row isn't found
-                }
-
-                const tiles = row.querySelectorAll('.tile');
-                letters.forEach((letter, letterIndex) => {
-                    const tile = tiles[letterIndex];
-                    if (!tile) {
-                        console.error('Tile not found for letter', letter, 'at index', letterIndex);
-                        return; // Skip this iteration if the tile isn't found
-                    }
-
-                    // Correctly select the elements within the tile where text should be inserted
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back');
-                    const backText = back.querySelector('.back-text'); // Ensure this selector matches your HTML structure
-                    
-                    // Update the text content of the front and back elements
-                    front.textContent = letter;
-                    backText.textContent = letter; // Update this to match your structure
-                    
-                    // Apply the correct class based on the guess color
-                    back.classList.add(this.gameGuessColors[attemptIndex][letterIndex]);
-                    
-                    // Ensure tiles are flipped to show the guess
-                    setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
-                });
             });
 
-            // Safely update .word-content
-            const wordContentElement = document.getElementById('word-content');
-            if (wordContentElement) {
-                wordContentElement.textContent = this.wordOfTheDay;
-            } else {
-                console.error('.word-content element not found');
-            }
+            document.getElementById('word-content').textContent = this.wordOfTheDay;
+            document.getElementById('hint-text').textContent = this.hintOfTheDay;
 
-            // Safely update .hint-text
-            const hintTextElement = document.getElementById('hint-text');
-            if (hintTextElement) {
-                hintTextElement.textContent = this.hintOfTheDay;
-            } else {
-                console.error('.hint-text element not found');
-            }
-
+            // Additional logic for handling gameOutcome
             if (localStorage.getItem('gameOutcome') === 'lost') {
-                document.querySelector('.failure').style.display = 'block';
-                document.querySelector('.hint').style.display = 'block';
+                document.getElementById('failure').style.display = 'block';
+                document.getElementById('hint').style.display = 'block';
+                // Show all splatter boxes if the game was lost
+                document.querySelectorAll('.tile .splatter-box').forEach(splatterBox => {
+                    splatterBox.style.display = 'block';
+                    splatterBox.style.opacity = '1';
+                });
             }
         } else {
             // If there's no game data for today, consider initializing a new game or handling as needed
