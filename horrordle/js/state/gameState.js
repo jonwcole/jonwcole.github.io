@@ -131,21 +131,6 @@ class GameState {
         }
     }
 
-    // Assuming you have an endGame method in your GameState class
-    endGame(won, uiUpdater) {
-        // Set game over state
-        this.isGameOver = true;
-        this.updateStats(won);
-
-        // Depending on the outcome, show the end game message
-        setTimeout(() => {
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-        }, 2500); // Use a delay to allow for any animations or transitions
-
-        // Disable further input if necessary
-        this.disableInput();
-    }
-
     compareGuess(guess) {
         const result = guess.split('').map((letter, index) => {
             if (letter === this.wordOfTheDay[index]) {
@@ -270,10 +255,6 @@ class GameState {
         if (statsFromStorage) {
           this.stats = JSON.parse(statsFromStorage);
           console.log("Loaded stats:", this.stats); // Verify the loaded stats
-        }
-
-        saveStats() {
-            localStorage.setItem('stats', JSON.stringify(this.stats));
         }
     }
 
