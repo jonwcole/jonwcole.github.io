@@ -1,3 +1,5 @@
+import { uiUpdater } from './path/to/uiUpdater.js';
+
 class GameState {
     constructor() {
         this.dictionary = [];
@@ -17,6 +19,11 @@ class GameState {
         this.loadGameDetails();
         // Directly display stats on page load
         uiUpdater.updateStatsDisplay(this.stats);
+    }
+
+    init() {
+    // Now it's safe to use uiUpdater since this method will be called later
+    uiUpdater.updateStatsDisplay(this.stats);
     }
 
     reset() {
