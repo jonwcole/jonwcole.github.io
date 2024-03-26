@@ -5,19 +5,18 @@ import { uiUpdater } from './ui/uiUpdater.js';
 import './ui/eventListeners.js';
 
 // Wait for the DOM to be fully loaded before initializing the game
-document.addEventListener('DOMContentLoaded', () => {
-    initializeGame();
-    gameState.init();
+document.addEventListener('DOMContentLoaded', async () => {
+    await initializeGame(); // Ensure game is initialized before proceeding
     gameState.restoreGameState();
-    gameState.loadStats(); // Make sure stats are loaded
     uiUpdater.updateStatsDisplay(gameState.stats);
 });
 
-// Define the async function to initialize the game
 async function initializeGame() {
     await dataManager.loadDictionary();
-    await dataManager.loadDailyWord(); // Only necessary if this is asynchronous and not yet called
+    await dataManager.loadDailyWord();
     gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
-    uiUpdater.updateStatsDisplay(gameState.stats);
+    gameState.init(); // Assuming init configures the game state without overwriting loaded state
+    // Consider moving gameState.loadStats() into gameState.init() or startNewGame
+    uiUpdater.updateStatsDisplay(gameState.stats); // Update UI with the initial or restored game state
 }
 
