@@ -8,6 +8,7 @@ import './ui/eventListeners.js';
 document.addEventListener('DOMContentLoaded', () => {
     initializeGame();
     uiUpdater.updateStatsDisplay(gameState.stats);
+    gameState.init();
 });
 
 // Define the async function to initialize the game
