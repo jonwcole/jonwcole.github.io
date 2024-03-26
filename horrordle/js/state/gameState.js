@@ -231,6 +231,7 @@ class GameState {
 
 
             if (localStorage.getItem('gameOutcome') === 'lost') {
+                const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
                 const tiles = row.querySelectorAll('.tile');
                 const tile = tiles[letterIndex];
                 const splatterBox = tile.querySelector('.splatter-box');
@@ -246,6 +247,7 @@ class GameState {
             // If there's no game data for today, consider initializing a new game or handling as needed
         }
     }
+
 
     replayGuess(guessLetters, resultColors, attemptIndex) {
         const rowSelector = `.tile-row-wrapper[data-attempt="${attemptIndex}"]`;
