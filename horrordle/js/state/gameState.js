@@ -221,18 +221,18 @@ class GameState {
             });
 
             // Safely update the Word of the Day and Hint of the Day
-            const wordContainer = document.getElementById('word-content');
-            const wordElement = this.wordOfTheDay;
-            if (wordContainer) {
-                wordContainer.textContent = wordElement;
+            const wordElement = document.getElementById('word-content');
+            const word = this.wordOfTheDay;
+            if (wordElement) {
+                wordElement.textContent = wordElement;
             } else {
                 console.error('#word-content element not found');
             }
 
-            const hintContainer = document.getElementById('hint-text');
-            const hintElement = this.hintOfTheDay;
-            if (hintContainer) {
-                hintContainer.textContent = hintElement;
+            const hintElement = document.getElementById('hint-text');
+            const hint = this.hintOfTheDay;
+            if (hintElement) {
+                hintElement.textContent = hintElement;
             } else {
                 console.error('#hint-text element not found');
             }
