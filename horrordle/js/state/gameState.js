@@ -219,12 +219,12 @@ class GameState {
             });
 
             // Update the Word of the Day and Hint of the Day
-            const wordElement = document.getElementById('word-content');
-            const hintElement = document.getElementById('hint-text');
+            const wordWord = document.getElementById('word-content');
+            const hintWord = document.getElementById('hint-text');
 
-            if (hintElement && wordElement) {
-                wordElement.textContent = word;
-                hintElement.textContent = hint;
+            if (hintWord && wordWord) {
+                wordWord.textContent = word;
+                hintWord.textContent = hint;
             }
 
             // Display the failure or word reveal and hint elements
