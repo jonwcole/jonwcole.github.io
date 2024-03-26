@@ -125,28 +125,26 @@ const uiUpdater = {
         });
     },
     updateStatsDisplay(stats) {
-        // Make sure to check for null to avoid errors
-        const gamesPlayedElement = document.getElementById('games-played');
-        const winPercentageElement = document.getElementById('win-percentage');
-        const currentStreakElement = document.getElementById('current-streak');
-        const maxStreakElement = document.getElementById('max-streak');
-        const distributionElements = [1, 2, 3, 4, 5, 6].map(number => 
-            document.getElementById(`distribution-${number}`));
+        // Update basic stats like games played, win percentage, current streak, and max streak
+        document.getElementById('games-played').textContent = stats.gamesPlayed || 0;
+        const winPercentage = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
+        document.getElementById('win-percentage').textContent = `${winPercentage}%`;
+        document.getElementById('current-streak').textContent = stats.currentStreak || 0;
+        document.getElementById('max-streak').textContent = stats.maxStreak || 0;
 
-        if (gamesPlayedElement) gamesPlayedElement.textContent = stats.gamesPlayed || 0;
-        const winPercentage = stats.winPercentage !== undefined ? stats.winPercentage 
-                          : stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) 
-                          : 0;
-
-        if (winPercentageElement) winPercentageElement.textContent = `${winPercentage}%`;
-        if (currentStreakElement) currentStreakElement.textContent = stats.currentStreak;
-        if (maxStreakElement) maxStreakElement.textContent = stats.maxStreak;
+        // Calculate total wins for distribution calculation
+        const totalWins = Object.values(stats.guessDistribution).reduce((sum, count) => sum + count, 0);
 
         // Update guess distribution bars
-        distributionElements.forEach((element, index) => {
-            if (element && element.firstChild) { // Check if element and its first child exist
-                element.firstChild.textContent = stats.guessDistribution[index + 1];
-                // Optionally, adjust the width of the bar based on the distribution value
+        Object.keys(stats.guessDistribution).forEach(guessCount => {
+            const count = stats.guessDistribution[guessCount];
+            const percentage = totalWins ? (count / totalWins) * 100 : 0;
+            const barElement = document.getElementById(`distribution-${guessCount}`);
+            if (barElement && barElement.firstChild) {
+                // Set the text content to the count of guesses for this guessCount
+                barElement.firstChild.textContent = count;
+                // Adjust the width of the bar based on the distribution value
+                barElement.style.width = `${percentage}%`;
             }
         });
     },
