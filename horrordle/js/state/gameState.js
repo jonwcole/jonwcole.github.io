@@ -223,8 +223,8 @@ class GameState {
             const hintWord = document.getElementById('hint-text');
 
             if (hintWord && wordWord) {
-                wordWord.textContent = word;
-                hintWord.textContent = hint;
+                wordWord.textContent = wordOfTheDay;
+                hintWord.textContent = hintOfTheDay;
             }
 
             // Display the failure or word reveal and hint elements
