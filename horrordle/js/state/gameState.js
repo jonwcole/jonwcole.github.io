@@ -270,10 +270,11 @@ class GameState {
         if (statsFromStorage) {
           this.stats = JSON.parse(statsFromStorage);
           console.log("Loaded stats:", this.stats); // Verify the loaded stats
-    }
+        }
 
-    saveStats() {
-        localStorage.setItem('stats', JSON.stringify(this.stats));
+        saveStats() {
+            localStorage.setItem('stats', JSON.stringify(this.stats));
+        }
     }
 
     disableInput() {
