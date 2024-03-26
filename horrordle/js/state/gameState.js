@@ -187,41 +187,56 @@ class GameState {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
-        // Proceed only if the game date matches today, and both gameGuessLetters and gameGuessColors are arrays
         if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
-            this.isGameOver = true;
-            this.disableInput();
+            this.isGameOver = true; // Assume game is over if restoring state
+            this.disableInput(); // Prevent further guesses
 
-            this.gameGuessLetters.forEach((letters, attemptIndex) => {
-                // The previous issue could be here, ensure letters is actually an array
-                if (Array.isArray(letters)) {
-                    letters.forEach((letter, letterIndex) => {
-                        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-                        if (row) {
-                            const tiles = row.querySelectorAll('.tile');
-                            const tile = tiles[letterIndex];
-                            if (tile) {
-                                tile.querySelector('.front').textContent = letter;
-                                const back = tile.querySelector('.back');
-                                back.textContent = letter;
-                                back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
-                                setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
-                            }
-                        }
-                    });
-                }
+            // Restore guesses on the board
+            this.gameGuessLetters.forEach((guessLetters, attemptIndex) => {
+                const resultColors = this.gameGuessColors[attemptIndex];
+                this.replayGuess(guessLetters, resultColors, attemptIndex);
             });
 
+            // Restore word of the day and hint
             document.querySelector('.word-content').textContent = this.wordOfTheDay;
             document.querySelector('.hint-text').textContent = this.hintOfTheDay;
 
+            // Show the hint and the end game message if the game was lost
             if (localStorage.getItem('gameOutcome') === 'lost') {
                 document.querySelector('.failure').style.display = 'block';
                 document.querySelector('.hint').style.display = 'block';
+                // Make sure elements are visible (opacity might need adjusting if they were previously hidden)
+                document.querySelector('.failure').style.opacity = '1';
+                document.querySelector('.hint').style.opacity = '1';
             }
         } else {
-            // If there's no game data for today, consider initializing a new game or handling as needed
+            // Handle new game setup if needed
         }
+    }
+
+    replayGuess(guessLetters, resultColors, attemptIndex) {
+        const rowSelector = `.tile-row-wrapper[data-attempt="${attemptIndex}"]`;
+        const rowElement = document.querySelector(rowSelector);
+        if (!rowElement) {
+            console.error(`Row for attempt ${attemptIndex} not found.`);
+            return;
+        }
+
+        const tiles = rowElement.querySelectorAll('.tile');
+        guessLetters.forEach((letter, tileIndex) => {
+            const tile = tiles[tileIndex];
+            if (!tile) {
+                console.error(`Tile ${tileIndex} in row ${attemptIndex} not found.`);
+                return;
+            }
+
+            const front = tile.querySelector('.front');
+            const back = tile.querySelector('.back');
+            front.textContent = letter;
+            back.textContent = letter;
+            tile.classList.add('flipped'); // Flip the tile
+            back.className = `back ${resultColors[tileIndex]}`; // Apply the result class
+        });
     }
 
     endGame(won, uiUpdater) {
