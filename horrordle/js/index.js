@@ -8,9 +8,9 @@ import './ui/eventListeners.js';
 document.addEventListener('DOMContentLoaded', () => {
     initializeGame();
     gameState.init();
+    gameState.restoreGameState();
     gameState.loadStats(); // Make sure stats are loaded
     uiUpdater.updateStatsDisplay(gameState.stats);
-    gameState.restoreGameState();
 });
 
 // Define the async function to initialize the game
