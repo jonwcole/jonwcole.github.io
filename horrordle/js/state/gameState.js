@@ -200,17 +200,23 @@ class GameState {
     restoreGameState() {
         // Load stored game state from localStorage
         const gameOutcome = localStorage.getItem('gameOutcome'); // 'won', 'lost', or null if the game wasn't completed
-        
-        // Restoring the guesses and their outcomes is handled here
-        // ...
+        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
 
-        // Display the hint and outcome message if the game was completed
+        // Restore guesses and their outcomes to the game state
+        this.guesses = gameGuessLetters;
+        this.guessOutcome = gameGuessColors; // Make sure to adapt this to how you're tracking guess results in your state
+
+        // Replay the restored guesses on the UI
+        this.replayGuesses(gameGuessLetters, gameGuessColors);
+
+        // If the game was completed, disable further input and show the outcome
         if (gameOutcome) {
             this.isGameOver = true;
             this.disableInput();
 
             const won = gameOutcome === 'won';
-            
+
             // Display the hint since the game was completed
             const hintTextElement = document.querySelector('.hint-text');
             if (hintTextElement) {
@@ -240,10 +246,13 @@ class GameState {
                         setTimeout(() => box.style.opacity = 1, 100);
                     });
                 }
+                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
                 // Optionally, also refresh the stats display
                 uiUpdater.updateStatsDisplay(this.stats);
             }, 0);
         }
+
+        this.updateGameUI();
     }
 
     updateGameUI() {
