@@ -187,42 +187,40 @@ class GameState {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
-        if (gameDate === today) {
-            this.isGameOver = true; // Assuming the game can't be continued
-            this.disableInput(); // Ensure no further inputs can be made
+        // Proceed only if the game date matches today, and both gameGuessLetters and gameGuessColors are arrays
+        if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
+            this.isGameOver = true;
+            this.disableInput();
 
-            // Restore the guesses and their respective results
-            this.gameGuessLetters.forEach((guess, attemptIndex) => {
-                guess.forEach((letter, letterIndex) => {
-                    // Locate the appropriate row and tile for this letter
-                    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-                    if (row) {
-                        const tiles = row.querySelectorAll('.tile');
-                        const tile = tiles[letterIndex];
-                        if (tile) {
-                            // Update the front and back of the tile with the guessed letter
-                            tile.querySelector('.front').textContent = letter;
-                            const back = tile.querySelector('.back');
-                            back.textContent = letter; // Assuming you want the letter shown on the flip side as well
-                            // Add the appropriate class based on the guess result
-                            back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
-                            // Trigger the flip animation
-                            setTimeout(() => tile.classList.add('flipped'), letterIndex * 150); // Adjust timing as needed
+            this.gameGuessLetters.forEach((letters, attemptIndex) => {
+                // The previous issue could be here, ensure letters is actually an array
+                if (Array.isArray(letters)) {
+                    letters.forEach((letter, letterIndex) => {
+                        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                        if (row) {
+                            const tiles = row.querySelectorAll('.tile');
+                            const tile = tiles[letterIndex];
+                            if (tile) {
+                                tile.querySelector('.front').textContent = letter;
+                                const back = tile.querySelector('.back');
+                                back.textContent = letter;
+                                back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
+                                setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
 
-            // Fill in the word of the day and hint if the game is over
             document.querySelector('.word-content').textContent = this.wordOfTheDay;
             document.querySelector('.hint-text').textContent = this.hintOfTheDay;
 
-            // Optionally, if the game was lost, show the failure message and any other endgame UI elements
             if (localStorage.getItem('gameOutcome') === 'lost') {
                 document.querySelector('.failure').style.display = 'block';
                 document.querySelector('.hint').style.display = 'block';
-                // Add any additional logic for showing endgame UI elements
             }
+        } else {
+            // If there's no game data for today, consider initializing a new game or handling as needed
         }
     }
 
