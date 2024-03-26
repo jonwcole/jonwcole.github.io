@@ -192,7 +192,6 @@ class GameState {
             this.isGameOver = true;
             this.disableInput();
 
-            // Determine if the game was lost
             const gameLost = gameOutcome === 'lost';
 
             this.gameGuessLetters.forEach((letters, attemptIndex) => {
@@ -203,14 +202,13 @@ class GameState {
                         const tile = tiles[letterIndex];
                         if (tile) {
                             const front = tile.querySelector('.front');
-                            const back = tile.querySelector('.back');
-                            const splatterBox = tile.querySelector('.splatter-box'); // Query for the .splatter-box element
+                            const backText = tile.querySelector('.back-text'); // Correctly target .back-text
+                            const splatterBox = tile.querySelector('.splatter-box');
 
                             front.textContent = letter;
-                            back.textContent = letter;
-                            back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
+                            backText.textContent = letter; // Correctly set letter here
+                            backText.parentElement.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex]; // Apply class to .back via parent
                             
-                            // If the game was lost, show the splatter effect
                             if (gameLost && splatterBox) {
                                 splatterBox.style.display = 'block';
                                 splatterBox.style.opacity = '1';
@@ -222,11 +220,10 @@ class GameState {
                 });
             });
 
-            // Handle displaying word content, hint, and game outcome message
-            // This is where you'd set the content for .word-content and .hint-text, and handle showing .failure or .success divs
-            // (Please refer to your previous logic for updating these elements)
+            // Update .word-content and .hint-text as necessary
+            // Remember to check if gameOutcome is 'lost' for displaying .failure and .splatter-box
         } else {
-            // If no game data for today, consider initializing new game or other handling
+            // Handle non-restoration scenarios as needed
         }
     }
 
