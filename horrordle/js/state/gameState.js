@@ -221,8 +221,8 @@ class GameState {
             // Update the Word of the Day and Hint of the Day
             const wordContentElement = document.getElementById('word-content');
             const hintTextElement = document.getElementById('hint-text');
-            if (wordContentElement) wordContentElement.textContent = this.wordOfTheDay;
-            if (hintTextElement) hintTextElement.textContent = this.hintOfTheDay;
+            const wordContentElement.textContent = this.wordOfTheDay;
+            const hintTextElement.textContent = this.hintOfTheDay;
 
             // Display the failure or word reveal and hint elements
             const outcomeElement = localStorage.getItem('gameOutcome') === 'lost' ? document.getElementById('failure') : document.getElementById('word-reveal');
