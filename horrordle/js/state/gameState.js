@@ -184,33 +184,43 @@ class GameState {
     }
 
     restoreGameState() {
-        const gameDate = localStorage.getItem('gameDate');
-        const today = new Date().toISOString().slice(0, 10);
+        const gameOutcome = localStorage.getItem('gameOutcome');
+        const wordOfTheDay = this.wordOfTheDay; // Assuming this is set correctly elsewhere in your code
+        const hintOfTheDay = this.hintOfTheDay; // Assuming this is set correctly elsewhere in your code
 
-        if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
-            this.isGameOver = true; // Assume game is over if restoring state
-            this.disableInput(); // Prevent further guesses
+        // Restore words and hints
+        const wordContents = document.querySelectorAll('.word-content');
+        wordContents.forEach(element => {
+            element.textContent = wordOfTheDay;
+        });
 
-            // Restore guesses on the board
-            this.gameGuessLetters.forEach((guessLetters, attemptIndex) => {
-                const resultColors = this.gameGuessColors[attemptIndex];
-                this.replayGuess(guessLetters, resultColors, attemptIndex);
+        const hintText = document.getElementById('hint-text');
+        if (hintText) {
+            hintText.textContent = hintOfTheDay;
+        }
+
+        // Restore game tiles based on saved guesses
+        this.gameGuessLetters.forEach((letters, attemptIndex) => {
+            letters.forEach((letter, letterIndex) => {
+                const tileRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                if (tileRow) {
+                    const tile = tileRow.querySelectorAll('.tile')[letterIndex];
+                    if (tile) {
+                        tile.querySelector('.front').textContent = letter;
+                        const back = tile.querySelector('.back');
+                        back.classList.add(this.gameGuessColors[attemptIndex][letterIndex]); // Add the correct class based on the outcome
+                        tile.classList.add('flipped');
+                    }
+                }
             });
+        });
 
-            // Restore word of the day and hint
-            document.querySelector('.word-content').textContent = this.wordOfTheDay;
-            document.querySelector('.hint-text').textContent = this.hintOfTheDay;
-
-            // Show the hint and the end game message if the game was lost
-            if (localStorage.getItem('gameOutcome') === 'lost') {
-                document.querySelector('.failure').style.display = 'block';
-                document.querySelector('.hint').style.display = 'block';
-                // Make sure elements are visible (opacity might need adjusting if they were previously hidden)
-                document.querySelector('.failure').style.opacity = '1';
-                document.querySelector('.hint').style.opacity = '1';
-            }
-        } else {
-            // Handle new game setup if needed
+        // Display the appropriate message based on the game's outcome
+        if (gameOutcome === 'lost') {
+            document.getElementById('failure').style.display = 'flex'; // Show the failure message
+            document.getElementById('hint').style.display = 'block'; // Ensure the hint is visible
+        } else if (gameOutcome === 'won') {
+            document.getElementById('success').style.display = 'flex'; // Show the success message
         }
     }
 
