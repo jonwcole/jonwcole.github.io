@@ -91,7 +91,7 @@ const uiUpdater = {
         }
     },
     showEndGameMessage(won, word, hint) {
-        const messageContainer = won ? document.querySelector('.success') : document.querySelector('.failure');
+        const messageContainer = won ? document.querySelector('.success') : document.querySelector('.word-reveal');
         const hintContainer = document.getElementById('hint');
         const hintElement = document.getElementById('hint-text');
         const wordElement = document.getElementById('word-content');
