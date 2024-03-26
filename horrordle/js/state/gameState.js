@@ -187,6 +187,8 @@ class GameState {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
+        console.log(wordOfTheDay);
+
         if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
             this.isGameOver = true;
             this.disableInput();
