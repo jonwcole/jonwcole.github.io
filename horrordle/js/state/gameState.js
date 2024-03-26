@@ -229,7 +229,7 @@ class GameState {
             });
 
             // Safely update .word-content
-            const wordContentElement = document.querySelector('.word-content');
+            const wordContentElement = document.getElementById('word-content');
             if (wordContentElement) {
                 wordContentElement.textContent = this.wordOfTheDay;
             } else {
