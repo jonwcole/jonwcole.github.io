@@ -7,8 +7,9 @@ import './ui/eventListeners.js';
 // Wait for the DOM to be fully loaded before initializing the game
 document.addEventListener('DOMContentLoaded', () => {
     initializeGame();
-    uiUpdater.updateStatsDisplay(gameState.stats);
     gameState.init();
+    gameState.loadStats(); // Make sure stats are loaded
+    uiUpdater.updateStatsDisplay(gameState.stats);
 });
 
 // Define the async function to initialize the game
