@@ -14,6 +14,7 @@ class GameState {
             lastPlayedDate: '',
         };
         this.loadStats();
+        this.loadGameDetails();
     }
 
     reset() {
@@ -26,41 +27,16 @@ class GameState {
         this.currentGuess = [];
     }
 
-    loadStats() {
-        const statsFromStorage = localStorage.getItem('stats');
-        if (statsFromStorage) {
-            this.stats = JSON.parse(statsFromStorage);
-        }
-    }
-
-    saveStats() {
-        localStorage.setItem('stats', JSON.stringify(this.stats));
-    }
-
-    updateStats(won, guessCount) {
+    loadGameDetails() {
+        const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        this.stats.gamesPlayed++;
-        this.stats.lastPlayedDate = today;
-        
-        if (won) {
-            this.stats.wins++;
-            this.stats.lastWinGuesses = guessCount;
-            this.stats.lastGameWon = true;
-            this.stats.guessDistribution[guessCount] = (this.stats.guessDistribution[guessCount] || 0) + 1;
 
-            // Update streaks
-            if (this.stats.lastPlayedDate === today) {
-                this.stats.currentStreak++;
-            } else {
-                this.stats.currentStreak = 1; // Reset streak if not consecutive
-            }
-            this.stats.maxStreak = Math.max(this.stats.maxStreak, this.stats.currentStreak);
+        if (gameDate === today) {
+            // Logic to handle already played game...
+            this.restoreGameState();
         } else {
-            this.stats.lastGameWon = false;
-            this.stats.currentStreak = 0;
+            // Reset or start new game logic...
         }
-
-        this.saveStats();
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
@@ -174,10 +150,6 @@ class GameState {
         }
     }
 
-    disableInput() {
-        this.inputEnabled = false;
-    }
-
     isInputEnabled() {
         return this.inputEnabled;
     }
@@ -190,21 +162,23 @@ class GameState {
         // And potentially other preparation logic...
     }
 
-    endGame(won, uiUpdater) {
-        // Update game outcome
-        const gameOutcome = won ? "won" : "lost";
-        localStorage.setItem('gameOutcome', gameOutcome);
+    restoreGameState() {
+        // Logic to restore game state based on saved details...
+    }
 
-        // Save the game date
+    endGame(won, uiUpdater) {
         const today = new Date().toISOString().slice(0, 10);
+
+        // Save game outcome, date, and guess details
+        localStorage.setItem('gameOutcome', won ? "won" : "lost");
         localStorage.setItem('gameDate', today);
 
         // Save guess letters and colors
         localStorage.setItem('gameGuessLetters', JSON.stringify(this.guesses));
-        localStorage.setItem('gameGuessColors', JSON.stringify(this.guesses.map((guess, index) => this.compareGuess(guess))));
-        
+        localStorage.setItem('gameGuessColors', JSON.stringify(this.guessResults));
+
         // Update stats and save them
-        this.updateStats(won);
+        this.updateStats(won, this.guesses.length);
 
         // Save updated stats to localStorage immediately after updating
         this.saveStats();
@@ -216,12 +190,44 @@ class GameState {
 
         // Use a delay to allow for animations or other UI updates before showing the end game message
         setTimeout(() => {
-            // Ensure the UI is updated to reflect the end of the game
             uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-
-            // Additionally, if there's a method to refresh the stats display, it should be called here
+            // Refresh stats UI
             uiUpdater.updateStatsDisplay(this.stats);
         }, 2500);
+    }
+
+    updateStats(won, guessCount) {
+        const today = new Date().toISOString().slice(0, 10);
+        this.stats.gamesPlayed++;
+        this.stats.lastPlayedDate = today;
+
+        if (won) {
+            this.stats.wins++;
+            this.stats.lastWinGuesses = guessCount;
+            this.stats.lastGameWon = true;
+            this.stats.guessDistribution[guessCount] = (this.stats.guessDistribution[guessCount] || 0) + 1;
+            // Update streaks
+            this.stats.currentStreak = (this.stats.lastPlayedDate === today) ? this.stats.currentStreak + 1 : 1;
+            this.stats.maxStreak = Math.max(this.stats.maxStreak, this.stats.currentStreak);
+        } else {
+            this.stats.lastGameWon = false;
+            this.stats.currentStreak = 0;
+        }
+
+        this.saveStats();
+    }
+
+    loadStats() {
+        const statsFromStorage = localStorage.getItem('stats');
+        return statsFromStorage ? JSON.parse(statsFromStorage) : null;
+    }
+
+    saveStats() {
+        localStorage.setItem('stats', JSON.stringify(this.stats));
+    }
+
+    disableInput() {
+        this.inputEnabled = false;
     }
 
 }
