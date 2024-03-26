@@ -191,7 +191,6 @@ class GameState {
             this.isGameOver = true;
             this.disableInput();
 
-            // Restore guesses on the board
             this.gameGuessLetters.forEach((letters, attemptIndex) => {
                 letters.forEach((letter, letterIndex) => {
                     const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
@@ -200,15 +199,15 @@ class GameState {
                         const tile = tiles[letterIndex];
                         if (tile) {
                             const front = tile.querySelector('.front');
-                            const backText = tile.querySelector('.back-text'); 
+                            const backText = tile.querySelector('.back-text');
                             const splatterBox = tile.querySelector('.splatter-box');
 
                             front.textContent = letter;
-                            backText.textContent = letter; 
-                            backText.parentElement.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex]; 
+                            backText.textContent = letter;
+                            backText.parentElement.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
 
                             // Apply splatter effect for lost games
-                            if (splatterBox) {
+                            if (splatterBox && localStorage.getItem('gameOutcome') === 'lost') {
                                 splatterBox.style.display = 'block';
                                 splatterBox.style.opacity = '1';
                             }
@@ -219,35 +218,30 @@ class GameState {
                 });
             });
 
-            // Safely update .word-content
+            // Update the Word of the Day and Hint of the Day
             const wordContentElement = document.getElementById('word-content');
-            if (wordContentElement) {
-                wordContentElement.textContent = this.wordOfTheDay;
-            } else {
-                console.error('.word-content element not found');
-            }
-
-            // Safely update .hint-text
             const hintTextElement = document.getElementById('hint-text');
-            if (hintTextElement) {
-                hintTextElement.textContent = this.hintOfTheDay;
-            } else {
-                console.error('.hint-text element not found');
+            if (wordContentElement) wordContentElement.textContent = this.wordOfTheDay;
+            if (hintTextElement) hintTextElement.textContent = this.hintOfTheDay;
+
+            // Display the failure or word reveal and hint elements
+            const outcomeElement = localStorage.getItem('gameOutcome') === 'lost' ? document.getElementById('failure') : document.getElementById('word-reveal');
+            if (outcomeElement) {
+                outcomeElement.style.display = 'flex';
+                setTimeout(() => {
+                    outcomeElement.style.opacity = '1';
+                }, 100);
             }
 
-            // Update #word-reveal and #hint for both win and loss situations
-            document.getElementById('word-reveal').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('word-reveal').style.opacity = '1';
-            }, 100); // Adjust timing if needed
-
-            document.getElementById('hint').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('hint').style.opacity = '1';
-            }, 100); // Adjust timing if needed
-
+            const hintElement = document.getElementById('hint');
+            if (hintElement) {
+                hintElement.style.display = 'block';
+                setTimeout(() => {
+                    hintElement.style.opacity = '1';
+                }, 100);
+            }
         } else {
-            // Handle non-restoration scenarios as needed
+            // Reset or start new game logic...
         }
     }
 
