@@ -237,7 +237,7 @@ class GameState {
             }
 
             // Safely update .hint-text
-            const hintTextElement = document.querySelector('.hint-text');
+            const hintTextElement = document.getElementById('hint-text');
             if (hintTextElement) {
                 hintTextElement.textContent = this.hintOfTheDay;
             } else {
