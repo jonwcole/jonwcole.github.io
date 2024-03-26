@@ -191,36 +191,53 @@ class GameState {
             this.isGameOver = true;
             this.disableInput();
 
-            // Ensure both are arrays to safely use forEach
-            if (Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
-                this.gameGuessLetters.forEach((letters, attemptIndex) => {
-                    // Make sure letters is always an array here
-                    if (!Array.isArray(letters)) {
-                        console.error('Expected letters to be an array', letters);
-                        return; // Skip this iteration if letters isn't an array
+            this.gameGuessLetters.forEach((letters, attemptIndex) => {
+                if (!Array.isArray(letters)) {
+                    console.error('Expected letters to be an array', letters);
+                    return; // Skip this iteration if letters isn't an array
+                }
+
+                const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                if (!row) {
+                    console.error('Row not found for attempt', attemptIndex);
+                    return; // Skip this iteration if the row isn't found
+                }
+
+                const tiles = row.querySelectorAll('.tile');
+                letters.forEach((letter, letterIndex) => {
+                    const tile = tiles[letterIndex];
+                    if (!tile) {
+                        console.error('Tile not found for letter', letter, 'at index', letterIndex);
+                        return; // Skip this iteration if the tile isn't found
                     }
 
-                    letters.forEach((letter, letterIndex) => {
-                        // Restore the tiles with letters and classes
-                        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-                        if (row) {
-                            const tiles = row.querySelectorAll('.tile');
-                            const tile = tiles[letterIndex];
-                            if (tile) {
-                                const back = tile.querySelector('.back');
-                                // Assuming letters and colors are correctly aligned
-                                back.classList.add(this.gameGuessColors[attemptIndex][letterIndex]); 
-                                tile.classList.add('flipped');
-                            }
-                        }
-                    });
+                    // Correctly select the elements within the tile where text should be inserted
+                    const front = tile.querySelector('.front');
+                    const back = tile.querySelector('.back');
+                    const backText = back.querySelector('.back-text'); // Ensure this selector matches your HTML structure
+                    
+                    // Update the text content of the front and back elements
+                    front.textContent = letter;
+                    backText.textContent = letter; // Update this to match your structure
+                    
+                    // Apply the correct class based on the guess color
+                    back.classList.add(this.gameGuessColors[attemptIndex][letterIndex]);
+                    
+                    // Ensure tiles are flipped to show the guess
+                    setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
                 });
+            });
 
-                // Additional UI updates for word content, hint, and message displays based on game outcome
-                // These should be similarly guarded to ensure the elements exist before attempting to update them.
+            // Update the word content, hint, and message displays based on game outcome
+            document.querySelector('.word-content').textContent = this.wordOfTheDay;
+            document.querySelector('.hint-text').textContent = this.hintOfTheDay;
+
+            if (localStorage.getItem('gameOutcome') === 'lost') {
+                document.querySelector('.failure').style.display = 'block';
+                document.querySelector('.hint').style.display = 'block';
             }
         } else {
-            // Consider initializing a new game if no saved state matches today
+            // If there's no game data for today, consider initializing a new game or handling as needed
         }
     }
 
