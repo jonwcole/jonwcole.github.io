@@ -205,7 +205,7 @@ class GameState {
         localStorage.setItem('gameDate', today);
 
         const gameGuessLetters = this.guesses;
-        const gameGuessColors = this.guesses.map(guess => this.compareGuess(guess).map(result => 'correct' : 'present' : 'absent'));
+        const gameGuessColors = this.guesses.map(guess => this.compareGuess(guess));
 
         localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
         localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
