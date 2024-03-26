@@ -186,39 +186,45 @@ class GameState {
     restoreGameState() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
+        const gameOutcome = localStorage.getItem('gameOutcome');
 
-        // Initialize gameGuessLetters and gameGuessColors as arrays if they're not already
-        this.gameGuessLetters = Array.isArray(this.gameGuessLetters) ? this.gameGuessLetters : [];
-        this.gameGuessColors = Array.isArray(this.gameGuessColors) ? this.gameGuessColors : [];
-
-        if (gameDate === today && this.gameGuessLetters.length > 0 && this.gameGuessColors.length > 0) {
+        if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
             this.isGameOver = true;
             this.disableInput();
 
+            // Determine if the game was lost
+            const gameLost = gameOutcome === 'lost';
+
             this.gameGuessLetters.forEach((letters, attemptIndex) => {
-                if (Array.isArray(letters)) {
-                    letters.forEach((letter, letterIndex) => {
-                        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-                        if (row) {
-                            const tiles = row.querySelectorAll('.tile');
-                            const tile = tiles[letterIndex];
-                            if (tile) {
-                                const front = tile.querySelector('.front');
-                                const back = tile.querySelector('.back');
-                                if (front && back) {
-                                    front.textContent = letter;
-                                    back.textContent = letter; // Ensure back textContent is updated
-                                    back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
-                                    setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
-                                }
+                letters.forEach((letter, letterIndex) => {
+                    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                    if (row) {
+                        const tiles = row.querySelectorAll('.tile');
+                        const tile = tiles[letterIndex];
+                        if (tile) {
+                            const front = tile.querySelector('.front');
+                            const back = tile.querySelector('.back');
+                            const splatterBox = tile.querySelector('.splatter-box'); // Query for the .splatter-box element
+
+                            front.textContent = letter;
+                            back.textContent = letter;
+                            back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
+                            
+                            // If the game was lost, show the splatter effect
+                            if (gameLost && splatterBox) {
+                                splatterBox.style.display = 'block';
+                                splatterBox.style.opacity = '1';
                             }
+
+                            setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
                         }
-                    });
-                }
+                    }
+                });
             });
 
-            // Additional handling for word content, hint text, and failure/success display
-            // (Omitted for brevity, but include the logic you've already provided for updating these elements)
+            // Handle displaying word content, hint, and game outcome message
+            // This is where you'd set the content for .word-content and .hint-text, and handle showing .failure or .success divs
+            // (Please refer to your previous logic for updating these elements)
         } else {
             // If no game data for today, consider initializing new game or other handling
         }
