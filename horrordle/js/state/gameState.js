@@ -19,8 +19,10 @@ class GameState {
         this.loadGameDetails();
         // Directly display stats on page load
         uiUpdater.updateStatsDisplay(this.stats);
-        this.gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
-        this.gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+        const gameGuessLettersFromStorage = localStorage.getItem('gameGuessLetters');
+        const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
+        this.gameGuessLetters = gameGuessLettersFromStorage ? JSON.parse(gameGuessLettersFromStorage) : [];
+        this.gameGuessColors = gameGuessColorsFromStorage ? JSON.parse(gameGuessColorsFromStorage) : [];
 
     }
 
