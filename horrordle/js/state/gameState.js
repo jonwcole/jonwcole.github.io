@@ -221,10 +221,11 @@ class GameState {
             });
 
             // Safely update the Word of the Day and Hint of the Day
-            const word = document.getElementById('word-content');
+
+            const wordElement = document.getElementById('word-content');
             const wordOfTheDay = this.wordOfTheDay;
-            if (word) {
-                word.textContent = wordOfTheDay;
+            if (wordElement) {
+                wordElement.textContent = word; // Use the variable word, not wordElement
             } else {
                 console.error('#word-content element not found');
             }
