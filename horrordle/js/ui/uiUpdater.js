@@ -132,6 +132,13 @@ const uiUpdater = {
         document.getElementById('current-streak').textContent = stats.currentStreak || 0;
         document.getElementById('max-streak').textContent = stats.maxStreak || 0;
 
+        const gamesPlayedElement = document.getElementById('games-played');
+        if (gamesPlayedElement) {
+        gamesPlayedElement.textContent = stats.gamesPlayed;
+        } else {
+        console.error("Failed to find games played element");
+        }
+
         // Remove the .correct class from all guess bars first
         const guessBars = document.querySelectorAll('.guess-bar');
         guessBars.forEach(bar => bar.classList.remove('correct'));
@@ -154,6 +161,7 @@ const uiUpdater = {
                 }
             }
         });
+
     },
     updateGuessDistribution(stats) {
         const totalWins = Object.values(stats.guessDistribution).reduce((total, num) => total + num, 0);
