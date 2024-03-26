@@ -183,7 +183,7 @@ class GameState {
         // And potentially other preparation logic...
     }
 
-    restoreGameState() {
+    restoreGameState(wordOfTheDay, hintOfTheDay) {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
