@@ -218,12 +218,23 @@ class GameState {
                 });
             });
 
-            // Update the Word of the Day and Hint of the Day
+            // Safely update the Word of the Day and Hint of the Day
             const wordElement = document.getElementById('word-content');
+            if (wordElement) {
+                wordElement.textContent = this.wordOfTheDay;
+            } else {
+                console.error('#word-content element not found');
+            }
+
             const hintElement = document.getElementById('hint-text');
+            if (hintElement) {
+                hintElement.textContent = this.hintOfTheDay;
+            } else {
+                console.error('#hint-text element not found');
+            }
 
             // Display the failure or word reveal and hint elements
-            const wordContainer = localStorage.getItem('gameOutcome') === 'lost' ? document.getElementById('failure') : document.getElementById('word-reveal');
+            const wordContainer = document.getElementById('word-reveal');
             if (wordContainer) {
                 wordContainer.style.display = 'flex';
                 setTimeout(() => {
