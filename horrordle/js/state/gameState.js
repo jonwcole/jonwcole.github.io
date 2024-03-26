@@ -187,11 +187,11 @@ class GameState {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
-        // Proceed only if the game date matches today
         if (gameDate === today) {
             this.isGameOver = true;
             this.disableInput();
 
+            // Restore the guesses to the UI
             this.gameGuessLetters.forEach((letters, attemptIndex) => {
                 if (Array.isArray(letters)) {
                     letters.forEach((letter, letterIndex) => {
@@ -202,11 +202,9 @@ class GameState {
                             if (tile) {
                                 tile.querySelector('.front').textContent = letter;
                                 const back = tile.querySelector('.back');
-                                back.textContent = letter;
                                 back.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
                                 setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
 
-                                // Check if the game outcome was a loss to apply the splatter effect
                                 if (localStorage.getItem('gameOutcome') === 'lost') {
                                     const splatterBox = tile.querySelector('.splatter-box');
                                     if (splatterBox) {
@@ -220,21 +218,33 @@ class GameState {
                 }
             });
 
-            document.getElementById('word-content').textContent = this.wordOfTheDay;
-            document.getElementById('hint-text').textContent = this.hintOfTheDay;
+            // Safely update .word-content
+            const wordContentElement = document.getElementById('word-content');
+            if (wordContentElement) {
+                wordContentElement.textContent = this.wordOfTheDay;
+            } else {
+                console.error('.word-content element not found');
+            }
 
-            // Additional logic for handling gameOutcome
+            // Safely update .hint-text
+            const hintTextElement = document.getElementById('hint-text');
+            if (hintTextElement) {
+                hintTextElement.textContent = this.hintOfTheDay;
+            } else {
+                console.error('.hint-text element not found');
+            }
+
+            // Additional logic for when the last game was a loss
             if (localStorage.getItem('gameOutcome') === 'lost') {
                 document.getElementById('failure').style.display = 'block';
                 document.getElementById('hint').style.display = 'block';
-                // Show all splatter boxes if the game was lost
                 document.querySelectorAll('.tile .splatter-box').forEach(splatterBox => {
                     splatterBox.style.display = 'block';
                     splatterBox.style.opacity = '1';
                 });
             }
         } else {
-            // If there's no game data for today, consider initializing a new game or handling as needed
+            // If no game data for today, consider initializing new game or other handling
         }
     }
 
