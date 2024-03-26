@@ -15,32 +15,14 @@ class GameState {
             guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
             lastPlayedDate: '',
         };
-
-        // Ensure methods are bound to the instance
-        this.saveStats = this.saveStats.bind(this);
-        this.updateStats = this.updateStats.bind(this);
-        this.endGame = this.endGame.bind(this);
-
         this.loadStats();
         this.loadGameDetails();
         // Directly display stats on page load
         uiUpdater.updateStatsDisplay(this.stats);
-
-        const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
-        if (gameGuessColorsFromStorage) {
-            this.gameGuessColors = JSON.parse(gameGuessColorsFromStorage);
-        } else {
-            // Initialize gameGuessColors to a default value if not found in localStorage
-        }
-
         const gameGuessLettersFromStorage = localStorage.getItem('gameGuessLetters');
-        if (gameGuessLettersFromStorage) {
-            this.gameGuessLetters = JSON.parse(gameGuessLettersFromStorage);
-        } else {
-            // Initialize gameGuessLetters to a default value if not found in localStorage
-        }
-
-        this.loadGameState();
+        const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
+        this.gameGuessLetters = gameGuessLettersFromStorage ? JSON.parse(gameGuessLettersFromStorage) : [];
+        this.gameGuessColors = gameGuessColorsFromStorage ? JSON.parse(gameGuessColorsFromStorage) : [];
 
     }
 
@@ -71,22 +53,11 @@ class GameState {
         }
     }
 
-    loadGameState() {
-        const gameGuessLetters = localStorage.getItem('gameGuessLetters');
-        const gameGuessColors = localStorage.getItem('gameGuessColors');
-
-        this.gameGuessLetters = gameGuessLetters ? JSON.parse(gameGuessLetters) : [];
-        this.gameGuessColors = gameGuessColors ? JSON.parse(gameGuessColors) : [];
-
-        // Handle other state loading here...
-    }
-
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
         this.reset(); // Reset the game state for a new game
         this.wordOfTheDay = wordOfTheDay.toUpperCase();
         this.hintOfTheDay = hintOfTheDay;
         this.dictionary = dictionary; // Assuming the dictionary is passed here or loaded before calling this method
-        this.updateGameUI();
     }
 
     removeLastLetter() {
@@ -136,6 +107,21 @@ class GameState {
             // Prepare for the next guess
             this.currentGuess = [];
         }
+    }
+
+    // Assuming you have an endGame method in your GameState class
+    endGame(won, uiUpdater) {
+        // Set game over state
+        this.isGameOver = true;
+        this.updateStats(won);
+
+        // Depending on the outcome, show the end game message
+        setTimeout(() => {
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+        }, 2500); // Use a delay to allow for any animations or transitions
+
+        // Disable further input if necessary
+        this.disableInput();
     }
 
     compareGuess(guess) {
@@ -198,118 +184,37 @@ class GameState {
     }
 
     restoreGameState() {
-        // Load stored game state from localStorage
-        const gameOutcome = localStorage.getItem('gameOutcome'); // 'won', 'lost', or null if the game wasn't completed
-        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
-        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-
-        // Restore guesses and their outcomes to the game state
-        this.guesses = gameGuessLetters;
-        this.guessOutcome = gameGuessColors; // Make sure to adapt this to how you're tracking guess results in your state
-
-        // Replay the restored guesses on the UI
-        this.replayGuesses(gameGuessLetters, gameGuessColors);
-
-        // If the game was completed, disable further input and show the outcome
-        if (gameOutcome) {
-            this.isGameOver = true;
-            this.disableInput();
-
-            const won = gameOutcome === 'won';
-
-            // Display the hint since the game was completed
-            const hintTextElement = document.querySelector('.hint-text');
-            if (hintTextElement) {
-                hintTextElement.textContent = this.hintOfTheDay;
-            }
-            const hintDivElement = document.querySelector('.hint');
-            if (hintDivElement) {
-                hintDivElement.style.display = 'block';
-                setTimeout(() => hintDivElement.style.opacity = 1, 100); // Ensures smooth fade-in
-            }
-            
-            // Delay UI updates slightly to ensure the DOM is fully ready
-            setTimeout(() => {
-                if (won) {
-                    // Winning logic, if any specific actions needed
-                } else {
-                    // Show failure message for a lost game
-                    const failureDiv = document.querySelector('.failure');
-                    if (failureDiv) {
-                        failureDiv.style.display = 'flex';
-                        setTimeout(() => failureDiv.style.opacity = 1, 100); // Ensures smooth fade-in
-                    }
-
-                    // Display blood splatter effect in case of loss
-                    document.querySelectorAll('.splatter-box').forEach(box => {
-                        box.style.display = 'block';
-                        setTimeout(() => box.style.opacity = 1, 100);
-                    });
-                }
-                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-                // Optionally, also refresh the stats display
-                uiUpdater.updateStatsDisplay(this.stats);
-            }, 0);
-        }
-
-        this.updateGameUI();
+        // Logic to restore game state based on saved details...
     }
 
-    updateGameUI() {
-        // Update the word of the day display
-        const wordContentElement = document.querySelector('.word-content');
-        if (wordContentElement) {
-            wordContentElement.textContent = this.wordOfTheDay;
-        }
+    endGame(won, uiUpdater) {
+        const today = new Date().toISOString().slice(0, 10);
 
-        // Update the hint display
-        const hintTextElement = document.querySelector('.hint-text');
-        if (hintTextElement) {
-            hintTextElement.textContent = this.hintOfTheDay;
-        }
+        // Update game outcome
+        const gameOutcome = won ? "won" : "lost";
+        localStorage.setItem('gameOutcome', gameOutcome);
 
-        // Call additional UI update methods as needed, such as for guesses
-        // For example:
-        // this.replayGuesses(this.gameGuessLetters, this.gameGuessColors);
-    }
+        // Save the game date
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('gameDate', today);
 
-    replayGuesses(guessLetters, guessColors) {
-        guessLetters.forEach((guess, attemptIndex) => {
-            // Ensure guess is treated as an array of letters
-            const letters = Array.from(guess);
-            
-            const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-            if (!currentRow || !guessColors[attemptIndex]) return;
+        // Update stats and save them
+        this.updateStats(won, this.guesses.length);
 
-            const tiles = currentRow.querySelectorAll('.tile');
-            letters.forEach((letter, letterIndex) => {
-                if (tiles[letterIndex]) {
-                    const tile = tiles[letterIndex];
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back');
-                    const backText = tile.querySelector('.back-text');
+        // Save updated stats to localStorage immediately after updating
+        this.saveStats();
 
-                    front.textContent = letter;
-                    backText.textContent = letter;
-                    
-                    const resultClass = guessColors[attemptIndex][letterIndex];
-                    back.classList.add(resultClass);
+        this.isGameOver = true;
 
-                    tile.classList.add('flipped');
-                }
-            });
-        });
-    }
+        // Disable further input as game is over
+        this.disableInput();
 
-    loadStats() {
-        const statsFromStorage = localStorage.getItem('stats');
-        if (statsFromStorage) {
-            this.stats = JSON.parse(statsFromStorage);
-        }
-    }
-
-    saveStats() {
-        localStorage.setItem('stats', JSON.stringify(this.stats));
+        // Use a delay to allow for animations or other UI updates before showing the end game message
+        setTimeout(() => {
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+            // Refresh stats UI
+            uiUpdater.updateStatsDisplay(this.stats);
+        }, 2500);
     }
 
     updateStats(won, guessCount) {
@@ -333,39 +238,16 @@ class GameState {
         this.saveStats();
     }
 
-    endGame(won, uiUpdater) {
+    loadStats() {
+    const statsFromStorage = localStorage.getItem('stats');
+    if (statsFromStorage) {
+      this.stats = JSON.parse(statsFromStorage);
+      console.log("Loaded stats:", this.stats); // Verify the loaded stats
+    }
+    }
 
-        // Update game outcome
-        const gameOutcome = won ? "won" : "lost";
-        localStorage.setItem('gameOutcome', gameOutcome);
-
-        // Save the game date
-        const today = new Date().toISOString().slice(0, 10);
-        localStorage.setItem('gameDate', today);
-
-        const gameGuessLetters = this.guesses;
-        const gameGuessColors = this.guesses.map(guess => this.compareGuess(guess));
-
-        localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
-        localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
-
-        // Update stats and save them
-        this.updateStats(won, this.currentAttempt);
-
-        // Save updated stats to localStorage immediately after updating
-        this.saveStats();
-
-        this.isGameOver = true;
-
-        // Disable further input as game is over
-        this.disableInput();
-
-        // Use a delay to allow for animations or other UI updates before showing the end game message
-        setTimeout(() => {
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-            // Refresh stats UI
-            uiUpdater.updateStatsDisplay(this.stats);
-        }, 2500);
+    saveStats() {
+        localStorage.setItem('stats', JSON.stringify(this.stats));
     }
 
     disableInput() {
