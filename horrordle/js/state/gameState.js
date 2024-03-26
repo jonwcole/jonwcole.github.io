@@ -1,4 +1,4 @@
-import { uiUpdater } from './path/to/uiUpdater.js';
+import { uiUpdater } from '../ui/uiUpdater.js';
 
 class GameState {
     constructor() {
