@@ -227,8 +227,11 @@ class GameState {
     }
 
     loadStats() {
-        const statsFromStorage = localStorage.getItem('stats');
-        return statsFromStorage ? JSON.parse(statsFromStorage) : null;
+    const statsFromStorage = localStorage.getItem('stats');
+    if (statsFromStorage) {
+      this.stats = JSON.parse(statsFromStorage);
+      console.log("Loaded stats:", this.stats); // Verify the loaded stats
+    }
     }
 
     saveStats() {
