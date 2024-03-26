@@ -188,7 +188,6 @@ class GameState {
     }
 
     endGame(won, uiUpdater) {
-        const today = new Date().toISOString().slice(0, 10);
 
         // Update game outcome
         const gameOutcome = won ? "won" : "lost";
