@@ -189,12 +189,22 @@ class GameState {
         // Update stats and save them
         this.updateStats(won);
 
-        this.isGameOver = true;
-        setTimeout(() => {
-            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
-        }, 2500);
+        // Save updated stats to localStorage immediately after updating
+        this.saveStats();
 
+        this.isGameOver = true;
+
+        // Disable further input as game is over
         this.disableInput();
+
+        // Use a delay to allow for animations or other UI updates before showing the end game message
+        setTimeout(() => {
+            // Ensure the UI is updated to reflect the end of the game
+            uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+
+            // Additionally, if there's a method to refresh the stats display, it should be called here
+            uiUpdater.updateStatsDisplay(this.stats);
+        }, 2500);
     }
 
 }
