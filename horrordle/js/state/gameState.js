@@ -343,6 +343,12 @@ class GameState {
 
     disableInput() {
         this.inputEnabled = false;
+        // Assuming your keys have a common class name 'key'
+        const keys = document.querySelectorAll('.key');
+        keys.forEach(key => {
+            key.setAttribute('disabled', true); // Disables the button
+            key.classList.add('disabled'); // Optionally add a 'disabled' class for styling
+        });
     }
 
 }
