@@ -191,7 +191,41 @@ class GameState {
     }
 
     restoreGameState() {
-        // Logic to restore game state based on saved details...
+        // Load stored game state from localStorage
+        const gameOutcome = localStorage.getItem('gameOutcome'); // 'won', 'lost', or null if the game wasn't completed
+        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+
+        // Restore guesses and their outcomes to the game state
+        this.guesses = gameGuessLetters;
+        this.guessOutcome = gameGuessColors; // Make sure to adapt this to how you're tracking guess results in your state
+
+        // Replay the restored guesses on the UI
+        this.replayGuesses(gameGuessLetters, gameGuessColors);
+
+        // If the game was completed, disable further input and show the outcome
+        if (gameOutcome) {
+            this.isGameOver = true;
+            this.disableInput();
+
+            const won = gameOutcome === 'won';
+            // Since this logic is running on page load, consider delaying UI updates slightly to ensure the DOM is ready
+            setTimeout(() => {
+                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+                // Optionally, also refresh the stats display
+                uiUpdater.updateStatsDisplay(this.stats);
+            }, 0);
+        }
+    }
+
+    replayGuesses(guessLetters, guessColors) {
+        // Iterate through the guesses and colors to update the UI
+        guessLetters.forEach((letters, index) => {
+            const guess = letters.join('');
+            const result = guessColors[index];
+            // You might have a method to update the UI for a single guess
+            uiUpdater.markGuessResult(index, guess, result, this);
+        });
     }
 
     endGame(won, uiUpdater) {
