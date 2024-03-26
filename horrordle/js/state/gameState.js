@@ -186,6 +186,8 @@ class GameState {
     restoreGameState(wordOfTheDay, hintOfTheDay) {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
+        this.wordOfTheDay = wordOfTheDay;
+        this.hintOfTheDay = hintOfTheDay;
 
         if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
             this.isGameOver = true;
