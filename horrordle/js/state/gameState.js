@@ -86,6 +86,7 @@ class GameState {
         this.wordOfTheDay = wordOfTheDay.toUpperCase();
         this.hintOfTheDay = hintOfTheDay;
         this.dictionary = dictionary; // Assuming the dictionary is passed here or loaded before calling this method
+        this.updateGameUI();
     }
 
     removeLastLetter() {
@@ -222,6 +223,26 @@ class GameState {
                 uiUpdater.updateStatsDisplay(this.stats);
             }, 0);
         }
+
+        this.updateGameUI();
+    }
+
+    updateGameUI() {
+        // Update the word of the day display
+        const wordContentElement = document.querySelector('.word-content');
+        if (wordContentElement) {
+            wordContentElement.textContent = this.wordOfTheDay;
+        }
+
+        // Update the hint display
+        const hintTextElement = document.querySelector('.hint-text');
+        if (hintTextElement) {
+            hintTextElement.textContent = this.hintOfTheDay;
+        }
+
+        // Call additional UI update methods as needed, such as for guesses
+        // For example:
+        // this.replayGuesses(this.gameGuessLetters, this.gameGuessColors);
     }
 
     replayGuesses(guessLetters, guessColors) {
