@@ -225,10 +225,12 @@ class GameState {
     }
 
     replayGuesses(guessLetters, guessColors) {
-        guessLetters.forEach((letters, attemptIndex) => {
-            // Assuming there's a way to select each row based on the attempt index
+        guessLetters.forEach((guess, attemptIndex) => {
+            // Ensure guess is treated as an array of letters
+            const letters = Array.from(guess);
+            
             const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-            if (!currentRow) return;
+            if (!currentRow || !guessColors[attemptIndex]) return;
 
             const tiles = currentRow.querySelectorAll('.tile');
             letters.forEach((letter, letterIndex) => {
@@ -238,15 +240,12 @@ class GameState {
                     const back = tile.querySelector('.back');
                     const backText = tile.querySelector('.back-text');
 
-                    // Set the letter on both sides of the tile
                     front.textContent = letter;
                     backText.textContent = letter;
-
-                    // Add the result class to the .back element
+                    
                     const resultClass = guessColors[attemptIndex][letterIndex];
                     back.classList.add(resultClass);
 
-                    // Immediately flip the tiles without delay
                     tile.classList.add('flipped');
                 }
             });
