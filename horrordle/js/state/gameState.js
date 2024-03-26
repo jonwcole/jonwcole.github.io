@@ -229,6 +229,10 @@ class GameState {
         }, 2500);
     }
 
+    saveStats() {
+        localStorage.setItem('stats', JSON.stringify(this.stats));
+    }
+
     updateStats(won, guessCount) {
         const today = new Date().toISOString().slice(0, 10);
         this.stats.gamesPlayed++;
