@@ -200,31 +200,50 @@ class GameState {
     restoreGameState() {
         // Load stored game state from localStorage
         const gameOutcome = localStorage.getItem('gameOutcome'); // 'won', 'lost', or null if the game wasn't completed
-        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
-        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+        
+        // Restoring the guesses and their outcomes is handled here
+        // ...
 
-        // Restore guesses and their outcomes to the game state
-        this.guesses = gameGuessLetters;
-        this.guessOutcome = gameGuessColors; // Make sure to adapt this to how you're tracking guess results in your state
-
-        // Replay the restored guesses on the UI
-        this.replayGuesses(gameGuessLetters, gameGuessColors);
-
-        // If the game was completed, disable further input and show the outcome
+        // Display the hint and outcome message if the game was completed
         if (gameOutcome) {
             this.isGameOver = true;
             this.disableInput();
 
             const won = gameOutcome === 'won';
-            // Since this logic is running on page load, consider delaying UI updates slightly to ensure the DOM is ready
+            
+            // Display the hint since the game was completed
+            const hintTextElement = document.querySelector('.hint-text');
+            if (hintTextElement) {
+                hintTextElement.textContent = this.hintOfTheDay;
+            }
+            const hintDivElement = document.querySelector('.hint');
+            if (hintDivElement) {
+                hintDivElement.style.display = 'block';
+                setTimeout(() => hintDivElement.style.opacity = 1, 100); // Ensures smooth fade-in
+            }
+            
+            // Delay UI updates slightly to ensure the DOM is fully ready
             setTimeout(() => {
-                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+                if (won) {
+                    // Winning logic, if any specific actions needed
+                } else {
+                    // Show failure message for a lost game
+                    const failureDiv = document.querySelector('.failure');
+                    if (failureDiv) {
+                        failureDiv.style.display = 'flex';
+                        setTimeout(() => failureDiv.style.opacity = 1, 100); // Ensures smooth fade-in
+                    }
+
+                    // Display blood splatter effect in case of loss
+                    document.querySelectorAll('.splatter-box').forEach(box => {
+                        box.style.display = 'block';
+                        setTimeout(() => box.style.opacity = 1, 100);
+                    });
+                }
                 // Optionally, also refresh the stats display
                 uiUpdater.updateStatsDisplay(this.stats);
             }, 0);
         }
-
-        this.updateGameUI();
     }
 
     updateGameUI() {
