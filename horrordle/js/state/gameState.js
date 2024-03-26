@@ -15,6 +15,8 @@ class GameState {
         };
         this.loadStats();
         this.loadGameDetails();
+        // Directly display stats on page load
+        uiUpdater.updateStatsDisplay(this.stats);
     }
 
     reset() {
