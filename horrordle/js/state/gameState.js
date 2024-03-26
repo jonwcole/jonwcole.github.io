@@ -228,9 +228,21 @@ class GameState {
                 });
             });
 
-            // Update the word content, hint, and message displays based on game outcome
-            document.querySelector('.word-content').textContent = this.wordOfTheDay;
-            document.querySelector('.hint-text').textContent = this.hintOfTheDay;
+            // Safely update .word-content
+            const wordContentElement = document.querySelector('.word-content');
+            if (wordContentElement) {
+                wordContentElement.textContent = this.wordOfTheDay;
+            } else {
+                console.error('.word-content element not found');
+            }
+
+            // Safely update .hint-text
+            const hintTextElement = document.querySelector('.hint-text');
+            if (hintTextElement) {
+                hintTextElement.textContent = this.hintOfTheDay;
+            } else {
+                console.error('.hint-text element not found');
+            }
 
             if (localStorage.getItem('gameOutcome') === 'lost') {
                 document.querySelector('.failure').style.display = 'block';
