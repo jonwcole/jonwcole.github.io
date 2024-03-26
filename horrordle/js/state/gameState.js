@@ -187,8 +187,6 @@ class GameState {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
 
-        console.log(this.hintOfTheDay);
-
         if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
             this.isGameOver = true;
             this.disableInput();
@@ -221,19 +219,16 @@ class GameState {
             });
 
             // Safely update the Word of the Day and Hint of the Day
-
             const wordElement = document.getElementById('word-content');
-            const wordOfTheDay = this.wordOfTheDay;
             if (wordElement) {
-                wordElement.textContent = word; // Use the variable word, not wordElement
+                wordElement.textContent = this.wordOfTheDay;
             } else {
                 console.error('#word-content element not found');
             }
 
             const hintElement = document.getElementById('hint-text');
-            const hint = this.hintOfTheDay;
             if (hintElement) {
-                hintElement.textContent = hintElement;
+                hintElement.textContent = this.hintOfTheDay;
             } else {
                 console.error('#hint-text element not found');
             }
