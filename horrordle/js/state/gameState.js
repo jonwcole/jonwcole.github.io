@@ -220,8 +220,21 @@ class GameState {
                 }
             });
 
-            document.getElementById('word-content').textContent = this.wordOfTheDay;
-            document.getElementById('hint-text').textContent = this.hintOfTheDay;
+            // Safely update .word-content
+            const wordContentElement = document.getElementById('word-content');
+            if (wordContentElement) {
+                wordContentElement.textContent = this.wordOfTheDay;
+            } else {
+                console.error('.word-content element not found');
+            }
+
+            // Safely update .hint-text
+            const hintTextElement = document.getElementById('hint-text');
+            if (hintTextElement) {
+                hintTextElement.textContent = this.hintOfTheDay;
+            } else {
+                console.error('.hint-text element not found');
+            }
 
             // Additional logic for handling gameOutcome
             if (localStorage.getItem('gameOutcome') === 'lost') {
