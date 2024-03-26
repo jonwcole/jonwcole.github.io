@@ -184,43 +184,43 @@ class GameState {
     }
 
     restoreGameState() {
-        const gameOutcome = localStorage.getItem('gameOutcome');
-        const wordOfTheDay = this.wordOfTheDay; // Assuming this is set correctly elsewhere in your code
-        const hintOfTheDay = this.hintOfTheDay; // Assuming this is set correctly elsewhere in your code
+        const gameDate = localStorage.getItem('gameDate');
+        const today = new Date().toISOString().slice(0, 10);
 
-        // Restore words and hints
-        const wordContents = document.querySelectorAll('.word-content');
-        wordContents.forEach(element => {
-            element.textContent = wordOfTheDay;
-        });
+        if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
+            this.isGameOver = true;
+            this.disableInput();
 
-        const hintText = document.getElementById('hint-text');
-        if (hintText) {
-            hintText.textContent = hintOfTheDay;
-        }
-
-        // Restore game tiles based on saved guesses
-        this.gameGuessLetters.forEach((letters, attemptIndex) => {
-            letters.forEach((letter, letterIndex) => {
-                const tileRow = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
-                if (tileRow) {
-                    const tile = tileRow.querySelectorAll('.tile')[letterIndex];
-                    if (tile) {
-                        tile.querySelector('.front').textContent = letter;
-                        const back = tile.querySelector('.back');
-                        back.classList.add(this.gameGuessColors[attemptIndex][letterIndex]); // Add the correct class based on the outcome
-                        tile.classList.add('flipped');
+            // Ensure both are arrays to safely use forEach
+            if (Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
+                this.gameGuessLetters.forEach((letters, attemptIndex) => {
+                    // Make sure letters is always an array here
+                    if (!Array.isArray(letters)) {
+                        console.error('Expected letters to be an array', letters);
+                        return; // Skip this iteration if letters isn't an array
                     }
-                }
-            });
-        });
 
-        // Display the appropriate message based on the game's outcome
-        if (gameOutcome === 'lost') {
-            document.getElementById('failure').style.display = 'flex'; // Show the failure message
-            document.getElementById('hint').style.display = 'block'; // Ensure the hint is visible
-        } else if (gameOutcome === 'won') {
-            document.getElementById('success').style.display = 'flex'; // Show the success message
+                    letters.forEach((letter, letterIndex) => {
+                        // Restore the tiles with letters and classes
+                        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                        if (row) {
+                            const tiles = row.querySelectorAll('.tile');
+                            const tile = tiles[letterIndex];
+                            if (tile) {
+                                const back = tile.querySelector('.back');
+                                // Assuming letters and colors are correctly aligned
+                                back.classList.add(this.gameGuessColors[attemptIndex][letterIndex]); 
+                                tile.classList.add('flipped');
+                            }
+                        }
+                    });
+                });
+
+                // Additional UI updates for word content, hint, and message displays based on game outcome
+                // These should be similarly guarded to ensure the elements exist before attempting to update them.
+            }
+        } else {
+            // Consider initializing a new game if no saved state matches today
         }
     }
 
