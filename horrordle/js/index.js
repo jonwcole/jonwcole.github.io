@@ -8,11 +8,28 @@ import './logic/inputHandler.js';
 async function initializeGame() {
     await dataManager.loadDictionary();
     await dataManager.loadDailyWord();
-    gameState.loadGameDetails(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
-    gameState.init(uiUpdater); // Configures the gameState with uiUpdater
+    const existingGameData = gameState.loadExistingGameData();
 
-    gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
-    uiUpdater.updateStatsDisplay(gameState.stats); // Update UI with the initial or restored game state
+    const scenario = gameState.determineScenario(existingGameData); // Implement this
+
+    switch(scenario) {
+        case 'FIRST_TIME_USER':
+            gameState.startNewGame(dataManager.dailyWord, dataManager.hint);
+            break;
+        case 'UNFINISHED_SAME_DAY':
+            gameState.restoreUnfinishedGame();
+            break;
+        case 'FINISHED_SAME_DAY':
+            gameState.restoreFinishedGame();
+            break;
+        case 'NEW_DAY':
+            gameState.startNewGame(dataManager.dailyWord, dataManager.hint);
+            break;
+        default:
+            console.log('Scenario not recognized:', scenario);
+            break;
+    }
+    uiUpdater.updateStatsDisplay(gameState.stats);
 }
 
 // Wait for the DOM to be fully loaded before initializing the game
