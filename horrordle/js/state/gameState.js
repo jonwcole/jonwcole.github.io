@@ -1,5 +1,3 @@
-import { uiUpdater } from '../ui/uiUpdater.js';
-
 class GameState {
     constructor() {
         this.dictionary = [];
