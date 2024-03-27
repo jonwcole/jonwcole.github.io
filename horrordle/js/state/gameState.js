@@ -51,42 +51,12 @@ class GameState {
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        
-        // Example of retrieving saved word and hint (adjust according to your actual keys and data structure)
-        const savedWord = localStorage.getItem('savedWordOfTheDay');
-        const savedHint = localStorage.getItem('savedHintOfTheDay');
-        const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
 
-        if (gameDate === today && !isGameOver && savedWord && savedHint) {
-            // If there's a game from today that wasn't finished, restore its state
+        if (gameDate === today) {
+            // Logic to handle already played game...
             this.restoreGameState();
-        } else if (!gameDate || gameDate !== today) {
-            // If no game saved or the saved game is from a different day, start a new game
-            // Make sure savedWord and savedHint are defined before passing them
-            if(savedWord && savedHint) {
-                this.startNewGame(savedWord, savedHint, this.dictionary);
-            } else {
-                // Handle case where savedWord or savedHint are not available
-                console.error("No saved game data available for a new game.");
-                // Fallback or error handling logic goes here
-            }
-        }
-    }
-
-    
-
-    replaySavedGuesses() {
-        this.gameGuessLetters.forEach((guess, index) => {
-            const result = this.gameGuessColors[index];
-            // This function should exist in your UI handling logic to update the board
-            uiUpdater.markGuessResult(index, guess, result, true); // The last parameter indicates this is a restoration
-        });
-
-        // Make sure to restore the current attempt number
-        this.currentAttempt = this.gameGuessLetters.length;
-        // If there were any hints shown, ensure they're displayed again
-        if (this.hintDisplayed) {
-            uiUpdater.showHint(this.hintOfTheDay);
+        } else {
+            // Reset or start new game logic...
         }
     }
 
@@ -119,8 +89,6 @@ class GameState {
 
         localStorage.setItem('gameGuessLetters', JSON.stringify(this.gameGuessLetters));
         localStorage.setItem('gameGuessColors', JSON.stringify(this.gameGuessColors));
-        localStorage.setItem('isGameOver', JSON.stringify(this.isGameOver));
-
 
         // Increment attempt count
         this.currentAttempt++;
@@ -350,14 +318,6 @@ class GameState {
             // Refresh stats UI
             uiUpdater.updateStatsDisplay(this.stats);
         }, 2500);
-    }
-
-    showEndGameBasedOnOutcome(won) {
-        const endGameMessage = won ? "Congratulations! You've won." : "Game over. Better luck next time!";
-        // Display the end game message in the UI
-        uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay, endGameMessage);
-
-        // Optionally, handle any other UI adjustments needed for a completed game
     }
 
     updateStats(won, guessCount) {
