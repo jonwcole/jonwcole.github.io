@@ -22,10 +22,8 @@ const uiUpdater = {
             backText.textContent = gameState.currentGuess[index] || '';
         });
     },
-    showInvalidGuessMessage() {
-        // Implementation to show an invalid guess message to the player
-        console.error("Invalid guess. Please try a word from the dictionary.");
-        // Ideally, this would update the DOM to display the message visibly to the player
+    showInvalidGuessMessage(message = "Invalid guess. Please try a word from the dictionary.") {
+        // Update DOM to display this message visibly to the player
     },
     markGuessResult(attempt, guess, result) {
         console.log(gameState);
