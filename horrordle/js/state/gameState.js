@@ -24,7 +24,7 @@ class GameState {
 
     }
 
-    init() {
+    init(uiUpdater) {
     // Now it's safe to use uiUpdater since this method will be called later
     uiUpdater.updateStatsDisplay(this.stats);
     }
