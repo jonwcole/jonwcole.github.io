@@ -55,49 +55,38 @@ class GameState {
         this.uiUpdater = updater;
     }
 
-    loadGameDetails(dailyWord, dailyHint, dictionary) {
+    loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        const savedWord = localStorage.getItem('savedWordOfTheDay');
-        const savedHint = localStorage.getItem('savedHintOfTheDay');
-        this.isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
-
-        // Scenario #1: Continue an unfinished game from today
-        if (gameDate === today && !this.isGameOver && this.gameGuessLetters.length > 0) {
-            console.log("Restoring an unfinished game.");
-            this.restoreGameState(); // This assumes restoreGameState method is already correctly implemented
-        }
-        // Scenario #2: Starting or restoring a game for today with savedWord and savedHint
-        else if (gameDate === today && (savedWord && savedHint)) {
-            console.log("Starting/restoring today's game with saved daily word and hint.");
-            this.startNewGame(savedWord, savedHint, this.dictionary);
+        
+        // Determine if a game state exists for today
+        const gameStateExists = gameDate === today;
+        const unfinishedGame = gameStateExists && !JSON.parse(localStorage.getItem('isGameOver') || 'false');
+        
+        if (unfinishedGame) {
+            console.log("Restoring an unfinished game from today.");
             this.restoreGameState();
-        }
-        // Scenario #3: Start a new game for today
-        else if (!gameDate || gameDate !== today) {
+        } else if (gameStateExists) {
+            console.log("Game from today is already finished. Load results or wait for the next game.");
+            this.loadFinishedGameState();
+        } else {
             console.log("Starting a new game for today.");
-            this.startNewGame(dailyWord, dailyHint, dictionary);
-            // Save the new game details
-            localStorage.setItem('gameDate', today);
-            localStorage.setItem('savedWordOfTheDay', dailyWord);
-            localStorage.setItem('savedHintOfTheDay', dailyHint);
-            localStorage.setItem('isGameOver', 'false');
-            localStorage.removeItem('gameGuessLetters');
-            localStorage.removeItem('gameGuessColors');
-            this.reset(); // Ensure the game state is reset for a new game
+            this.startNewDay();
         }
-        // Add any additional scenarios as needed
     }
 
-    startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
-        this.reset();
-        if (!wordOfTheDay || !hintOfTheDay) {
-            console.error("Cannot start game without word of the day or hint.");
-            // Add fallback logic here, e.g., set default values or handle error
-            return;
-        }
+    loadFinishedGameState() {
+        // Handle the display of a finished game's state
+        this.isGameOver = true;
+        this.disableInput();
+        // Additional UI updates as necessary
+    }
 
-        // Game initialization logic continues as normal...
+    startNewDay() {
+        // Logic to start a new game
+        // Ensure you reset any persistent storage as needed and start fresh
+        this.reset();
+        // Setup for new game goes here
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
@@ -232,35 +221,16 @@ class GameState {
         // And potentially other preparation logic...
     }
 
-restoreGameState() {
-    const gameDate = localStorage.getItem('gameDate');
-    const today = new Date().toISOString().slice(0, 10);
-    // Use a more reliable way to determine if the game was finished.
-    this.isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
-    
-    // Only disable input if the game was actually finished.
-    if (this.isGameOver) {
-        this.disableInput();
-    }
-
-    if (gameDate === today && this.gameGuessLetters.length) {
-        // Restore guesses on the board
-        this.replaySavedGuesses();
+    restoreGameState() {
+        // Restore the game state for an unfinished game
+        this.gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
+        this.gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
+        this.currentAttempt = this.gameGuessLetters.length;
+        this.isGameOver = false;
         
-        // Additional UI updates based on game state
-        if (!this.isGameOver) {
-            // The game is not over; ensure UI is interactive and reflects the current state.
-        } else {
-            // The game was finished; update UI accordingly.
-            // For example, show word, hint, and any completion messages.
-            // Note: Adjust these based on your actual UI structure and IDs.
-            this.updateUIForFinishedGame(); // You might need to create this method.
-        }
-    } else {
-        // This branch could be for handling scenarios where there's no game to restore.
-        // E.g., start a new game or show a welcome screen.
+        // UI updates to reflect the restored state
+        this.replaySavedGuesses();
     }
-}
 
 replaySavedGuesses() {
     this.gameGuessLetters.forEach((letters, attemptIndex) => {
