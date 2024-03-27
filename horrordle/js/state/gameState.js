@@ -51,21 +51,28 @@ class GameState {
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        const isGameOver = JSON.parse(localStorage.getItem('isGameOver'));
+        const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
 
         if (gameDate === today) {
-            this.loadSavedGameState();
+            // Load game state here directly or call the method that does it
+            // Assuming `restoreGameState` method already exists and handles restoration
+            this.restoreGameState();
 
             if (isGameOver) {
                 // The game was completed, show the end game message based on the outcome
-                const gameOutcome = localStorage.getItem('gameOutcome'); // Assume you save 'won' or 'lost'
-                this.showEndGameBasedOnOutcome(gameOutcome === 'won');
+                const gameOutcome = localStorage.getItem('gameOutcome'); // 'won' or 'lost'
+                const won = gameOutcome === 'won';
+                this.isGameOver = true; // Ensure game state is consistent
+                // Display end game UI based on outcome
+                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
             } else {
-                // The game was incomplete, replay saved guesses to restore UI state
-                this.replaySavedGuesses();
+                // The game was not completed, continue from where left off
+                // Additional logic to continue the game goes here
+                // For example, restoring the UI to reflect the current state of the game
             }
         } else {
-            // No game data for today or the day has changed, start a new game
+            // No saved game or the date has changed
+            this.startNewGame(/* parameters for a new game */);
         }
     }
 
