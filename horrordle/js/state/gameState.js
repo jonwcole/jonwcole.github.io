@@ -144,7 +144,6 @@ class GameState {
 
         localStorage.setItem('gameGuessLetters', JSON.stringify(this.gameGuessLetters));
         localStorage.setItem('gameGuessColors', JSON.stringify(this.gameGuessColors));
-        localStorage.setItem('isGameOver', JSON.stringify(this.isGameOver));
 
 
         // Increment attempt count
