@@ -4,6 +4,7 @@ class GameState {
         this.reset();
         this.incorrectGuessCount = 0;
         this.inputEnabled = true;
+        this.uiUpdater = null;
         // Initialize stats
         this.stats = {
             gamesPlayed: 0,
@@ -15,18 +16,17 @@ class GameState {
         };
         this.loadStats();
         this.loadGameDetails();
-        // Directly display stats on page load
-        uiUpdater.updateStatsDisplay(this.stats);
+        // Directly display stats on page load -- REMOVE or MODIFY this line
         const gameGuessLettersFromStorage = localStorage.getItem('gameGuessLetters');
         const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
         this.gameGuessLetters = gameGuessLettersFromStorage ? JSON.parse(gameGuessLettersFromStorage) : [];
         this.gameGuessColors = gameGuessColorsFromStorage ? JSON.parse(gameGuessColorsFromStorage) : [];
-
     }
 
     init(uiUpdater) {
-    // Now it's safe to use uiUpdater since this method will be called later
-    uiUpdater.updateStatsDisplay(this.stats);
+        this.uiUpdater = uiUpdater; // Store uiUpdater reference
+        // Safe to use uiUpdater here
+        this.uiUpdater.updateStatsDisplay(this.stats);
     }
 
     reset() {
