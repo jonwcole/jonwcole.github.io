@@ -52,18 +52,35 @@ class GameState {
     loadGameDetails(dailyWord, dailyHint, dictionary) {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
+        const savedWord = localStorage.getItem('savedWordOfTheDay');
+        const savedHint = localStorage.getItem('savedHintOfTheDay');
+        this.isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
 
-        if (gameDate === today && !isGameOver) {
-            // An unfinished game from today exists; restore its state.
-            this.restoreGameState();
-        } else if (gameDate !== today || !gameDate) {
-            // No game for today, or the saved game is from a different day; start a new game.
-            this.startNewGame(dataManager.dailyWord, dataManager.hint, this.dictionary);
-            // Update localStorage to reflect the new game status.
-            localStorage.setItem('gameDate', today);
-            localStorage.setItem('isGameOver', JSON.stringify(false));
+        // Scenario #1: Continue an unfinished game from today
+        if (gameDate === today && !this.isGameOver && this.gameGuessLetters.length > 0) {
+            console.log("Restoring an unfinished game.");
+            this.restoreGameState(); // This assumes restoreGameState method is already correctly implemented
         }
+        // Scenario #2: Starting or restoring a game for today with savedWord and savedHint
+        else if (gameDate === today && (savedWord && savedHint)) {
+            console.log("Starting/restoring today's game with saved daily word and hint.");
+            this.startNewGame(savedWord, savedHint, this.dictionary);
+            this.restoreGameState();
+        }
+        // Scenario #3: Start a new game for today
+        else if (!gameDate || gameDate !== today) {
+            console.log("Starting a new game for today.");
+            this.startNewGame(dailyWord, dailyHint, dictionary);
+            // Save the new game details
+            localStorage.setItem('gameDate', today);
+            localStorage.setItem('savedWordOfTheDay', dailyWord);
+            localStorage.setItem('savedHintOfTheDay', dailyHint);
+            localStorage.setItem('isGameOver', 'false');
+            localStorage.removeItem('gameGuessLetters');
+            localStorage.removeItem('gameGuessColors');
+            this.reset(); // Ensure the game state is reset for a new game
+        }
+        // Add any additional scenarios as needed
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
