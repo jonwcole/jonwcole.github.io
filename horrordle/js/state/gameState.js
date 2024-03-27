@@ -51,13 +51,33 @@ class GameState {
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
+        const isGameOver = JSON.parse(localStorage.getItem('isGameOver'));
 
         if (gameDate === today) {
-            // Logic to handle already played game...
-            this.restoreGameState();
+            this.loadSavedGameState();
+
+            if (isGameOver) {
+                // The game was completed, show the end game message based on the outcome
+                const gameOutcome = localStorage.getItem('gameOutcome'); // Assume you save 'won' or 'lost'
+                this.showEndGameBasedOnOutcome(gameOutcome === 'won');
+            } else {
+                // The game was incomplete, replay saved guesses to restore UI state
+                this.replaySavedGuesses();
+            }
         } else {
-            // Reset or start new game logic...
+            // No game data for today or the day has changed, start a new game
         }
+    }
+
+    replaySavedGuesses() {
+        this.gameGuessLetters.forEach((guess, index) => {
+            // Assuming you have a method to update the UI for a guess
+            const result = this.gameGuessColors[index];
+            uiUpdater.markGuessResult(index, guess, result);
+        });
+
+        // Update current attempt index based on loaded guesses
+        this.currentAttempt = this.gameGuessLetters.length;
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
@@ -89,6 +109,8 @@ class GameState {
 
         localStorage.setItem('gameGuessLetters', JSON.stringify(this.gameGuessLetters));
         localStorage.setItem('gameGuessColors', JSON.stringify(this.gameGuessColors));
+        localStorage.setItem('isGameOver', JSON.stringify(this.isGameOver));
+
 
         // Increment attempt count
         this.currentAttempt++;
@@ -318,6 +340,14 @@ class GameState {
             // Refresh stats UI
             uiUpdater.updateStatsDisplay(this.stats);
         }, 2500);
+    }
+
+    showEndGameBasedOnOutcome(won) {
+        const endGameMessage = won ? "Congratulations! You've won." : "Game over. Better luck next time!";
+        // Display the end game message in the UI
+        uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay, endGameMessage);
+
+        // Optionally, handle any other UI adjustments needed for a completed game
     }
 
     updateStats(won, guessCount) {
