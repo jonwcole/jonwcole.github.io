@@ -49,27 +49,23 @@ class GameState {
         }
     }
 
-    loadGameDetails() {
+    loadGameDetails(dailyWord, dailyHint, dictionary) {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        
         const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
 
-        // Use the dataManager to get the word of the day and the hint for new games
-        const savedWord = localStorage.getItem('savedWordOfTheDay') || dataManager.dailyWord;
-        const savedHint = localStorage.getItem('savedHintOfTheDay') || dataManager.hint;
-
         if (gameDate === today && !isGameOver) {
-            // There's an unfinished game from today; restore its state.
+            // An unfinished game from today exists; restore its state.
             this.restoreGameState();
         } else {
-            // No game for today, or the saved game is from a different day, or today's game was completed; start a new game.
-            this.startNewGame(savedWord, savedHint, this.dictionary);
+            // No game for today, or the saved game is from a different day; start a new game.
+            // Ensure dailyWord and dailyHint are defined
+            this.startNewGame(dailyWord || 'DEFAULT_WORD', dailyHint || 'DEFAULT_HINT', dictionary);
             // Update localStorage to reflect the new game status.
             localStorage.setItem('isGameOver', JSON.stringify(false));
             localStorage.setItem('gameDate', today);
-            localStorage.setItem('savedWordOfTheDay', savedWord);
-            localStorage.setItem('savedHintOfTheDay', savedHint);
+            localStorage.setItem('savedWordOfTheDay', dailyWord);
+            localStorage.setItem('savedHintOfTheDay', dailyHint);
         }
     }
 
