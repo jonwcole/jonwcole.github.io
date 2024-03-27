@@ -49,6 +49,7 @@ class GameState {
         }
     }
 
+
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
