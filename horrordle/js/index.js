@@ -18,7 +18,7 @@ async function initializeGame() {
     await dataManager.loadDictionary();
     await dataManager.loadDailyWord();
     gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
-    gameState.init(); // Assuming init configures the game state without overwriting loaded state
+    gameState.init(uiUpdater); // Assuming init configures the game state without overwriting loaded state
     // Consider moving gameState.loadStats() into gameState.init() or startNewGame
     uiUpdater.updateStatsDisplay(gameState.stats); // Update UI with the initial or restored game state
 }
