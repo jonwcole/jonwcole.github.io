@@ -14,17 +14,8 @@ document.getElementById('keyboard').addEventListener('click', function(event) {
 document.getElementById('share-result').addEventListener('click', async () => {
     const resultString = generateResultString();
 
-    if (navigator.share) {
-        try {
-            await navigator.share({ text: resultString });
-            console.log('Result shared successfully');
-        } catch (error) {
-            console.error('Error sharing the result:', error);
-        }
-    } else {
-        // Fallback: Copy to clipboard
-        navigator.clipboard.writeText(resultString)
-            .then(() => alert('Result copied to clipboard'))
-            .catch(err => console.error('Failed to copy result to clipboard:', err));
-    }
+    navigator.clipboard.writeText(resultString)
+        .then(() => alert('Result copied to clipboard'))
+        .catch(err => console.error('Failed to copy result to clipboard:', err));
+
 });
