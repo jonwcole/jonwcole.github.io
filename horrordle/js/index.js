@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-
-
 async function initializeGame() {
     await dataManager.loadDictionary();
     await dataManager.loadDailyWord();
