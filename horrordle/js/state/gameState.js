@@ -1,16 +1,10 @@
 class GameState {
     constructor() {
-        // Initialize gameGuessLetters and gameGuessColors as empty arrays
-        this.gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
-        this.gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
-        
-        // Initialize other properties
         this.dictionary = [];
         this.reset();
         this.incorrectGuessCount = 0;
         this.inputEnabled = true;
         this.uiUpdater = null;
-        
         // Initialize stats
         this.stats = {
             gamesPlayed: 0,
@@ -20,9 +14,13 @@ class GameState {
             guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
             lastPlayedDate: '',
         };
-
         this.loadStats();
         this.loadGameDetails();
+        // Directly display stats on page load -- REMOVE or MODIFY this line
+        const gameGuessLettersFromStorage = localStorage.getItem('gameGuessLetters');
+        const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
+        this.gameGuessLetters = gameGuessLettersFromStorage ? JSON.parse(gameGuessLettersFromStorage) : [];
+        this.gameGuessColors = gameGuessColorsFromStorage ? JSON.parse(gameGuessColorsFromStorage) : [];
     }
 
     init(uiUpdater) {
@@ -51,42 +49,70 @@ class GameState {
         }
     }
 
-    setUiUpdater(updater) {
-        this.uiUpdater = updater;
-    }
-
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        
-        // Determine if a game state exists for today
-        const gameStateExists = gameDate === today;
-        const unfinishedGame = gameStateExists && !JSON.parse(localStorage.getItem('isGameOver') || 'false');
-        
-        if (unfinishedGame) {
-            console.log("Restoring an unfinished game from today.");
-            this.restoreGameState();
-        } else if (gameStateExists) {
-            console.log("Game from today is already finished. Load results or wait for the next game.");
-            this.loadFinishedGameState();
+
+        const savedWord = localStorage.getItem('savedWordOfTheDay');
+        const savedHint = localStorage.getItem('savedHintOfTheDay');
+        const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
+
+        // Check if the saved game date matches today's date.
+        if (gameDate === today) {
+            if (!isGameOver) {
+                // There's an unfinished game from today; restore its state.
+                this.restoreGameState();
+            } else {
+                // Today's game is finished. Check if there's a new word and hint for today
+                // (could be useful if your game automatically generates a new game after the old one ends).
+                // This would be a rare case but might be relevant for games that allow multiple sessions per day.
+                if (savedWord && savedHint) {
+                    this.startNewGame(savedWord, savedHint, this.dictionary);
+                } else {
+                    console.error("Today's game is completed, and no new game data is available.");
+                }
+            }
         } else {
-            console.log("Starting a new game for today.");
-            this.startNewDay();
+            // No game for today or the saved game is from a different day; start a new game.
+            // This assumes savedWord and savedHint are updated daily, even if a game isn't finished.
+            if (savedWord && savedHint) {
+                this.startNewGame(savedWord, savedHint, this.dictionary);
+                // Make sure to reset the game's over status for the new game.
+                localStorage.setItem('isGameOver', JSON.stringify(false));
+                // Update the game date in localStorage to reflect the new game.
+                localStorage.setItem('gameDate', today);
+            } else {
+                // If no savedWord or savedHint, handle error or use fallback logic.
+                console.error("No saved game data available for starting a new game.");
+                // Fallback logic here, e.g., show an error message or load default game data.
+            }
         }
     }
 
-    loadFinishedGameState() {
-        // Handle the display of a finished game's state
-        this.isGameOver = true;
-        this.disableInput();
-        // Additional UI updates as necessary
+    startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
+        this.reset();
+        if (!wordOfTheDay || !hintOfTheDay) {
+            console.error("Cannot start game without word of the day or hint.");
+            // Add fallback logic here, e.g., set default values or handle error
+            return;
+        }
+
+        // Game initialization logic continues as normal...
     }
 
-    startNewDay() {
-        // Logic to start a new game
-        // Ensure you reset any persistent storage as needed and start fresh
-        this.reset();
-        // Setup for new game goes here
+    replaySavedGuesses() {
+        this.gameGuessLetters.forEach((guess, index) => {
+            const result = this.gameGuessColors[index];
+            // This function should exist in your UI handling logic to update the board
+            uiUpdater.markGuessResult(index, guess, result, true); // The last parameter indicates this is a restoration
+        });
+
+        // Make sure to restore the current attempt number
+        this.currentAttempt = this.gameGuessLetters.length;
+        // If there were any hints shown, ensure they're displayed again
+        if (this.hintDisplayed) {
+            uiUpdater.showHint(this.hintOfTheDay);
+        }
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
@@ -222,27 +248,80 @@ class GameState {
     }
 
     restoreGameState() {
-        // Restore the game state for an unfinished game
-        this.gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
-        this.gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
-        this.currentAttempt = this.gameGuessLetters.length;
-        this.isGameOver = false;
-        
-        // UI updates to reflect the restored state
-        this.replaySavedGuesses();
+        const gameDate = localStorage.getItem('gameDate');
+        const today = new Date().toISOString().slice(0, 10);
+
+        if (gameDate === today && Array.isArray(this.gameGuessLetters) && Array.isArray(this.gameGuessColors)) {
+            this.isGameOver = true;
+            this.disableInput();
+
+            this.gameGuessLetters.forEach((letters, attemptIndex) => {
+                letters.forEach((letter, letterIndex) => {
+                    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attemptIndex}"]`);
+                    if (row) {
+                        const tiles = row.querySelectorAll('.tile');
+                        const tile = tiles[letterIndex];
+                        if (tile) {
+                            const front = tile.querySelector('.front');
+                            const backText = tile.querySelector('.back-text');
+                            const splatterBox = tile.querySelector('.splatter-box');
+
+                            front.textContent = letter;
+                            backText.textContent = letter;
+                            backText.parentElement.className = 'back ' + this.gameGuessColors[attemptIndex][letterIndex];
+
+                            // Apply splatter effect for lost games
+                            if (splatterBox && localStorage.getItem('gameOutcome') === 'lost') {
+                                splatterBox.style.display = 'block';
+                                splatterBox.style.opacity = '1';
+                            }
+
+                            setTimeout(() => tile.classList.add('flipped'), letterIndex * 150);
+                        }
+                    }
+                });
+            });
+
+            // Safely update the Word of the Day and Hint of the Day
+            const wordElement = document.getElementById('word-content');
+            if (wordElement) {
+                wordElement.textContent = this.wordOfTheDay;
+            } else {
+                console.error('#word-content element not found');
+            }
+
+            const hintElement = document.getElementById('hint-text');
+            if (hintElement) {
+                hintElement.textContent = this.hintOfTheDay;
+            } else {
+                console.error('#hint-text element not found');
+            }
+
+            // Display the failure or word reveal and hint elements
+            const wordContainer = document.getElementById('word-reveal');
+            if (wordContainer) {
+                wordContainer.style.display = 'flex';
+                setTimeout(() => {
+                    wordContainer.style.opacity = '1';
+                }, 100);
+            }
+
+            const hintContainer = document.getElementById('hint');
+            if (hintContainer) {
+                hintContainer.style.display = 'block';
+                setTimeout(() => {
+                    hintContainer.style.opacity = '1';
+                }, 100);
+            }
+            // Display the completed message
+            const completedMessage = document.getElementById('completed-message');
+            if (completedMessage) {
+                completedMessage.style.display = 'flex';
+            }
+        } else {
+            // Reset or start new game logic...
+        }
     }
-
-replaySavedGuesses() {
-    this.gameGuessLetters.forEach((letters, attemptIndex) => {
-        letters.forEach((letter, letterIndex) => {
-            // Replay each guess on the board. This might involve flipping tiles, setting colors, etc.
-            // Similar to what you already have, but ensure it's adjusted to only replay, not assume game over.
-        });
-    });
-    // Ensure the current attempt is correctly set based on restored guesses
-    this.currentAttempt = this.gameGuessLetters.length;
-}
-
 
     replayGuess(guessLetters, resultColors, attemptIndex) {
         const rowSelector = `.tile-row-wrapper[data-attempt="${attemptIndex}"]`;
@@ -353,11 +432,6 @@ replaySavedGuesses() {
 
 // Export the GameState class for use in other modules
 export const gameState = new GameState();
-gameState.setUiUpdater(uiUpdater);
-
-gameState.init(uiUpdater); // Assuming this method exists and sets up uiUpdater
-gameState.loadGameDetails(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
-
 export function generateResultString() {
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
