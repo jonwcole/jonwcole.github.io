@@ -249,6 +249,11 @@ class GameState {
                     hintContainer.style.opacity = '1';
                 }, 100);
             }
+            // Display the completed message
+            const completedMessage = document.getElementById('completed-message');
+            if (completedMessage) {
+                completedMessage.style.display = 'block';
+            }
         } else {
             // Reset or start new game logic...
         }
