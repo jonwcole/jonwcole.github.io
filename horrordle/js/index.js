@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initializeGame(); // Ensure game is initialized before proceeding
     gameState.init(uiUpdater); // Configures the gameState with uiUpdater
     gameState.restoreGameState();
+    
     uiUpdater.updateStatsDisplay(gameState.stats);
     // If updateUI is designed to refresh the UI based on the gameState's current state, call it here after restoration and UI initialization
     gameState.updateUI(); // Assuming this now internally uses the uiUpdater initialized earlier
