@@ -71,13 +71,17 @@ class GameState {
 
     replaySavedGuesses() {
         this.gameGuessLetters.forEach((guess, index) => {
-            // Assuming you have a method to update the UI for a guess
             const result = this.gameGuessColors[index];
-            uiUpdater.markGuessResult(index, guess, result);
+            // This function should exist in your UI handling logic to update the board
+            uiUpdater.markGuessResult(index, guess, result, true); // The last parameter indicates this is a restoration
         });
 
-        // Update current attempt index based on loaded guesses
+        // Make sure to restore the current attempt number
         this.currentAttempt = this.gameGuessLetters.length;
+        // If there were any hints shown, ensure they're displayed again
+        if (this.hintDisplayed) {
+            uiUpdater.showHint(this.hintOfTheDay);
+        }
     }
 
     startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
