@@ -49,6 +49,33 @@ class GameState {
         }
     }
 
+    loadExistingGameData() {
+        // Load relevant game data from localStorage
+        const lastPlayedDate = localStorage.getItem('lastPlayedDate');
+        const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
+        return { lastPlayedDate, isGameOver };
+    }
+
+    determineScenario({ lastPlayedDate, isGameOver }) {
+        const today = new Date().toISOString().slice(0, 10);
+        if (!lastPlayedDate) return 'FIRST_TIME_USER';
+        if (lastPlayedDate === today) {
+            return isGameOver ? 'FINISHED_SAME_DAY' : 'UNFINISHED_SAME_DAY';
+        }
+        return 'NEW_DAY';
+    }
+
+restoreUnfinishedGame() {
+    // Logic to restore game from local storage if unfinished
+    this.restoreGameState(); // Assumes this method already properly restores the UI based on local storage
+}
+
+restoreFinishedGame() {
+    // Logic to display the game in a finished state, disabling further inputs
+    this.restoreGameState(); // You might need to adjust `restoreGameState` to correctly handle finished games
+    this.disableInput();
+}
+
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
