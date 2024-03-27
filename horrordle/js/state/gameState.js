@@ -355,24 +355,24 @@ class GameState {
             key.classList.add('disabled'); // Optionally add a 'disabled' class for styling
         });
     }
-    generateResultString() {
-        const gameGuessColors = gameState.gameGuessColors || [];
-        const emojiMap = {
-            'absent': '⬛',
-            'present': '🟨',
-            'correct': '🟥'
-        };
-
-        const resultString = gameGuessColors.map(guess =>
-            guess.map(status => emojiMap[status]).join('')
-        ).join('\n');
-
-        const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-        return `Horrordle.app, ${date}\n\n${resultString}`;
-    }
 
 }
 
 // Export the GameState class for use in other modules
 export const gameState = new GameState();
-export function generateResultString() { ... }
+export function generateResultString() {
+    const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+    const emojiMap = {
+        'absent': '⬛',
+        'present': '🟨',
+        'correct': '🟥'
+    };
+
+    const resultString = storedGuesses.map(guess =>
+        guess.map(status => emojiMap[status]).join('')
+    ).join('\n');
+
+    const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+    return `Horrordle.app, ${date}\n\n${resultString}`;
+}
+
