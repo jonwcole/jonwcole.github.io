@@ -5,6 +5,8 @@ import { uiUpdater } from './ui/uiUpdater.js';
 import './ui/eventListeners.js';
 import './logic/inputHandler.js';
 
+gameState.updateUI(uiUpdater);
+
 // Wait for the DOM to be fully loaded before initializing the game
 document.addEventListener('DOMContentLoaded', async () => {
     await initializeGame(); // Ensure game is initialized before proceeding
