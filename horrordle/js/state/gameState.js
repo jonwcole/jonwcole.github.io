@@ -33,7 +33,6 @@ class GameState {
         this.currentAttempt = 0;
         this.maxAttempts = 6;
         this.isGameOver = false;
-        localStorage.setItem('isGameOver', JSON.stringify(this.isGameOver));
         this.wordOfTheDay = '';
         this.hintOfTheDay = '';
         this.guesses = [];
@@ -49,56 +48,25 @@ class GameState {
         }
     }
 
-
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
+        const isGameOver = JSON.parse(localStorage.getItem('isGameOver'));
 
-        const savedWord = localStorage.getItem('savedWordOfTheDay');
-        const savedHint = localStorage.getItem('savedHintOfTheDay');
-        const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
-
-        // Check if the saved game date matches today's date.
         if (gameDate === today) {
-            if (!isGameOver) {
-                // There's an unfinished game from today; restore its state.
-                this.restoreGameState();
+            this.loadSavedGameState();
+
+            if (isGameOver) {
+                // The game was completed, show the end game message based on the outcome
+                const gameOutcome = localStorage.getItem('gameOutcome'); // Assume you save 'won' or 'lost'
+                this.showEndGameBasedOnOutcome(gameOutcome === 'won');
             } else {
-                // Today's game is finished. Check if there's a new word and hint for today
-                // (could be useful if your game automatically generates a new game after the old one ends).
-                // This would be a rare case but might be relevant for games that allow multiple sessions per day.
-                if (savedWord && savedHint) {
-                    this.startNewGame(savedWord, savedHint, this.dictionary);
-                } else {
-                    console.error("Today's game is completed, and no new game data is available.");
-                }
+                // The game was incomplete, replay saved guesses to restore UI state
+                this.replaySavedGuesses();
             }
         } else {
-            // No game for today or the saved game is from a different day; start a new game.
-            // This assumes savedWord and savedHint are updated daily, even if a game isn't finished.
-            if (savedWord && savedHint) {
-                this.startNewGame(savedWord, savedHint, this.dictionary);
-                // Make sure to reset the game's over status for the new game.
-                localStorage.setItem('isGameOver', JSON.stringify(false));
-                // Update the game date in localStorage to reflect the new game.
-                localStorage.setItem('gameDate', today);
-            } else {
-                // If no savedWord or savedHint, handle error o use fallback logic.
-                console.error("No saved game data available for starting a new game.");
-                // Fallback logic here, e.g., show an error message or load default game data.
-            }
+            // No game data for today or the day has changed, start a new game
         }
-    }
-
-    startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
-        this.reset();
-        if (!wordOfTheDay || !hintOfTheDay) {
-            console.error("Cannot start game without word of the day or hint.");
-            // Add fallback logic here, e.g., set default values or handle error
-            return;
-        }
-
-        // Game initialization logic continues as normal...
     }
 
     replaySavedGuesses() {
@@ -178,7 +146,6 @@ class GameState {
     endGame(won, uiUpdater) {
         // Set game over state
         this.isGameOver = true;
-        localStorage.setItem('isGameOver', JSON.stringify(this.isGameOver));
         this.updateStats(won);
 
         // Depending on the outcome, show the end game message
