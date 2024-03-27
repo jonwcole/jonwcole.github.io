@@ -3,6 +3,7 @@ import { dataManager } from './data/dataManager.js';
 import { gameState } from './state/gameState.js';
 import { uiUpdater } from './ui/uiUpdater.js';
 import './ui/eventListeners.js';
+import './logic/inputHandler.js';
 
 // Wait for the DOM to be fully loaded before initializing the game
 document.addEventListener('DOMContentLoaded', async () => {
