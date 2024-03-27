@@ -51,6 +51,10 @@ class GameState {
         }
     }
 
+    setUiUpdater(updater) {
+        this.uiUpdater = updater;
+    }
+
     loadGameDetails(dailyWord, dailyHint, dictionary) {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
