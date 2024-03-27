@@ -1,10 +1,16 @@
 class GameState {
     constructor() {
+        // Initialize gameGuessLetters and gameGuessColors as empty arrays
+        this.gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
+        this.gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
+        
+        // Initialize other properties
         this.dictionary = [];
         this.reset();
         this.incorrectGuessCount = 0;
         this.inputEnabled = true;
         this.uiUpdater = null;
+        
         // Initialize stats
         this.stats = {
             gamesPlayed: 0,
@@ -14,13 +20,9 @@ class GameState {
             guessDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
             lastPlayedDate: '',
         };
+
         this.loadStats();
         this.loadGameDetails();
-        // Directly display stats on page load -- REMOVE or MODIFY this line
-        const gameGuessLettersFromStorage = localStorage.getItem('gameGuessLetters');
-        const gameGuessColorsFromStorage = localStorage.getItem('gameGuessColors');
-        this.gameGuessLetters = gameGuessLettersFromStorage ? JSON.parse(gameGuessLettersFromStorage) : [];
-        this.gameGuessColors = gameGuessColorsFromStorage ? JSON.parse(gameGuessColorsFromStorage) : [];
     }
 
     init(uiUpdater) {
@@ -377,6 +379,10 @@ replaySavedGuesses() {
 
 // Export the GameState class for use in other modules
 export const gameState = new GameState();
+
+gameState.init(uiUpdater); // Assuming this method exists and sets up uiUpdater
+gameState.loadGameDetails(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
+
 export function generateResultString() {
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
