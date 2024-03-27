@@ -11,8 +11,8 @@ async function initializeGame() {
     gameState.loadGameDetails(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
     gameState.init(uiUpdater); // Configures the gameState with uiUpdater
 
-//    gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
-//    uiUpdater.updateStatsDisplay(gameState.stats); // Update UI with the initial or restored game state
+    gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
+    uiUpdater.updateStatsDisplay(gameState.stats); // Update UI with the initial or restored game state
 }
 
 // Wait for the DOM to be fully loaded before initializing the game
