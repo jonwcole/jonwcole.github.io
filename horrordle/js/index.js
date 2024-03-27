@@ -5,21 +5,25 @@ import { uiUpdater } from './ui/uiUpdater.js';
 import './ui/eventListeners.js';
 import './logic/inputHandler.js';
 
+gameState.updateUI(uiUpdater);
+
+// Wait for the DOM to be fully loaded before initializing the game
+document.addEventListener('DOMContentLoaded', async () => {
+    await initializeGame(); // Ensure game is initialized before proceeding
+    gameState.restoreGameState();
+    uiUpdater.updateStatsDisplay(gameState.stats);
+});
+
 async function initializeGame() {
     await dataManager.loadDictionary();
     await dataManager.loadDailyWord();
     gameState.startNewGame(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
-    
-    // Pass uiUpdater to gameState.init to provide UI functionality
-    gameState.init(uiUpdater);
-    
-    // If gameState.restoreGameState() and uiUpdater.updateStatsDisplay() require DOM elements,
-    // ensure they are called after DOMContentLoaded.
-    gameState.restoreGameState();
-    uiUpdater.updateStatsDisplay(gameState.stats);
+    gameState.init(); // Assuming init configures the game state without overwriting loaded state
+    // Consider moving gameState.loadStats() into gameState.init() or startNewGame
+    uiUpdater.updateStatsDisplay(gameState.stats); // Update UI with the initial or restored game state
 }
 
-// Ensure the DOM is fully loaded before initializing the game
-document.addEventListener('DOMContentLoaded', async () => {
-    await initializeGame();
-});
+
+
+
+
