@@ -252,7 +252,7 @@ class GameState {
             // Display the completed message
             const completedMessage = document.getElementById('completed-message');
             if (completedMessage) {
-                completedMessage.style.display = 'block';
+                completedMessage.style.display = 'flex';
             }
         } else {
             // Reset or start new game logic...
