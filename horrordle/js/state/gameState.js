@@ -39,6 +39,15 @@ class GameState {
         this.currentGuess = [];
     }
 
+    updateUI() {
+        if (this.uiUpdater) {
+            this.uiUpdater.updateStatsDisplay(this.stats);
+            // Add any other UI update calls you need here
+        } else {
+            console.error("UI Updater not initialized.");
+        }
+    }
+
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
