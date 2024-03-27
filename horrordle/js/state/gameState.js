@@ -379,6 +379,7 @@ replaySavedGuesses() {
 
 // Export the GameState class for use in other modules
 export const gameState = new GameState();
+gameState.setUiUpdater(uiUpdater);
 
 gameState.init(uiUpdater); // Assuming this method exists and sets up uiUpdater
 gameState.loadGameDetails(dataManager.dailyWord, dataManager.hint, dataManager.dictionary);
