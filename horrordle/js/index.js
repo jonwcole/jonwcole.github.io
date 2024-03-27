@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     gameState.updateUI(); // Assuming this now internally uses the uiUpdater initialized earlier
 });
 
+
+
+
 async function initializeGame() {
     await dataManager.loadDictionary();
     await dataManager.loadDailyWord();
