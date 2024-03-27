@@ -51,23 +51,29 @@ class GameState {
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
-        const isGameOver = JSON.parse(localStorage.getItem('isGameOver'));
+        
+        // Example of retrieving saved word and hint (adjust according to your actual keys and data structure)
+        const savedWord = localStorage.getItem('savedWordOfTheDay');
+        const savedHint = localStorage.getItem('savedHintOfTheDay');
+        const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
 
-        if (gameDate === today) {
-            this.loadSavedGameState();
-
-            if (isGameOver) {
-                // The game was completed, show the end game message based on the outcome
-                const gameOutcome = localStorage.getItem('gameOutcome'); // Assume you save 'won' or 'lost'
-                this.showEndGameBasedOnOutcome(gameOutcome === 'won');
+        if (gameDate === today && !isGameOver && savedWord && savedHint) {
+            // If there's a game from today that wasn't finished, restore its state
+            this.restoreGameState();
+        } else if (!gameDate || gameDate !== today) {
+            // If no game saved or the saved game is from a different day, start a new game
+            // Make sure savedWord and savedHint are defined before passing them
+            if(savedWord && savedHint) {
+                this.startNewGame(savedWord, savedHint, this.dictionary);
             } else {
-                // The game was incomplete, replay saved guesses to restore UI state
-                this.replaySavedGuesses();
+                // Handle case where savedWord or savedHint are not available
+                console.error("No saved game data available for a new game.");
+                // Fallback or error handling logic goes here
             }
-        } else {
-            // No game data for today or the day has changed, start a new game
         }
     }
+
+    
 
     replaySavedGuesses() {
         this.gameGuessLetters.forEach((guess, index) => {
