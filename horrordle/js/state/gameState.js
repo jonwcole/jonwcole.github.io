@@ -51,29 +51,36 @@ class GameState {
     loadGameDetails() {
         const gameDate = localStorage.getItem('gameDate');
         const today = new Date().toISOString().slice(0, 10);
+        
+        // Example of retrieving saved word and hint (adjust according to your actual keys and data structure)
+        const savedWord = localStorage.getItem('savedWordOfTheDay');
+        const savedHint = localStorage.getItem('savedHintOfTheDay');
         const isGameOver = JSON.parse(localStorage.getItem('isGameOver') || 'false');
 
-        if (gameDate === today) {
-            // Load game state here directly or call the method that does it
-            // Assuming `restoreGameState` method already exists and handles restoration
+        if (gameDate === today && !isGameOver && savedWord && savedHint) {
+            // If there's a game from today that wasn't finished, restore its state
             this.restoreGameState();
-
-            if (isGameOver) {
-                // The game was completed, show the end game message based on the outcome
-                const gameOutcome = localStorage.getItem('gameOutcome'); // 'won' or 'lost'
-                const won = gameOutcome === 'won';
-                this.isGameOver = true; // Ensure game state is consistent
-                // Display end game UI based on outcome
-                uiUpdater.showEndGameMessage(won, this.wordOfTheDay, this.hintOfTheDay);
+        } else if (!gameDate || gameDate !== today) {
+            // If no game saved or the saved game is from a different day, start a new game
+            // Make sure savedWord and savedHint are defined before passing them
+            if(savedWord && savedHint) {
+                this.startNewGame(savedWord, savedHint, this.dictionary);
             } else {
-                // The game was not completed, continue from where left off
-                // Additional logic to continue the game goes here
-                // For example, restoring the UI to reflect the current state of the game
+                // Handle case where savedWord or savedHint are not available
+                console.error("No saved game data available for a new game.");
+                // Fallback or error handling logic goes here
             }
-        } else {
-            // No saved game or the date has changed
-            this.startNewGame(/* parameters for a new game */);
         }
+    }
+
+    startNewGame(wordOfTheDay, hintOfTheDay, dictionary) {
+        if (!wordOfTheDay || !hintOfTheDay) {
+            console.error("Cannot start game without word of the day or hint.");
+            // Add fallback logic here, e.g., set default values or handle error
+            return;
+        }
+
+        // Game initialization logic continues as normal...
     }
 
     replaySavedGuesses() {
