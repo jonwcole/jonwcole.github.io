@@ -358,7 +358,7 @@ function restoreGameStateIfPlayedToday() {
 
         // Display the Word of the Day if the user lost their last game
         if (gameOutcome === 'lost') {
-            const wordElement = document.getElementById('word');
+            const wordElement = document.getElementById('word-content');
             document.querySelectorAll('.splatter-box').forEach(box => {
                 box.style.display = 'block';
                 box.style.opacity = '1';
