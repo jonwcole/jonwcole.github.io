@@ -435,10 +435,9 @@ function restoreGameState() {
         // UI restoration based on the saved state
         restoreUIFromSavedState();
         
-        // Make sure input is enabled if the game is not over
+        // Increment currentAttempt to point to the next empty row
         if (!isGameOver) {
-            inputDisabled = false; // Make sure this variable is correctly used in your input handling logic
-            document.querySelectorAll('.key').forEach(key => key.removeAttribute('disabled')); // Example for re-enabling on-screen keyboard keys
+            currentAttempt += 1;
         }
     } else {
         startNewGame();
