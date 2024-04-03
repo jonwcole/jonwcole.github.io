@@ -94,6 +94,8 @@ function submitGuess() {
     processGuess(guess);
     setTimeout(() => {
         handleGuessFinalization(guess);
+        // Save the updated list of guesses, including the current one
+        saveGameProgress();
     }, currentGuess.length * 500 + 600);
 
     // Save current guesses to localStorage
@@ -126,6 +128,7 @@ function processGuess(guess) {
     }
 }
 
+
 function handleInvalidGuess() {
     triggerUIAction('invalidGuess'); // Proposed indirect call
 }
@@ -147,6 +150,11 @@ function handleGuessFinalization(guess) {
         isGameOver = true;
         concludeGame(won);
     }
+}
+
+function saveGameProgress() {
+    // Assuming gameGuessLetters holds all guesses made so far
+    localStorage.setItem('currentGuesses', JSON.stringify(gameGuessLetters));
 }
 
 
@@ -372,27 +380,27 @@ function restoreGameStateIfPlayedToday() {
         // Prevent further input
         disableInput();
 
-        // Restore game state
+        const savedGuesses = JSON.parse(localStorage.getItem('currentGuesses'));
         const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        // Use savedGuesses if available; otherwise, fall back to gameGuessLetters
+        const gameGuessLetters = savedGuesses || JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
 
         // Display the Word of the Day if the user lost or won their last game
         if (gameOutcome === 'lost' || gameOutcome === 'won') {
             const wordElement = document.getElementById('word-reveal');
-            const wordContent = document.getElementById('word-content'); // Element where the word is displayed within #word-reveal
+            const wordContent = document.getElementById('word-content'); 
             document.querySelectorAll('.splatter-box').forEach(box => {
                 box.style.display = 'block';
-                box.style.opacity = '1';
+                setTimeout(() => box.style.opacity = '1', 100);
             });
             if (wordElement && wordContent) {
-                wordContent.textContent = wordOfTheDay; // Assuming this variable is still accessible
+                wordContent.textContent = wordOfTheDay; 
                 wordElement.style.display = 'flex';
-                setTimeout(() => {
-                    wordElement.style.opacity = 1;
-                }, 100);
+                setTimeout(() => wordElement.style.opacity = 1, 100);
             }
         }
 
+        // Reintegrate the original logic for restoring the visual state of guesses
         gameGuessLetters.forEach((guessLetters, attempt) => {
             const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
             const tiles = row.querySelectorAll('.tile');
@@ -409,8 +417,8 @@ function restoreGameStateIfPlayedToday() {
                     backText.textContent = letter;
                     
                     // Clear previous classes on back and add the new one
-                    back.className = 'back'; // Reset class
-                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
+                    back.className = 'back';
+                    back.classList.add(gameGuessColors[attempt][index]);
                     
                     // Add the flipped class to the tile for the flipping effect
                     tile.classList.add('flipped');
@@ -596,6 +604,12 @@ function concludeGame(won) {
 
     // Trigger any additional endgame UI updates
     showEndGameMessage(won);
+}
+
+function startNewGame() {
+    // Check date or game completion status
+    localStorage.removeItem('currentGuesses'); // Clear guesses for a new game
+    // Further initialization logic
 }
 
 
