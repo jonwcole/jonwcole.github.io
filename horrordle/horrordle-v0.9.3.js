@@ -41,20 +41,6 @@ async function loadGame() {
     } catch (error) {
         console.error('Error loading game data:', error);
     }
-    const savedGameDate = localStorage.getItem('gameDate');
-    const savedGuesses = JSON.parse(localStorage.getItem('currentGuesses'));
-
-    if (savedGameDate === gameDate && savedGuesses) {
-        savedGuesses.forEach((guessArray, index) => {
-            processSavedGuess(guessArray, index);
-        });
-        // Update any necessary game state here, like setting the current attempt.
-        currentAttempt = savedGuesses.length;
-
-    } else {
-        // New day or game has been completed, so start a new game
-        localStorage.removeItem('currentGuesses'); // Clear old guesses
-    }
 }
 
 
@@ -92,13 +78,7 @@ function submitGuess() {
     processGuess(guess);
     setTimeout(() => {
         handleGuessFinalization(guess);
-        // Save the updated list of guesses, including the current one
-        saveGameProgress();
     }, currentGuess.length * 500 + 600);
-
-    // Save current guesses to localStorage
-    const currentGuesses = gameGuessLetters.map(guessLetters => guessLetters.join(''));
-    localStorage.setItem('currentGuesses', JSON.stringify(currentGuesses));
 }
 
 function processGuess(guess) {
@@ -126,54 +106,6 @@ function processGuess(guess) {
     }
 }
 
-function processSavedGuess(guessArray, attempt) {
-    // Assume guessArray is an array of letters for a single guess,
-    // and attempt is the index of this guess in the sequence of all guesses.
-
-    // 1. Update the UI to reflect the guess.
-    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-    const tiles = row.querySelectorAll('.tile');
-
-    guessArray.forEach((letter, index) => {
-        const tile = tiles[index];
-        const front = tile.querySelector('.front');
-        const back = tile.querySelector('.back');
-        const backText = tile.querySelector('.back-text');
-        // Update the tile's front with the letter
-        front.textContent = letter;
-        // Prepare the tile's back; the class will be updated based on the comparison result
-        backText.textContent = letter;
-        // Note: Since we don't process the guess here, we don't have result info ('correct', 'present', 'absent')
-        // You would need to handle this based on your game's logic, potentially involving a comparison here.
-    });
-
-    // 2. Compare the restored guess to the word of the day to determine tile colors
-    // This is a simplified version of the comparison logic you might already have in submitGuess or similar.
-    guessArray.forEach((letter, index) => {
-        const tile = tiles[index];
-        const back = tile.querySelector('.back');
-        // Simplified logic to assign tile class based on comparison with the word of the day
-        if (letter === wordOfTheDay[index]) {
-            back.classList.add('correct'); // Letter is in the correct position
-        } else if (wordOfTheDay.includes(letter)) {
-            back.classList.add('present'); // Letter is in the word but wrong position
-        } else {
-            back.classList.add('absent'); // Letter is not in the word
-        }
-    });
-
-    // 3. Simulate the tile flip animation for the guess
-    setTimeout(() => {
-        tiles.forEach(tile => {
-            tile.classList.add('flipped');
-        });
-    }, 100); // Adjust timing as necessary
-
-    // Note: Depending on how you track game progress (e.g., attempts, win/lose state),
-    // you may need to update those states here as well.
-}
-
-
 function handleInvalidGuess() {
     triggerUIAction('invalidGuess'); // Proposed indirect call
 }
@@ -195,11 +127,6 @@ function handleGuessFinalization(guess) {
         isGameOver = true;
         concludeGame(won);
     }
-}
-
-function saveGameProgress() {
-    // Assuming gameGuessLetters holds all guesses made so far
-    localStorage.setItem('currentGuesses', JSON.stringify(gameGuessLetters));
 }
 
 
@@ -425,27 +352,27 @@ function restoreGameStateIfPlayedToday() {
         // Prevent further input
         disableInput();
 
-        const savedGuesses = JSON.parse(localStorage.getItem('currentGuesses'));
+        // Restore game state
         const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-        // Use savedGuesses if available; otherwise, fall back to gameGuessLetters
-        const gameGuessLetters = savedGuesses || JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
 
         // Display the Word of the Day if the user lost or won their last game
         if (gameOutcome === 'lost' || gameOutcome === 'won') {
             const wordElement = document.getElementById('word-reveal');
-            const wordContent = document.getElementById('word-content'); 
+            const wordContent = document.getElementById('word-content'); // Element where the word is displayed within #word-reveal
             document.querySelectorAll('.splatter-box').forEach(box => {
                 box.style.display = 'block';
-                setTimeout(() => box.style.opacity = '1', 100);
+                box.style.opacity = '1';
             });
             if (wordElement && wordContent) {
-                wordContent.textContent = wordOfTheDay; 
+                wordContent.textContent = wordOfTheDay; // Assuming this variable is still accessible
                 wordElement.style.display = 'flex';
-                setTimeout(() => wordElement.style.opacity = 1, 100);
+                setTimeout(() => {
+                    wordElement.style.opacity = 1;
+                }, 100);
             }
         }
 
-        // Reintegrate the original logic for restoring the visual state of guesses
         gameGuessLetters.forEach((guessLetters, attempt) => {
             const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
             const tiles = row.querySelectorAll('.tile');
@@ -462,8 +389,8 @@ function restoreGameStateIfPlayedToday() {
                     backText.textContent = letter;
                     
                     // Clear previous classes on back and add the new one
-                    back.className = 'back';
-                    back.classList.add(gameGuessColors[attempt][index]);
+                    back.className = 'back'; // Reset class
+                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
                     
                     // Add the flipped class to the tile for the flipping effect
                     tile.classList.add('flipped');
@@ -649,12 +576,6 @@ function concludeGame(won) {
 
     // Trigger any additional endgame UI updates
     showEndGameMessage(won);
-}
-
-function startNewGame() {
-    // Check date or game completion status
-    localStorage.removeItem('currentGuesses'); // Clear guesses for a new game
-    // Further initialization logic
 }
 
 
