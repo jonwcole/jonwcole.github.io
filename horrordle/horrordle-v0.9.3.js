@@ -435,17 +435,15 @@ function restoreGameState() {
     }
 }
 
-
 function getTodayDateString() {
     const today = new Date();
     return today.toISOString().slice(0, 10);
 }
 
 function restoreUIFromSavedState() {
-    gameGuessLetters.forEach((guess, index) => {
-        const guess = guessArray.join(''); // Convert array back to string
-        // Assuming you have a way to visually represent each guess in the UI
-        updateTiles(index, guess, gameGuessColors[index]);
+    gameGuessLetters.forEach((guessArray, index) => {
+        const guessString = guessArray.join(''); // Corrected: Use a different variable name
+        updateTiles(index, guessString, gameGuessColors[index]);
     });
     // Restore the hint visibility and other UI elements as necessary
     if (hintDisplayed) {
@@ -453,7 +451,8 @@ function restoreUIFromSavedState() {
     }
     // Optionally, update endgame UI if `isGameOver` is true
     if (isGameOver) {
-        showEndGameMessage(gameGuessLetters[gameGuessLetters.length - 1] === wordOfTheDay);
+        const lastGuessString = gameGuessLetters[gameGuessLetters.length - 1].join('');
+        showEndGameMessage(lastGuessString === wordOfTheDay);
     }
     // Refresh the keyboard to reflect the state of letters used
     refreshKeyboardState();
