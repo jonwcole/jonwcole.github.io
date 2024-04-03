@@ -420,26 +420,29 @@ function restoreGameStateIfPlayedToday() {
 
 function restoreGameState() {
     const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
-    if (savedState && savedState.gameDate === getTodayDateString()) {
-        // Restore the core game state
-        currentAttempt = savedState.currentAttempt;
-        gameGuessLetters = savedState.gameGuessLetters;
-        gameGuessColors = savedState.gameGuessColors;
-        hintDisplayed = savedState.hintDisplayed;
-        isGameOver = savedState.isGameOver;
-        incorrectGuesses = savedState.incorrectGuesses;
-        
-        // Assuming gameGuessLetters array has been restored at this point:
-        currentAttempt = savedState.currentAttempt; // Make sure this correctly reflects the next empty row for guesses
+    const today = getTodayDateString();
 
-        // UI restoration based on the saved state
-        restoreUIFromSavedState();
-        
-        // Increment currentAttempt to point to the next empty row
-        if (!isGameOver) {
-            currentAttempt += 1;
+    // Check if there's saved state and if the saved game date matches today's date
+    if (savedState && savedState.gameDate === today) {
+        // Only restore the game state if the game wasn't concluded or if we're on the same day
+        if (!savedState.isGameOver || (savedState.isGameOver && savedState.gameDate === today)) {
+            // Restore game state
+            currentAttempt = savedState.currentAttempt;
+            gameGuessLetters = savedState.gameGuessLetters;
+            gameGuessColors = savedState.gameGuessColors;
+            hintDisplayed = savedState.hintDisplayed;
+            isGameOver = savedState.isGameOver;
+            incorrectGuesses = savedState.incorrectGuesses;
+            
+            restoreUIFromSavedState();
+            
+            // Ensure the game doesn't reset by incrementing attempt only if not gameOver
+            if (!isGameOver) {
+                currentAttempt += 1;
+            }
         }
     } else {
+        // No saved state or we're in a new day, start a new game
         startNewGame();
     }
 }
@@ -660,6 +663,10 @@ function displayStatsModal() {
 }
 
 function concludeGame(won) {
+
+    isGameOver = true; // Mark the game as finished
+    saveGameState(); // Save the state with the game marked as finished
+
     updateStats(won, currentAttempt);
     // Optionally delay the stats modal display if needed
     setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
@@ -682,7 +689,6 @@ function concludeGame(won) {
 
     // Trigger any additional endgame UI updates
     showEndGameMessage(won);
-    saveGameState(); // Save after processing the guess
 }
 
 
