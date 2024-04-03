@@ -79,7 +79,7 @@ function submitGuess() {
     setTimeout(() => {
         handleGuessFinalization(guess);
     }, currentGuess.length * 500 + 600);
-
+    saveGameState(); // Save after processing the guess
 }
 
 function processGuess(guess) {
@@ -246,6 +246,7 @@ function displayHint() {
 
     hintDisplayed = true; // Mark the hint as displayed
   }
+  saveGameState(); // Save after processing the guess
 }
 
 function toggleOnScreenKeyboard(enable) {
@@ -469,6 +470,7 @@ function startNewGame() {
     localStorage.removeItem('horrordleGameState');
     // Additional setup as necessary (e.g., fetch new word of the day, reset UI)
     loadGame();
+    saveGameState(); // Save after processing the guess
 }
 
 
@@ -647,6 +649,7 @@ function concludeGame(won) {
 
     // Trigger any additional endgame UI updates
     showEndGameMessage(won);
+    saveGameState(); // Save after processing the guess
 }
 
 
@@ -709,5 +712,5 @@ function disableInput() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadGame(); // Make sure this still runs to load the game data
-    restoreGameStateIfPlayedToday(); // Check if we need to restore state
+    restoreGameState(); // Check if we need to restore state
 });
