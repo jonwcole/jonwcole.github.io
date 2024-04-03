@@ -663,6 +663,7 @@ function displayStatsModal() {
     }, 1200); // Delay of 1200ms
 }
 
+
 function concludeGame(won) {
     isGameOver = true;
     updateStats(won, currentAttempt);
