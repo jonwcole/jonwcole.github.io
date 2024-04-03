@@ -45,14 +45,12 @@ async function loadGame() {
     const savedGuesses = JSON.parse(localStorage.getItem('currentGuesses'));
 
     if (savedGameDate === gameDate && savedGuesses) {
-        // Resume game with saved guesses
         savedGuesses.forEach((guessArray, index) => {
-            // Directly use the saved guess array without splitting
-            // This assumes your game logic can handle an array of letters for a guess
-            currentGuess = guessArray;
-            submitGuess();
-            currentGuess = []; // Reset for the next iteration
+            processSavedGuess(guessArray, index);
         });
+        // Update any necessary game state here, like setting the current attempt.
+        currentAttempt = savedGuesses.length;
+
     } else {
         // New day or game has been completed, so start a new game
         localStorage.removeItem('currentGuesses'); // Clear old guesses
@@ -126,6 +124,53 @@ function processGuess(guess) {
     if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
         saveGuessesToLocalStorage();
     }
+}
+
+function processSavedGuess(guessArray, attempt) {
+    // Assume guessArray is an array of letters for a single guess,
+    // and attempt is the index of this guess in the sequence of all guesses.
+
+    // 1. Update the UI to reflect the guess.
+    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+    const tiles = row.querySelectorAll('.tile');
+
+    guessArray.forEach((letter, index) => {
+        const tile = tiles[index];
+        const front = tile.querySelector('.front');
+        const back = tile.querySelector('.back');
+        const backText = tile.querySelector('.back-text');
+        // Update the tile's front with the letter
+        front.textContent = letter;
+        // Prepare the tile's back; the class will be updated based on the comparison result
+        backText.textContent = letter;
+        // Note: Since we don't process the guess here, we don't have result info ('correct', 'present', 'absent')
+        // You would need to handle this based on your game's logic, potentially involving a comparison here.
+    });
+
+    // 2. Compare the restored guess to the word of the day to determine tile colors
+    // This is a simplified version of the comparison logic you might already have in submitGuess or similar.
+    guessArray.forEach((letter, index) => {
+        const tile = tiles[index];
+        const back = tile.querySelector('.back');
+        // Simplified logic to assign tile class based on comparison with the word of the day
+        if (letter === wordOfTheDay[index]) {
+            back.classList.add('correct'); // Letter is in the correct position
+        } else if (wordOfTheDay.includes(letter)) {
+            back.classList.add('present'); // Letter is in the word but wrong position
+        } else {
+            back.classList.add('absent'); // Letter is not in the word
+        }
+    });
+
+    // 3. Simulate the tile flip animation for the guess
+    setTimeout(() => {
+        tiles.forEach(tile => {
+            tile.classList.add('flipped');
+        });
+    }, 100); // Adjust timing as necessary
+
+    // Note: Depending on how you track game progress (e.g., attempts, win/lose state),
+    // you may need to update those states here as well.
 }
 
 
