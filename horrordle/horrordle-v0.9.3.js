@@ -46,11 +46,11 @@ async function loadGame() {
 
     if (savedGameDate === gameDate && savedGuesses) {
         // Resume game with saved guesses
-        savedGuesses.forEach((guess, index) => {
-            // Mimic the submission of each saved guess
-            // You might need to adjust this to fit your game's logic
-            currentGuess = guess.split('');
-            submitGuess(); // Or the relevant function to display the guess without re-submitting it
+        savedGuesses.forEach((guessArray, index) => {
+            // Directly use the saved guess array without splitting
+            // This assumes your game logic can handle an array of letters for a guess
+            currentGuess = guessArray;
+            submitGuess();
             currentGuess = []; // Reset for the next iteration
         });
     } else {
