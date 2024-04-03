@@ -41,6 +41,22 @@ async function loadGame() {
     } catch (error) {
         console.error('Error loading game data:', error);
     }
+    const savedGameDate = localStorage.getItem('gameDate');
+    const savedGuesses = JSON.parse(localStorage.getItem('currentGuesses'));
+
+    if (savedGameDate === gameDate && savedGuesses) {
+        // Resume game with saved guesses
+        savedGuesses.forEach((guess, index) => {
+            // Mimic the submission of each saved guess
+            // You might need to adjust this to fit your game's logic
+            currentGuess = guess.split('');
+            submitGuess(); // Or the relevant function to display the guess without re-submitting it
+            currentGuess = []; // Reset for the next iteration
+        });
+    } else {
+        // New day or game has been completed, so start a new game
+        localStorage.removeItem('currentGuesses'); // Clear old guesses
+    }
 }
 
 
@@ -79,6 +95,10 @@ function submitGuess() {
     setTimeout(() => {
         handleGuessFinalization(guess);
     }, currentGuess.length * 500 + 600);
+
+    // Save current guesses to localStorage
+    const currentGuesses = gameGuessLetters.map(guessLetters => guessLetters.join(''));
+    localStorage.setItem('currentGuesses', JSON.stringify(currentGuesses));
 }
 
 function processGuess(guess) {
