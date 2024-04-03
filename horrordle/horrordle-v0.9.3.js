@@ -421,6 +421,7 @@ function restoreGameStateIfPlayedToday() {
 function restoreGameState() {
     const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
     if (savedState && savedState.gameDate === getTodayDateString()) {
+        // Restore the core game state
         currentAttempt = savedState.currentAttempt;
         gameGuessLetters = savedState.gameGuessLetters;
         gameGuessColors = savedState.gameGuessColors;
@@ -428,9 +429,15 @@ function restoreGameState() {
         isGameOver = savedState.isGameOver;
         incorrectGuesses = savedState.incorrectGuesses;
         
-        // Restore UI elements based on the saved state
+        // UI restoration based on the saved state
         restoreUIFromSavedState();
+        
+        // Make sure input is enabled if the game is not over
+        if (!isGameOver) {
+            inputDisabled = false; // Or any relevant code to re-enable input
+        }
     } else {
+        // Handle starting a new game if appropriate
         startNewGame();
     }
 }
