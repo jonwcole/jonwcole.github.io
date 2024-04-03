@@ -356,17 +356,21 @@ function restoreGameStateIfPlayedToday() {
         const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
         const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
 
-        // Display the Word of the Day if the user lost their last game
-        if (gameOutcome === 'lost') {
+        // Display the Word of the Day if the user lost or won their last game
+        if (gameOutcome === 'lost' || gameOutcome === 'won') {
             const wordElement = document.getElementById('word-reveal');
+            const wordContent = document.getElementById('word-content'); // Element where the word is displayed within #word-reveal
             document.querySelectorAll('.splatter-box').forEach(box => {
                 box.style.display = 'block';
                 box.style.opacity = '1';
             });
-            wordElement.style.display = 'flex';
-            setTimeout(() => {
-                wordElement.style.opacity = 1;
-            }, 100);
+            if (wordElement && wordContent) {
+                wordContent.textContent = wordOfTheDay; // Assuming this variable is still accessible
+                wordElement.style.display = 'flex';
+                setTimeout(() => {
+                    wordElement.style.opacity = 1;
+                }, 100);
+            }
         }
 
         gameGuessLetters.forEach((guessLetters, attempt) => {
