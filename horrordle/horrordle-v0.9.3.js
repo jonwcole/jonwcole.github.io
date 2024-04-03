@@ -497,22 +497,20 @@ function refreshKeyboardState() {
 }
 
 
-function startNewGame() {
-    // Reset game state variables
+async function startNewGame() {
+    // Reset or clear previous game states as needed.
     currentAttempt = 0;
     gameGuessLetters = [];
     gameGuessColors = [];
     hintDisplayed = false;
     isGameOver = false;
     incorrectGuesses = 0;
-    // Clear saved game state
-    localStorage.removeItem('horrordleGameState');
-    // Additional setup as necessary (e.g., fetch new word of the day, reset UI)
-    loadGame();
-    saveGameState(); // Save after processing the guess
+    
+    localStorage.removeItem('horrordleGameState'); // Clear saved state.
+
+    await loadGame(); // Fetch new game data and set up UI for a new session.
+    // Any additional setup for a fresh game goes here.
 }
-
-
 
 
 
@@ -752,21 +750,21 @@ function disableInput() {
     // You might also disable physical keyboard input by removing or disabling event listeners.
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
     const isSameDay = savedState?.gameDate === getTodayDateString();
 
     if (savedState && isSameDay) {
-        // If the saved game was completed (win or loss), display the end state without resetting.
         if (savedState.isGameOver) {
-            restoreGameState(); // This should handle showing the end state correctly.
-            disableInput(); // Ensure no further input is accepted if the game ended.
+            // Restore the game to show the last state but don't start a new game immediately.
+            await restoreGameState(); // Make sure this function can handle async operations if needed.
+            disableInput();
         } else {
-            // Continue with restoring and playing the saved game state
-            restoreGameState();
+            // Continue with the saved game state.
+            await restoreGameState();
         }
     } else {
-        // It's a new day or no saved game exists
-        startNewGame();
+        // No saved state or it's a new day. Start a new game.
+        await loadGame();
     }
 });
