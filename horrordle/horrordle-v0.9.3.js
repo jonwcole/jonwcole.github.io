@@ -79,6 +79,7 @@ function submitGuess() {
     setTimeout(() => {
         handleGuessFinalization(guess);
     }, currentGuess.length * 500 + 600);
+    
 }
 
 function processGuess(guess) {
