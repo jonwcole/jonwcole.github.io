@@ -550,9 +550,20 @@ function concludeGame(won) {
     // Optionally delay the stats modal display if needed
     setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
 
-    // Additional UI updates, such as revealing the word of the day on game loss, can be handled here too
+    // Additional UI updates, such as revealing the word of the day on game loss, can be handled here
     if (!won) {
-        revealWordOfTheDay(); // Make sure this function exists and reveals the word
+        revealWordOfTheDay(); // Existing function to make adjustments for game loss
+
+        // Reveal the word of the day
+        const wordRevealDiv = document.getElementById('word-reveal');
+        const wordContent = document.getElementById('word-content'); // Assuming this is where the word of the day is displayed within #word-reveal
+        if (wordRevealDiv && wordContent) {
+            wordContent.textContent = wordOfTheDay; // Update the text content to the word of the day
+            wordRevealDiv.style.display = 'flex'; // Make the div visible
+            setTimeout(() => {
+                wordRevealDiv.style.opacity = 1; // Fade in if you have CSS transitions set up
+            }, 100); // Adjust timing as needed
+        }
     }
 
     // Trigger any additional endgame UI updates
