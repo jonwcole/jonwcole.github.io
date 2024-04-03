@@ -429,6 +429,9 @@ function restoreGameState() {
         isGameOver = savedState.isGameOver;
         incorrectGuesses = savedState.incorrectGuesses;
         
+        // Assuming gameGuessLetters array has been restored at this point:
+        currentAttempt = savedState.currentAttempt; // Make sure this correctly reflects the next empty row for guesses
+
         // UI restoration based on the saved state
         restoreUIFromSavedState();
         
@@ -437,6 +440,8 @@ function restoreGameState() {
             inputDisabled = false; // Make sure this variable is correctly used in your input handling logic
             document.querySelectorAll('.key').forEach(key => key.removeAttribute('disabled')); // Example for re-enabling on-screen keyboard keys
         }
+    } else {
+        startNewGame();
     }
 }
 
