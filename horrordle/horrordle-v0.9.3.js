@@ -127,6 +127,9 @@ function handleGuessFinalization(guess) {
     if (won || lost) {
         isGameOver = true;
         concludeGame(won);
+    } else {
+        // Save game state for in-progress games
+        saveGameState();
     }
 }
 
