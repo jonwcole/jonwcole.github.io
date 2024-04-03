@@ -437,9 +437,6 @@ function restoreGameState() {
             inputDisabled = false; // Make sure this variable is correctly used in your input handling logic
             document.querySelectorAll('.key').forEach(key => key.removeAttribute('disabled')); // Example for re-enabling on-screen keyboard keys
         }
-    } else {
-        // Handle starting a new game if appropriate
-        startNewGame();
     }
 }
 
