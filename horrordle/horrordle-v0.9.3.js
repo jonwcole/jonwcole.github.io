@@ -430,6 +430,10 @@ document.getElementById('keyboard').addEventListener('click', function(e) {
 
 // Handling physical keyboard input
 document.addEventListener('keydown', function(e) {
+  // Check if Ctrl, Cmd, or Alt is pressed
+  if (e.ctrlKey || e.metaKey || e.altKey) {
+    return; // Do nothing if any of these keys are pressed
+  }
   if (e.key === 'Enter') {
     submitGuess();
   } else if (e.key === 'Backspace') {
