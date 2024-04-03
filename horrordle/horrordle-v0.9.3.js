@@ -753,6 +753,20 @@ function disableInput() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadGame(); // Make sure this still runs to load the game data
-    restoreGameState(); // Check if we need to restore state
+    const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
+    const isSameDay = savedState?.gameDate === getTodayDateString();
+
+    if (savedState && isSameDay) {
+        // If the saved game was completed (win or loss), display the end state without resetting.
+        if (savedState.isGameOver) {
+            restoreGameState(); // This should handle showing the end state correctly.
+            disableInput(); // Ensure no further input is accepted if the game ended.
+        } else {
+            // Continue with restoring and playing the saved game state
+            restoreGameState();
+        }
+    } else {
+        // It's a new day or no saved game exists
+        startNewGame();
+    }
 });
