@@ -443,6 +443,7 @@ function getTodayDateString() {
 
 function restoreUIFromSavedState() {
     gameGuessLetters.forEach((guess, index) => {
+        const guess = guessArray.join(''); // Convert array back to string
         // Assuming you have a way to visually represent each guess in the UI
         updateTiles(index, guess, gameGuessColors[index]);
     });
@@ -457,6 +458,29 @@ function restoreUIFromSavedState() {
     // Refresh the keyboard to reflect the state of letters used
     refreshKeyboardState();
 }
+
+function refreshKeyboardState() {
+    // Reset the state of all keys first
+    document.querySelectorAll('.key').forEach(key => {
+        key.classList.remove('correct', 'present', 'absent');
+    });
+
+    // Apply the new state based on guesses
+    gameGuessLetters.flat().forEach((letter, index) => {
+        const keyElement = document.querySelector(`.key[data-key="${letter}"]`);
+        if (keyElement) {
+            const result = gameGuessColors.flat()[index];
+            if (result === 'correct') {
+                keyElement.classList.add('correct');
+            } else if (result === 'present') {
+                keyElement.classList.add('present');
+            } else if (result === 'absent') {
+                keyElement.classList.add('absent');
+            }
+        }
+    });
+}
+
 
 function startNewGame() {
     // Reset game state variables
