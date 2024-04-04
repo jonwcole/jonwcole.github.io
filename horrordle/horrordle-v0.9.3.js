@@ -514,6 +514,8 @@ async function startNewGame() {
 
 
 
+
+
 // ======================================= //
 // 5. Event Listeners and User Interaction //
 // ======================================= //
@@ -663,19 +665,32 @@ function displayStatsModal() {
     }, 1200); // Delay of 1200ms
 }
 
-
 function concludeGame(won) {
-    isGameOver = true;
+
+    isGameOver = true; // Mark the game as finished
+    saveGameState(); // Save the state with the game marked as finished
+
     updateStats(won, currentAttempt);
+    // Optionally delay the stats modal display if needed
+    setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
 
-    // Save the final state of the game.
-    saveGameState();
-
-    setTimeout(displayStatsModal, 1200); // Adjust as needed
-
+    // Additional UI updates, such as revealing the word of the day on game loss, can be handled here
     if (!won) {
-        revealWordOfTheDay();
+        revealWordOfTheDay(); // Existing function to make adjustments for game loss
+
+        // Reveal the word of the day
+        const wordRevealDiv = document.getElementById('word-reveal');
+        const wordContent = document.getElementById('word-content'); // Assuming this is where the word of the day is displayed within #word-reveal
+        if (wordRevealDiv && wordContent) {
+            wordContent.textContent = wordOfTheDay; // Update the text content to the word of the day
+            wordRevealDiv.style.display = 'flex'; // Make the div visible
+            setTimeout(() => {
+                wordRevealDiv.style.opacity = 1; // Fade in if you have CSS transitions set up
+            }, 100); // Adjust timing as needed
+        }
     }
+
+    // Trigger any additional endgame UI updates
     showEndGameMessage(won);
 }
 
@@ -737,21 +752,21 @@ function disableInput() {
     // You might also disable physical keyboard input by removing or disabling event listeners.
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
     const isSameDay = savedState?.gameDate === getTodayDateString();
 
     if (savedState && isSameDay) {
+        // If the saved game was completed (win or loss), display the end state without resetting.
         if (savedState.isGameOver) {
-            // Restore the game to show the last state but don't start a new game immediately.
-            await restoreGameState(); // Make sure this function can handle async operations if needed.
-            disableInput();
+            restoreGameState(); // This should handle showing the end state correctly.
+            disableInput(); // Ensure no further input is accepted if the game ended.
         } else {
-            // Continue with the saved game state.
-            await restoreGameState();
+            // Continue with restoring and playing the saved game state
+            restoreGameState();
         }
     } else {
-        // No saved state or it's a new day. Start a new game.
-        await loadGame();
+        // It's a new day or no saved game exists
+        startNewGame();
     }
 });
