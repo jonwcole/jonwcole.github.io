@@ -171,7 +171,7 @@ function updateCurrentGuessDisplay() {
 }
 
 function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt})`);
+  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
   const tiles = row.querySelectorAll('.tile');
 
   tiles.forEach((tile, index) => {
