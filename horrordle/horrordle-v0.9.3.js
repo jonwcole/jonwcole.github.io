@@ -637,15 +637,6 @@ function disableInput() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to hide instructions
-    function hideInstructions() {
-        const instructionsElement = document.querySelector('.instructions');
-        if (instructionsElement) {
-            instructionsElement.style.opacity = 0;
-            // Wait for the opacity transition, then set display none
-            setTimeout(() => instructionsElement.style.display = 'none', 400); // Adjust time based on your transition
-        }
-    }
   
     // Initially display instructions if it's user's first visit
     if (!localStorage.getItem('hasVisited')) {
@@ -662,7 +653,6 @@ document.addEventListener('DOMContentLoaded', function() {
         dismissBtn.addEventListener('click', function(e) {
             e.preventDefault(); // Prevent default action if it's a link
             localStorage.setItem('hasVisited', 'true'); // Set 'hasVisited' to true
-            hideInstructions(); // Hide instructions
         });
     }
     
