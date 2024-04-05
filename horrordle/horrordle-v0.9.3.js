@@ -636,7 +636,21 @@ function disableInput() {
     // You might also disable physical keyboard input by removing or disabling event listeners.
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadGame(); // Make sure this still runs to load the game data
-    restoreGameStateIfPlayedToday(); // Check if we need to restore state
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if it's the user's first visit
+    if (!localStorage.getItem('hasVisited')) {
+        // Show instructions
+        const instructionsElement = document.querySelector('.Instructions');
+        if (instructionsElement) {
+            instructionsElement.style.display = 'block';
+            // Ensure the transition for opacity works by adding a slight delay
+            setTimeout(() => instructionsElement.style.opacity = 1, 10);
+        }
+        // Set 'hasVisited' to true so instructions won't be shown on subsequent visits
+        localStorage.setItem('hasVisited', 'true');
+    }
+    
+    // Your existing page load functions
+    loadGame(); // Example of other functions that run on page load
+    restoreGameStateIfPlayedToday(); // Another example function
 });
