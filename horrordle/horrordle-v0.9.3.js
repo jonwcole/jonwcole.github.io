@@ -497,19 +497,19 @@ function refreshKeyboardState() {
 }
 
 
-async function startNewGame() {
-    // Reset or clear previous game states as needed.
+function startNewGame() {
+    // Reset game state variables
     currentAttempt = 0;
     gameGuessLetters = [];
     gameGuessColors = [];
     hintDisplayed = false;
     isGameOver = false;
     incorrectGuesses = 0;
-    
-    localStorage.removeItem('horrordleGameState'); // Clear saved state.
-
-    await loadGame(); // Fetch new game data and set up UI for a new session.
-    // Any additional setup for a fresh game goes here.
+    // Clear saved game state
+    localStorage.removeItem('horrordleGameState');
+    // Additional setup as necessary (e.g., fetch new word of the day, reset UI)
+    loadGame();
+    saveGameState(); // Save after processing the guess
 }
 
 
