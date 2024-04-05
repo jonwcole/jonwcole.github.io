@@ -637,20 +637,37 @@ function disableInput() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if it's the user's first visit
+    // Function to hide instructions
+    function hideInstructions() {
+        const instructionsElement = document.querySelector('.instructions');
+        if (instructionsElement) {
+            instructionsElement.style.opacity = 0;
+            // Wait for the opacity transition, then set display none
+            setTimeout(() => instructionsElement.style.display = 'none', 400); // Adjust time based on your transition
+        }
+    }
+  
+    // Initially display instructions if it's user's first visit
     if (!localStorage.getItem('hasVisited')) {
-        // Show instructions
         const instructionsElement = document.querySelector('.instructions');
         if (instructionsElement) {
             instructionsElement.style.display = 'block';
-            // Ensure the transition for opacity works by adding a slight delay
             setTimeout(() => instructionsElement.style.opacity = 1, 10);
         }
-        // Set 'hasVisited' to true so instructions won't be shown on subsequent visits
-        localStorage.setItem('hasVisited', 'true');
+    }
+
+    // Event listener for the dismiss button/link
+    const dismissBtn = document.querySelector('.instructions-dismiss');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default action if it's a link
+            localStorage.setItem('hasVisited', 'true'); // Set 'hasVisited' to true
+            hideInstructions(); // Hide instructions
+        });
     }
     
     // Your existing page load functions
     loadGame(); // Example of other functions that run on page load
     restoreGameStateIfPlayedToday(); // Another example function
 });
+
