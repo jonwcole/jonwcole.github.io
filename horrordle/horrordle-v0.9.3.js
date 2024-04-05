@@ -441,7 +441,7 @@ function restoreGameState() {
             
             // Ensure the game doesn't reset by incrementing attempt only if not gameOver
             if (!isGameOver) {
-                currentAttempt += 1;
+                currentAttempt;
             }
         }
     } else {
