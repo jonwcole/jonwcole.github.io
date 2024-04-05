@@ -79,7 +79,6 @@ function submitGuess() {
     setTimeout(() => {
         handleGuessFinalization(guess);
     }, currentGuess.length * 500 + 600);
-    saveGameState(); // Save after processing the guess
 }
 
 function processGuess(guess) {
@@ -246,7 +245,6 @@ function displayHint() {
 
     hintDisplayed = true; // Mark the hint as displayed
   }
-  saveGameState(); // Save after processing the guess
 }
 
 function toggleOnScreenKeyboard(enable) {
@@ -345,19 +343,6 @@ localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
 localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
 }
 
-function saveGameState() {
-    const gameState = {
-        currentAttempt: currentAttempt,
-        gameGuessLetters: gameGuessLetters,
-        gameGuessColors: gameGuessColors,
-        gameDate: gameDate,
-        hintDisplayed: hintDisplayed,
-        isGameOver: isGameOver,
-        incorrectGuesses: incorrectGuesses
-    };
-    localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
-}
-
 function restoreGameStateIfPlayedToday() {
     const stats = JSON.parse(localStorage.getItem('stats')) || {};
     const today = getLocalDateISOString(); // Use local date
@@ -417,97 +402,6 @@ function restoreGameStateIfPlayedToday() {
         displayStatsModal();
     }
 }
-
-function restoreGameState() {
-    const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
-    if (savedState && savedState.gameDate === getTodayDateString()) {
-        // Restore the core game state
-        currentAttempt = savedState.currentAttempt;
-        gameGuessLetters = savedState.gameGuessLetters;
-        gameGuessColors = savedState.gameGuessColors;
-        hintDisplayed = savedState.hintDisplayed;
-        isGameOver = savedState.isGameOver;
-        incorrectGuesses = savedState.incorrectGuesses;
-        
-        // Assuming gameGuessLetters array has been restored at this point:
-        currentAttempt = savedState.currentAttempt; // Make sure this correctly reflects the next empty row for guesses
-
-        // UI restoration based on the saved state
-        restoreUIFromSavedState();
-        
-        // Increment currentAttempt to point to the next empty row
-        if (!isGameOver) {
-            currentAttempt += 1;
-        }
-    } else {
-        startNewGame();
-    }
-}
-
-
-function getTodayDateString() {
-    const today = new Date();
-    return today.toISOString().slice(0, 10);
-}
-
-function restoreUIFromSavedState() {
-    gameGuessLetters.forEach((guessArray, index) => {
-        const guessString = guessArray.join(''); // Corrected: Use a different variable name
-        updateTiles(index, guessString, gameGuessColors[index]);
-    });
-    // Restore the hint visibility and other UI elements as necessary
-    if (hintDisplayed) {
-        displayHint();
-    }
-    // Optionally, update endgame UI if `isGameOver` is true
-    if (isGameOver) {
-        const lastGuessString = gameGuessLetters[gameGuessLetters.length - 1].join('');
-        showEndGameMessage(lastGuessString === wordOfTheDay);
-    }
-    // Refresh the keyboard to reflect the state of letters used
-    refreshKeyboardState();
-}
-
-function refreshKeyboardState() {
-    // Reset the state of all keys first
-    document.querySelectorAll('.key').forEach(key => {
-        key.classList.remove('correct', 'present', 'absent');
-    });
-
-    // Apply the new state based on guesses
-    gameGuessLetters.flat().forEach((letter, index) => {
-        const keyElement = document.querySelector(`.key[data-key="${letter}"]`);
-        if (keyElement) {
-            const result = gameGuessColors.flat()[index];
-            if (result === 'correct') {
-                keyElement.classList.add('correct');
-            } else if (result === 'present') {
-                keyElement.classList.add('present');
-            } else if (result === 'absent') {
-                keyElement.classList.add('absent');
-            }
-        }
-    });
-}
-
-
-function startNewGame() {
-    // Reset game state variables
-    currentAttempt = 0;
-    gameGuessLetters = [];
-    gameGuessColors = [];
-    hintDisplayed = false;
-    isGameOver = false;
-    incorrectGuesses = 0;
-    // Clear saved game state
-    localStorage.removeItem('horrordleGameState');
-    // Additional setup as necessary (e.g., fetch new word of the day, reset UI)
-    loadGame();
-    saveGameState(); // Save after processing the guess
-}
-
-
-
 
 
 // ======================================= //
@@ -660,10 +554,6 @@ function displayStatsModal() {
 }
 
 function concludeGame(won) {
-
-    isGameOver = true; // Mark the game as finished
-    saveGameState(); // Save the state with the game marked as finished
-
     updateStats(won, currentAttempt);
     // Optionally delay the stats modal display if needed
     setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
@@ -748,5 +638,5 @@ function disableInput() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadGame(); // Make sure this still runs to load the game data
-    restoreGameState(); // Check if we need to restore state
+    restoreGameStateIfPlayedToday(); // Check if we need to restore state
 });
