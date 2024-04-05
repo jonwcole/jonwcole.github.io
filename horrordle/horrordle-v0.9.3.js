@@ -640,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if it's the user's first visit
     if (!localStorage.getItem('hasVisited')) {
         // Show instructions
-        const instructionsElement = document.querySelector('.Instructions');
+        const instructionsElement = document.querySelector('.instructions');
         if (instructionsElement) {
             instructionsElement.style.display = 'block';
             // Ensure the transition for opacity works by adding a slight delay
