@@ -125,8 +125,7 @@ function processGuess(guess) {
     // Continue with any additional processing...
 }
 
-function saveCurrentGameState() {
-    // Prepare the game state object
+function saveCurrentGameState(gameWon) {
     const gameState = {
         gameDate: gameDate,
         gameGuessColors: gameGuessColors,
@@ -134,10 +133,10 @@ function saveCurrentGameState() {
         currentAttempt: currentAttempt,
         incorrectGuesses: incorrectGuesses,
         hintDisplayed: hintDisplayed,
-        isGameOver: isGameOver
+        isGameOver: isGameOver,
+        gameWon: gameWon
     };
 
-    // Convert it to a string and save it in localStorage
     localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
 }
 
@@ -162,6 +161,33 @@ function handleGuessFinalization(guess) {
         isGameOver = true;
         concludeGame(won);
     }
+}
+
+function startNewGame() {
+    // Reset game variables to their initial state
+    currentAttempt = 0;
+    gameGuessColors = [];
+    gameGuessLetters = [];
+    isGameOver = false;
+    incorrectGuesses = 0;
+    hintDisplayed = false;
+    isRevealingGuess = false;
+    currentGuess = [];
+
+    // Possibly reset other necessary parts of your game state here...
+
+    // Update the UI to reflect the reset state
+    resetGameBoardUI(); // You'll need to implement this function to clear the game board
+    toggleOnScreenKeyboard(true); // Re-enable the on-screen keyboard if it was disabled
+    updateGameUI(wordOfTheDay, hintOfTheDay); // Update the game UI to the starting state
+    // Ensure any end-game messages are hidden
+    // ...
+
+    // If you're dynamically generating the word of the day, you might need to call that function here too
+    // loadWordOfTheDay(); // Example function call to set a new word of the day
+
+    // Clear any saved game state that might exist
+    localStorage.removeItem('horrordleGameState');
 }
 
 
@@ -202,25 +228,34 @@ function updateCurrentGuessDisplay() {
 }
 
 function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-  const tiles = row.querySelectorAll('.tile');
-
-  tiles.forEach((tile, index) => {
-    // Set up the back face with the guessed letter and status class before starting the animation
-    const back = tile.querySelector('.back');
-    const backText = tile.querySelector('.back-text');
-    backText.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
-    back.className = 'back'; // Reset any previous result classes
-    back.classList.add(result[index]); // Preemptively add the result class to the back
+    const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+    if (!row) {
+        console.error('Row not found for attempt:', attempt);
+        return; // Early return if the row is not found
+    }
     
-    // Delay each tile's flip animation to visualize them one by one
-    setTimeout(() => {
-      // Start the flip animation
-      tile.classList.add('flipped');
-    }, index * 500); // Stagger the start of each tile's flip
-  });
+    const tiles = row.querySelectorAll('.tile');
+    tiles.forEach((tile, index) => {
+        // Attempt to find the back face and back text elements of the tile
+        const back = tile.querySelector('.back');
+        const backText = tile.querySelector('.back-text');
+        
+        if (back && backText) { // Ensure both elements exist
+            backText.textContent = guess[index]; // Update back text with the current letter
+            back.className = 'back'; // Reset classes
+            back.classList.add(result[index]); // Add the appropriate class based on the result
+            
+            // Delay the flip animation
+            setTimeout(() => {
+                tile.classList.add('flipped');
+            }, index * 500);
+        } else {
+            console.error('Failed to find .back or .back-text in tile:', tile);
+        }
+    });
 
-  updateKeyboard(guess, result);
+    // Assuming updateKeyboard is used to update the state of the on-screen keyboard based on the guess
+    updateKeyboard(guess, result);
 }
 
 function shakeCurrentRow() {
@@ -366,6 +401,44 @@ function triggerUIAction(action) {
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard for end of the game
 }
 
+function resetGameBoardUI() {
+    // Clear guess tiles
+    document.querySelectorAll('.tile').forEach(tile => {
+        const front = tile.querySelector('.front');
+        const back = tile.querySelector('.back');
+        if (front) front.textContent = ''; // Clear front tile text
+        if (back) {
+            back.textContent = ''; // Clear back tile text
+            back.className = 'back'; // Reset any coloring/styling
+        }
+        tile.classList.remove('flipped'); // Reset flipped state if any
+    });
+
+    // Reset the on-screen keyboard appearance
+    document.querySelectorAll('.key').forEach(key => {
+        key.classList.remove('correct', 'present', 'absent'); // Remove color coding
+        key.removeAttribute('disabled'); // Re-enable keys if they were disabled
+    });
+
+    // Hide game-over messages, hints, and any other end-game elements
+    const endGameElements = ['.success', '.hint', '.splatter-box', '#word-reveal'];
+    endGameElements.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.style.display = 'none';
+            element.style.opacity = '0'; // Assuming CSS transitions, this would start fade-out
+        }
+    });
+
+    // Optionally, if you have a modal or overlay that shows game stats or messages, hide it
+    // const statsModal = document.getElementById('statsModalId'); // Example
+    // if (statsModal) statsModal.style.display = 'none';
+
+    // Any other UI reset operations needed
+}
+
+
+
 // ======================== //
 // 4. Game State Management //
 // ======================== //
@@ -383,28 +456,24 @@ function restoreGameStateIfPlayedToday() {
     const today = getLocalDateISOString();
 
     if (savedState && savedState.gameDate === today) {
-        // Extract necessary information from the saved state
-        const { gameGuessLetters, gameGuessColors, isGameOver, gameWon } = savedState;
-
-        if (isGameOver) {
-            // Game was completed; show end-game state
-            disableInput(); // Prevent further game actions
-            concludeGame(gameWon); // Show the correct end-game information based on win/loss
+        // Check if the game was completed
+        if (savedState.isGameOver) {
+            disableInput(); // Ensure no further inputs are possible
+            concludeGame(savedState.gameWon); // Display the end-game state correctly
         } else {
-            // Game is still in progress, restore guesses on the board
-            gameGuessLetters.forEach((guessLetters, attempt) => {
-                updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
+            // The game is still in progress
+            // Restore the guesses on the board
+            savedState.gameGuessLetters.forEach((guessLetters, attempt) => {
+                updateTiles(attempt, guessLetters.join(''), savedState.gameGuessColors[attempt]);
             });
 
-            // Update the on-screen keyboard based on past guesses
-            refreshKeyboardState(gameGuessLetters, gameGuessColors);
+            // Restore the keyboard state
+            refreshKeyboardState(savedState.gameGuessLetters, savedState.gameGuessColors);
             
-            // Allow player to continue playing
-            enableInput(); // Make sure this function enables game input if you have it
-            currentAttempt = gameGuessLetters.length; // Set to correct attempt number
+            currentAttempt = savedState.gameGuessLetters.length; // Ensure the next guess continues correctly
         }
     } else {
-        // No saved state or it's a new day
+        // No saved state for today, or it's a new day
         startNewGame();
     }
 }
@@ -580,6 +649,7 @@ function concludeGame(won) {
     updateStats(won, currentAttempt);
     // Optionally delay the stats modal display if needed
     setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
+    saveCurrentGameState(won); // Pass 'won' to indicate game outcome
 
     // Additional UI updates, such as revealing the word of the day on game loss, can be handled here
     if (!won) {
@@ -599,6 +669,8 @@ function concludeGame(won) {
 
     // Trigger any additional endgame UI updates
     showEndGameMessage(won);
+    saveCurrentGameState(won);
+
 }
 
 
