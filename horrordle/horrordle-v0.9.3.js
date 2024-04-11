@@ -67,27 +67,19 @@ function handleKeyPress(key) {
 }
 
 function submitGuess() {
-    // Check if a guess is currently being revealed or if the game is over
-    if (isRevealingGuess || isGameOver || currentGuess.length !== 5) {
-        return; // Do not proceed if a guess is being revealed, the game is over, or if the guess isn't 5 letters
-    }
-
-    isRevealingGuess = true; // Set flag to indicate guess is being revealed
-
+    if (isGameOver || currentGuess.length < 5) return;
     const guess = currentGuess.join('').toUpperCase();
     if (!dictionary.includes(guess)) {
         shakeCurrentRow();
-        isRevealingGuess = false; // Reset flag if guess is invalid
         return;
     }
-
+    if (guess !== wordOfTheDay) {
+        incorrectGuesses++;
+    }
     processGuess(guess);
-
-    // Set a timeout for the length of the reveal animation before allowing next submission
     setTimeout(() => {
         handleGuessFinalization(guess);
-        isRevealingGuess = false; // Reset flag after guess has been processed and revealed
-    }, currentGuess.length * 500 + 600); // Adjust timing based on your reveal animation
+    }, currentGuess.length * 500 + 600);
 }
 
 function processGuess(guess) {
