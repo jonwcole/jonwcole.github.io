@@ -384,12 +384,9 @@ function restoreGameStateIfPlayedToday() {
 
     if (savedState && savedState.gameDate === today) {
         // Extract necessary information from the saved state
-        const { gameGuessLetters, gameGuessColors, isGameOver } = savedState;
+        const { gameGuessLetters, gameGuessColors, isGameOver, gameWon } = savedState;
 
-        // Set the current attempt to the number of guesses already made
-        currentAttempt = gameGuessLetters.length;
-
-        // Restore guesses on the board
+        // Restore guesses on the board for both completed and in-progress games
         gameGuessLetters.forEach((guessLetters, attempt) => {
             updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
         });
@@ -397,17 +394,18 @@ function restoreGameStateIfPlayedToday() {
         // Update the on-screen keyboard based on past guesses
         refreshKeyboardState(gameGuessLetters, gameGuessColors);
 
-        // If the game was in progress, enable input so the player can continue
-        if (!isGameOver) {
-            enableInput(); // Function to re-enable game inputs
+        if (isGameOver) {
+            // Game was completed; show end-game state
+            disableInput(); // Prevent further game actions
+            concludeGame(gameWon); // Show the correct end-game information based on win/loss
         } else {
-            // If the game had concluded, disable input and show end-game information
-            disableInput(); 
-            concludeGame(savedState.gameWon); // Ensure this function correctly handles showing the game's end state
+            // Game is still in progress
+            enableInput(); // Allow player to continue playing
+            currentAttempt = gameGuessLetters.length; // Set to correct attempt number
         }
-    } else if (!savedState || savedState.gameDate !== today) {
+    } else {
         // No saved state or it's a new day
-        startNewGame(); // Start a fresh game if there's no saved state or if the saved game is from a previous day
+        startNewGame();
     }
 }
 
