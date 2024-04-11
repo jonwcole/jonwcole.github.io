@@ -386,21 +386,21 @@ function restoreGameStateIfPlayedToday() {
         // Extract necessary information from the saved state
         const { gameGuessLetters, gameGuessColors, isGameOver, gameWon } = savedState;
 
-        // Restore guesses on the board for both completed and in-progress games
-        gameGuessLetters.forEach((guessLetters, attempt) => {
-            updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
-        });
-
-        // Update the on-screen keyboard based on past guesses
-        refreshKeyboardState(gameGuessLetters, gameGuessColors);
-
         if (isGameOver) {
             // Game was completed; show end-game state
             disableInput(); // Prevent further game actions
             concludeGame(gameWon); // Show the correct end-game information based on win/loss
         } else {
-            // Game is still in progress
-            enableInput(); // Allow player to continue playing
+            // Game is still in progress, restore guesses on the board
+            gameGuessLetters.forEach((guessLetters, attempt) => {
+                updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
+            });
+
+            // Update the on-screen keyboard based on past guesses
+            refreshKeyboardState(gameGuessLetters, gameGuessColors);
+            
+            // Allow player to continue playing
+            enableInput(); // Make sure this function enables game input if you have it
             currentAttempt = gameGuessLetters.length; // Set to correct attempt number
         }
     } else {
