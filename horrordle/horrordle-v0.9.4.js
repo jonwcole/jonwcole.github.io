@@ -1,3 +1,5 @@
+// v0.9.4.01 //
+
 // ================================== //
 // 1. Initialization and Data Loading //
 // ================================== //
@@ -328,12 +330,6 @@ function revealWordOfTheDay() {
     }
 }
 
-// New function to handle end game UI updates
-function showEndGameMessage(won) {
-    displayEndGameMessage(won); // Calls existing function to show the message
-    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
-}
-
 function triggerUIAction(action) {
     switch (action) {
         case 'invalidGuess':
@@ -415,6 +411,7 @@ function showEndGameMessage(won) {
     // Implement showing the end game message based on win/loss
     // For example:
     displayEndGameMessage(won);
+    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
     // Reveal word of the day or other end-game UI elements as needed
     revealWordOfTheDay();
 }
