@@ -40,15 +40,6 @@ async function loadGame() {
         } else {
             console.error('Word for today not found');
         }
-
-        restoreGameStateIfPlayedToday();
-
-        // Ensure game board rows are initialized after the game board is ready
-        initializeTileRows();
-
-        // Now that the rows are initialized, attempt to restore game state if applicable
-        restoreGameStateIfPlayedToday();
-
     } catch (error) {
         console.error('Error loading game data:', error);
     }
@@ -143,7 +134,7 @@ function saveCurrentGameState(gameWon) {
         incorrectGuesses: incorrectGuesses,
         hintDisplayed: hintDisplayed,
         isGameOver: isGameOver,
-        gameWon: gameWon
+        gameWon: gameWon // Use the passed gameWon value to correctly reflect game outcome
     };
 
     localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
@@ -199,12 +190,6 @@ function startNewGame() {
     localStorage.removeItem('horrordleGameState');
 }
 
-function initializeTileRows() {
-  const rows = document.querySelectorAll('.tile-row-wrapper');
-  rows.forEach((row, index) => {
-    row.setAttribute('data-attempt', index);
-  });
-}
 
 
 // ============= //
