@@ -1,4 +1,4 @@
-// 0.9.4.01 //
+// v0.9.4.01 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -11,15 +11,6 @@ let hintOfTheDay = '';
 
 async function loadGame() {
     try {
-        const today = getLocalDateISOString(); // Get today's date in ISO format.
-
-        // Check if there's a game stored and if the date matches today.
-        const storedGameDate = localStorage.getItem('gameDate');
-        if (storedGameDate !== today) {
-            startNewGame(); // Start a new game if it's a new day.
-            return; // Exit early since a new game setup is already handled.
-        }
-
         // Fetch and set up the dictionary
         const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary-v1.json');
         const dictionaryData = await dictionaryResponse.json();
@@ -28,6 +19,12 @@ async function loadGame() {
         // Fetch and set up the word of the day
         const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.json');
         const wordsData = await wordsResponse.json();
+        
+        // Get today's date and word data as before
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        const adjustedNow = new Date(now - timezoneOffset);
+        const today = adjustedNow.toISOString().slice(0, 10);
 
         const wordData = wordsData[today];
         if (wordData) {
@@ -100,7 +97,6 @@ function submitGuess() {
     }, currentGuess.length * 500 + 600);
 }
 
-
 function processGuess(guess) {
     let wordArray = wordOfTheDay.split('');
     let result = [];
@@ -119,14 +115,11 @@ function processGuess(guess) {
         }
     }
     updateTiles(currentAttempt, guess, result);
-    gameGuessColors.push(result);
-    gameGuessLetters.push(guess.split(''));
-    saveGameState();  // Call to save current game state to localStorage
+    saveGameProgress(guess, result);
     currentAttempt++;
-    if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
+    if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
         concludeGame(guess === wordOfTheDay);
     }
-    currentGuess = [];
 }
 
 function handleInvalidGuess() {
@@ -190,33 +183,25 @@ function updateCurrentGuessDisplay() {
 }
 
 function updateTiles(attempt, guess, result) {
-    const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-    if (!row) {
-        console.error(`Row not found for attempt: ${attempt}`);
-        return;
-    }
-    const tiles = row.querySelectorAll('.tile');
+  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+  const tiles = row.querySelectorAll('.tile');
 
-    tiles.forEach((tile, index) => {
-        const backText = tile.querySelector('.back-text');
-        if (!backText) {
-            console.error(`Failed to find .back-text in tile at index: ${index}`);
-            return;
-        }
-        backText.textContent = guess[index]; // Set the letter here as well for a reveal effect
-        const back = tile.querySelector('.back');
-        if (!back) {
-            console.error(`Failed to find .back in tile at index: ${index}`);
-            return;
-        }
-        back.className = 'back'; // Reset any previous result classes
-        back.classList.add(result[index]); // Preemptively add the result class to the back
+  tiles.forEach((tile, index) => {
+    // Set up the back face with the guessed letter and status class before starting the animation
+    const back = tile.querySelector('.back');
+    const backText = tile.querySelector('.back-text');
+    backText.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
+    back.className = 'back'; // Reset any previous result classes
+    back.classList.add(result[index]); // Preemptively add the result class to the back
+    
+    // Delay each tile's flip animation to visualize them one by one
+    setTimeout(() => {
+      // Start the flip animation
+      tile.classList.add('flipped');
+    }, index * 500); // Stagger the start of each tile's flip
+  });
 
-        // Delay each tile's flip animation to visualize them one by one
-        setTimeout(() => {
-            tile.classList.add('flipped');
-        }, index * 500); // Stagger the start of each tile's flip
-    });
+  updateKeyboard(guess, result);
 }
 
 function shakeCurrentRow() {
@@ -362,44 +347,6 @@ function triggerUIAction(action) {
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard for end of the game
 }
 
-function resetGameBoardUI() {
-    // Assuming you have tiles that need to be reset
-    const tiles = document.querySelectorAll('.tile');
-    tiles.forEach(tile => {
-        const front = tile.querySelector('.front');
-        const back = tile.querySelector('.back');
-        // Reset content and classes that may indicate tile state
-        if (front) front.textContent = '';
-        if (back) {
-            back.textContent = '';
-            back.className = 'back';
-        }
-        // Reset any flipped or highlighted state
-        tile.classList.remove('flipped', 'correct', 'present', 'absent');
-    });
-
-    // Reset other UI elements related to game status
-    const hintElement = document.getElementById('hint');
-    if (hintElement) {
-        hintElement.style.display = 'none';
-        hintElement.style.opacity = 0;
-    }
-
-    // Reset keyboard if there's a virtual keyboard used
-    const keys = document.querySelectorAll('.key');
-    keys.forEach(key => {
-        key.classList.remove('correct', 'present', 'absent');
-        key.removeAttribute('disabled');
-    });
-
-    // Clear any displayed messages or modals
-    const successDiv = document.querySelector('.success');
-    const errorDiv = document.querySelector('.error');
-    if (successDiv) successDiv.style.display = 'none';
-    if (errorDiv) errorDiv.style.display = 'none';
-}
-
-
 // ======================== //
 // 4. Game State Management //
 // ======================== //
@@ -412,94 +359,81 @@ localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
 localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
 }
 
-function saveGameState() {
-    const gameState = {
-        gameDate: gameDate,
-        gameGuessColors: gameGuessColors,
-        gameGuessLetters: gameGuessLetters,
-        currentAttempt: currentAttempt,
-        isGameOver: isGameOver,
-        hintDisplayed: hintDisplayed,
-        hintOfTheDay: hintOfTheDay
-    };
-    localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
+function saveGameProgress(guess, result) {
+    const today = new Date().toISOString().slice(0, 10);
+    let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
+
+    // Initialize game progress if empty or date mismatch
+    if (!gameProgress.date || gameProgress.date !== today) {
+        gameProgress = { date: today, attempts: [], gameEnded: false };
+    }
+
+    // Append current guess and result
+    gameProgress.attempts.push({ guess, result, attemptNumber: currentAttempt });
+
+    // Save the updated game progress
+    localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 }
 
 function restoreGameStateIfPlayedToday() {
-    const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
-    const today = getLocalDateISOString();
+    const stats = JSON.parse(localStorage.getItem('stats')) || {};
+    const today = getLocalDateISOString(); // Use local date
+    const gameOutcome = localStorage.getItem('gameOutcome');
 
-    if (savedState && savedState.gameDate === today) {
-        if (!savedState.isGameOver) {
-            // Restore the game state if it's the same day and game is not over
-            gameDate = savedState.gameDate;
-            gameGuessColors = savedState.gameGuessColors;
-            gameGuessLetters = savedState.gameGuessLetters;
-            currentAttempt = savedState.currentAttempt;
-            isGameOver = savedState.isGameOver;
-            hintDisplayed = savedState.hintDisplayed;
-            hintOfTheDay = savedState.hintOfTheDay;
+    if (stats.lastPlayedDate === today) {
+        // Prevent further input
+        disableInput();
 
-            // Restore UI for each guess made so far
-            gameGuessLetters.forEach((guessLetters, attempt) => {
-                updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
+        // Restore game state
+        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
+        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+
+        // Display the Word of the Day if the user lost or won their last game
+        if (gameOutcome === 'lost' || gameOutcome === 'won') {
+            const wordElement = document.getElementById('word-reveal');
+            const wordContent = document.getElementById('word-content'); // Element where the word is displayed within #word-reveal
+            document.querySelectorAll('.splatter-box').forEach(box => {
+                box.style.display = 'block';
+                box.style.opacity = '1';
             });
-
-            if (hintDisplayed) {
-                displayHint();
+            if (wordElement && wordContent) {
+                wordContent.textContent = wordOfTheDay; // Assuming this variable is still accessible
+                wordElement.style.display = 'flex';
+                setTimeout(() => {
+                    wordElement.style.opacity = 1;
+                }, 100);
             }
-        } else {
-            // Display end game screen if the game was completed
-            concludeGame(savedState.gameWon);
         }
-    } else {
-        // If it's a new day or no game state is saved, start a new game
-        startNewGame();
+
+        gameGuessLetters.forEach((guessLetters, attempt) => {
+            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+            const tiles = row.querySelectorAll('.tile');
+
+            guessLetters.forEach((letter, index) => {
+                if (tiles[index]) {
+                    const tile = tiles[index];
+                    const front = tile.querySelector('.front');
+                    const back = tile.querySelector('.back');
+                    const backText = tile.querySelector('.back-text');
+
+                    // Set the text for front and back
+                    front.textContent = letter;
+                    backText.textContent = letter;
+                    
+                    // Clear previous classes on back and add the new one
+                    back.className = 'back'; // Reset class
+                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
+                    
+                    // Add the flipped class to the tile for the flipping effect
+                    tile.classList.add('flipped');
+                }
+            });
+        });
+
+        // Display stats modal, assuming you have a function or logic to properly display it
+        displayStatsModal();
     }
 }
-
-function startNewGame() {
-    // Reset game variables to their initial state
-    currentAttempt = 0;
-    gameGuessColors = [];
-    gameGuessLetters = [];
-    isGameOver = false;
-    incorrectGuesses = 0;
-    hintDisplayed = false;
-    isRevealingGuess = false;
-    currentGuess = [];
-
-    // Define today's date as the new game date and store it
-    const today = getLocalDateISOString();
-    gameDate = today;
-    localStorage.setItem('gameDate', gameDate);
-
-    // Reset and fetch new word of the day and hint
-    fetchWordOfTheDayAndHint(today);  // This function needs to be defined to fetch the word and hint
-
-    // Update the UI accordingly (This assumes you already have this UI update functionality in place)
-    updateGameUI(wordOfTheDay, hintOfTheDay);
-
-    // Ensure any end-game messages are cleared and other UI elements are reset
-    resetGameBoardUI(); // Reset the game board UI
-}
-
-// You might need to define this new function if it doesn't exist
-function fetchWordOfTheDayAndHint(today) {
-    fetch('https://jonwcole.github.io/horrordle/words-v1.json').then(response => {
-        return response.json();
-    }).then(wordsData => {
-        const wordData = wordsData[today];
-        if (wordData) {
-            wordOfTheDay = wordData.word.toUpperCase();
-            hintOfTheDay = wordData.hint;
-            // Possibly update the UI here or after this function call
-        }
-    }).catch(error => {
-        console.error('Failed to fetch words:', error);
-    });
-}
-
 
 
 // ======================================= //
@@ -652,28 +586,28 @@ function displayStatsModal() {
 }
 
 function concludeGame(won) {
-    updateStats(won, currentAttempt);
-    // Optionally delay the stats modal display if needed
-    setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
+    let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
+    gameProgress.gameEnded = true;
+    localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 
-    // Additional UI updates, such as revealing the word of the day on game loss, can be handled here
+    updateStats(won, currentAttempt); // Update game statistics
+    setTimeout(displayStatsModal, 1200); // Delay the stats modal display if needed
+
     if (!won) {
-        revealWordOfTheDay(); // Existing function to make adjustments for game loss
+        revealWordOfTheDay(); // Additional UI logic for revealing the word of the day upon losing
 
-        // Reveal the word of the day
         const wordRevealDiv = document.getElementById('word-reveal');
-        const wordContent = document.getElementById('word-content'); // Assuming this is where the word of the day is displayed within #word-reveal
+        const wordContent = document.getElementById('word-content');
         if (wordRevealDiv && wordContent) {
-            wordContent.textContent = wordOfTheDay; // Update the text content to the word of the day
-            wordRevealDiv.style.display = 'flex'; // Make the div visible
+            wordContent.textContent = wordOfTheDay; // Display the correct word
+            wordRevealDiv.style.display = 'flex';
             setTimeout(() => {
-                wordRevealDiv.style.opacity = 1; // Fade in if you have CSS transitions set up
-            }, 100); // Adjust timing as needed
+                wordRevealDiv.style.opacity = 1;
+            }, 100);
         }
     }
 
-    // Trigger any additional endgame UI updates
-    showEndGameMessage(won);
+    showEndGameMessage(won); // Handles UI updates for end of the game
 }
 
 
