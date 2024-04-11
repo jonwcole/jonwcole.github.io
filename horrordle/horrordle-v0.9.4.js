@@ -399,41 +399,7 @@ function triggerUIAction(action) {
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard for end of the game
 }
 
-function resetGameBoardUI() {
-    // Clear guess tiles
-    document.querySelectorAll('.tile').forEach(tile => {
-        const front = tile.querySelector('.front');
-        const back = tile.querySelector('.back');
-        if (front) front.textContent = ''; // Clear front tile text
-        if (back) {
-            back.textContent = ''; // Clear back tile text
-            back.className = 'back'; // Reset any coloring/styling
-        }
-        tile.classList.remove('flipped'); // Reset flipped state if any
-    });
 
-    // Reset the on-screen keyboard appearance
-    document.querySelectorAll('.key').forEach(key => {
-        key.classList.remove('correct', 'present', 'absent'); // Remove color coding
-        key.removeAttribute('disabled'); // Re-enable keys if they were disabled
-    });
-
-    // Hide game-over messages, hints, and any other end-game elements
-    const endGameElements = ['.success', '.hint', '.splatter-box', '#word-reveal'];
-    endGameElements.forEach(selector => {
-        const element = document.querySelector(selector);
-        if (element) {
-            element.style.display = 'none';
-            element.style.opacity = '0'; // Assuming CSS transitions, this would start fade-out
-        }
-    });
-
-    // Optionally, if you have a modal or overlay that shows game stats or messages, hide it
-    // const statsModal = document.getElementById('statsModalId'); // Example
-    // if (statsModal) statsModal.style.display = 'none';
-
-    // Any other UI reset operations needed
-}
 
 // Reset the game board UI to its initial state
 function resetGameBoardUI() {
