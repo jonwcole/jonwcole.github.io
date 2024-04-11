@@ -125,8 +125,7 @@ function processGuess(guess) {
     // Continue with any additional processing...
 }
 
-function saveCurrentGameState() {
-    // Prepare the game state object
+function saveCurrentGameState(gameWon) {
     const gameState = {
         gameDate: gameDate,
         gameGuessColors: gameGuessColors,
@@ -138,7 +137,6 @@ function saveCurrentGameState() {
         gameWon: gameWon
     };
 
-    // Convert it to a string and save it in localStorage
     localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
 }
 
@@ -651,6 +649,7 @@ function concludeGame(won) {
     updateStats(won, currentAttempt);
     // Optionally delay the stats modal display if needed
     setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
+    saveCurrentGameState(won); // Pass 'won' to indicate game outcome
 
     // Additional UI updates, such as revealing the word of the day on game loss, can be handled here
     if (!won) {
