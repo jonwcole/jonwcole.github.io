@@ -383,7 +383,11 @@ function restoreGameStateIfPlayedToday() {
     const today = getLocalDateISOString();
 
     if (savedState && savedState.gameDate === today) {
+        // Extract necessary information from the saved state
         const { gameGuessLetters, gameGuessColors, isGameOver } = savedState;
+
+        // Set the current attempt to the number of guesses already made
+        currentAttempt = gameGuessLetters.length;
 
         // Restore guesses on the board
         gameGuessLetters.forEach((guessLetters, attempt) => {
@@ -393,18 +397,17 @@ function restoreGameStateIfPlayedToday() {
         // Update the on-screen keyboard based on past guesses
         refreshKeyboardState(gameGuessLetters, gameGuessColors);
 
-        if (isGameOver) {
-            // The game had concluded (either won or lost)
-            disableInput(); // Keep inputs disabled
-            // Display end-game information (word reveal, win/loss message, etc.)
-            concludeGame(savedState.gameWon);
+        // If the game was in progress, enable input so the player can continue
+        if (!isGameOver) {
+            enableInput(); // Function to re-enable game inputs
         } else {
-            // The game was in progress and has not concluded
-            enableInput(); // Re-enable inputs so the user can continue playing
+            // If the game had concluded, disable input and show end-game information
+            disableInput(); 
+            concludeGame(savedState.gameWon); // Ensure this function correctly handles showing the game's end state
         }
     } else if (!savedState || savedState.gameDate !== today) {
         // No saved state or it's a new day
-        startNewGame();
+        startNewGame(); // Start a fresh game if there's no saved state or if the saved game is from a previous day
     }
 }
 
