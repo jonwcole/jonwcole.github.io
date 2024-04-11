@@ -164,30 +164,28 @@ function handleGuessFinalization(guess) {
 }
 
 function startNewGame() {
-    // Reset game variables to their initial state
+    // Reset game-related variables
     currentAttempt = 0;
-    gameGuessColors = [];
-    gameGuessLetters = [];
     isGameOver = false;
     incorrectGuesses = 0;
     hintDisplayed = false;
     isRevealingGuess = false;
-    currentGuess = [];
+    gameGuessColors = [];
+    gameGuessLetters = [];
+    currentGuess = []; // Clear the current guess
 
-    // Possibly reset other necessary parts of your game state here...
-
-    // Update the UI to reflect the reset state
-    resetGameBoardUI(); // You'll need to implement this function to clear the game board
-    toggleOnScreenKeyboard(true); // Re-enable the on-screen keyboard if it was disabled
-    updateGameUI(wordOfTheDay, hintOfTheDay); // Update the game UI to the starting state
-    // Ensure any end-game messages are hidden
-    // ...
-
-    // If you're dynamically generating the word of the day, you might need to call that function here too
-    // loadWordOfTheDay(); // Example function call to set a new word of the day
-
-    // Clear any saved game state that might exist
+    // Clear the local storage or at least the current game's state
     localStorage.removeItem('horrordleGameState');
+
+    // Reset UI components
+    resetGameBoardUI();
+    resetKeyboardUI();
+
+    // Possibly re-enable input if it was disabled at the end of a game
+    enableInput();
+
+    // Load or reload game data as needed
+    loadGame();
 }
 
 
@@ -435,6 +433,33 @@ function resetGameBoardUI() {
     // if (statsModal) statsModal.style.display = 'none';
 
     // Any other UI reset operations needed
+}
+
+// Reset the game board UI to its initial state
+function resetGameBoardUI() {
+    // Example: clear all tiles of letters and styles
+    document.querySelectorAll('.tile').forEach(tile => {
+        tile.classList.remove('correct', 'present', 'absent', 'flipped');
+        const front = tile.querySelector('.front');
+        const back = tile.querySelector('.back');
+        if (front) front.textContent = '';
+        if (back) {
+            back.textContent = '';
+            back.classList.remove('correct', 'present', 'absent');
+        }
+    });
+
+    // Hide end-game messages and hints if visible
+    document.querySelector('.success').style.display = 'none';
+    document.querySelector('.hint').style.display = 'none';
+}
+
+// Reset the on-screen keyboard UI to its initial state
+function resetKeyboardUI() {
+    // Example: remove all styling from keyboard keys to indicate correctness, presence, or absence
+    document.querySelectorAll('.key').forEach(key => {
+        key.classList.remove('correct', 'present', 'absent');
+    });
 }
 
 
