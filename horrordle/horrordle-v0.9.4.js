@@ -191,20 +191,31 @@ function updateCurrentGuessDisplay() {
 
 function updateTiles(attempt, guess, result) {
     const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+    if (!row) {
+        console.error(`Row not found for attempt: ${attempt}`);
+        return;
+    }
     const tiles = row.querySelectorAll('.tile');
 
     tiles.forEach((tile, index) => {
-        const backText = tile.querySelector('.back-text'); // Possible null point
-        if (backText) {
-            backText.textContent = guess[index]; // Set the letter here as well for a reveal effect
-            const back = tile.querySelector('.back');
-            if (back) {
-                back.className = 'back'; // Reset any previous result classes
-                back.classList.add(result[index]); // Preemptively add the result class to the back
-            }
-        } else {
-            console.error('Failed to find .back-text in tile at index:', index);
+        const backText = tile.querySelector('.back-text');
+        if (!backText) {
+            console.error(`Failed to find .back-text in tile at index: ${index}`);
+            return;
         }
+        backText.textContent = guess[index]; // Set the letter here as well for a reveal effect
+        const back = tile.querySelector('.back');
+        if (!back) {
+            console.error(`Failed to find .back in tile at index: ${index}`);
+            return;
+        }
+        back.className = 'back'; // Reset any previous result classes
+        back.classList.add(result[index]); // Preemptively add the result class to the back
+
+        // Delay each tile's flip animation to visualize them one by one
+        setTimeout(() => {
+            tile.classList.add('flipped');
+        }, index * 500); // Stagger the start of each tile's flip
     });
 }
 
