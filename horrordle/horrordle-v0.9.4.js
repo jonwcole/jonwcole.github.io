@@ -134,7 +134,7 @@ function saveCurrentGameState(gameWon) {
         incorrectGuesses: incorrectGuesses,
         hintDisplayed: hintDisplayed,
         isGameOver: isGameOver,
-        gameWon: gameWon // Use the passed gameWon value to correctly reflect game outcome
+        gameWon: gameWon
     };
 
     localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
@@ -172,7 +172,7 @@ function startNewGame() {
     incorrectGuesses = 0;
     hintDisplayed = false;
     isRevealingGuess = false;
-    currentGuess = [];
+    currentGuess = 0;
 
     // Possibly reset other necessary parts of your game state here...
 
@@ -472,9 +472,6 @@ function restoreGameStateIfPlayedToday() {
             
             currentAttempt = savedState.gameGuessLetters.length; // Ensure the next guess continues correctly
         }
-    if (!savedState.isGameOver) {
-        currentAttempt = savedState.gameGuessLetters.length;
-    }
     } else {
         // No saved state for today, or it's a new day
         startNewGame();
