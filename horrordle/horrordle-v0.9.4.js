@@ -172,7 +172,7 @@ function startNewGame() {
     incorrectGuesses = 0;
     hintDisplayed = false;
     isRevealingGuess = false;
-    currentGuess = 0;
+    currentGuess = [];
 
     // Possibly reset other necessary parts of your game state here...
 
