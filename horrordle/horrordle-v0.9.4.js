@@ -399,7 +399,7 @@ function restoreGameStateIfPlayedToday() {
             refreshKeyboardState(savedState.gameGuessLetters, savedState.gameGuessColors);
             
             currentAttempt = savedState.gameGuessLetters.length; // Ensure the next guess continues correctly
-            // Possibly enable game inputs if they were previously disabled
+            enableInput(); // Ensure input is enabled so the user can continue guessing
         }
     } else {
         // No saved state for today, or it's a new day
