@@ -413,14 +413,45 @@ function restoreGameStateIfPlayedToday() {
 }
 
 function startNewGame() {
+    // Reset game variables to their initial state
     currentAttempt = 0;
     gameGuessColors = [];
     gameGuessLetters = [];
     isGameOver = false;
     incorrectGuesses = 0;
     hintDisplayed = false;
+    isRevealingGuess = false;
     currentGuess = [];
-    loadGame();
+
+    // Define today's date as the new game date and store it
+    const today = getLocalDateISOString();
+    gameDate = today;
+    localStorage.setItem('gameDate', gameDate);
+
+    // Reset and fetch new word of the day and hint
+    fetchWordOfTheDayAndHint(today);  // This function needs to be defined to fetch the word and hint
+
+    // Update the UI accordingly (This assumes you already have this UI update functionality in place)
+    updateGameUI(wordOfTheDay, hintOfTheDay);
+
+    // Ensure any end-game messages are cleared and other UI elements are reset
+    resetGameBoardUI(); // Reset the game board UI
+}
+
+// You might need to define this new function if it doesn't exist
+function fetchWordOfTheDayAndHint(today) {
+    fetch('https://jonwcole.github.io/horrordle/words-v1.json').then(response => {
+        return response.json();
+    }).then(wordsData => {
+        const wordData = wordsData[today];
+        if (wordData) {
+            wordOfTheDay = wordData.word.toUpperCase();
+            hintOfTheDay = wordData.hint;
+            // Possibly update the UI here or after this function call
+        }
+    }).catch(error => {
+        console.error('Failed to fetch words:', error);
+    });
 }
 
 
