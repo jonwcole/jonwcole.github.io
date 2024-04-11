@@ -132,7 +132,6 @@ function handleInvalidGuess() {
 }
 
 function handleGuessFinalization(guess) {
-    currentAttempt++;
     currentGuess = [];
     
     // Check for hint display condition right before concluding the game
