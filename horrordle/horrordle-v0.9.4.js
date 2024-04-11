@@ -134,7 +134,8 @@ function saveCurrentGameState() {
         currentAttempt: currentAttempt,
         incorrectGuesses: incorrectGuesses,
         hintDisplayed: hintDisplayed,
-        isGameOver: isGameOver
+        isGameOver: isGameOver,
+        gameWon: gameWon
     };
 
     // Convert it to a string and save it in localStorage
@@ -383,28 +384,25 @@ function restoreGameStateIfPlayedToday() {
     const today = getLocalDateISOString();
 
     if (savedState && savedState.gameDate === today) {
-        // Extract necessary information from the saved state
-        const { gameGuessLetters, gameGuessColors, isGameOver, gameWon } = savedState;
-
-        if (isGameOver) {
-            // Game was completed; show end-game state
-            disableInput(); // Prevent further game actions
-            concludeGame(gameWon); // Show the correct end-game information based on win/loss
+        // Check if the game was completed
+        if (savedState.isGameOver) {
+            disableInput(); // Ensure no further inputs are possible
+            concludeGame(savedState.gameWon); // Display the end-game state correctly
         } else {
-            // Game is still in progress, restore guesses on the board
-            gameGuessLetters.forEach((guessLetters, attempt) => {
-                updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
+            // The game is still in progress
+            // Restore the guesses on the board
+            savedState.gameGuessLetters.forEach((guessLetters, attempt) => {
+                updateTiles(attempt, guessLetters.join(''), savedState.gameGuessColors[attempt]);
             });
 
-            // Update the on-screen keyboard based on past guesses
-            refreshKeyboardState(gameGuessLetters, gameGuessColors);
+            // Restore the keyboard state
+            refreshKeyboardState(savedState.gameGuessLetters, savedState.gameGuessColors);
             
-            // Allow player to continue playing
-            enableInput(); // Make sure this function enables game input if you have it
-            currentAttempt = gameGuessLetters.length; // Set to correct attempt number
+            currentAttempt = savedState.gameGuessLetters.length; // Ensure the next guess continues correctly
+            // Possibly enable game inputs if they were previously disabled
         }
     } else {
-        // No saved state or it's a new day
+        // No saved state for today, or it's a new day
         startNewGame();
     }
 }
@@ -576,6 +574,7 @@ function displayStatsModal() {
 }
 
 function concludeGame(won) {
+    isGameOver = true;
     updateStats(won, currentAttempt);
     // Optionally delay the stats modal display if needed
     setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
@@ -598,6 +597,8 @@ function concludeGame(won) {
 
     // Trigger any additional endgame UI updates
     showEndGameMessage(won);
+    saveCurrentGameState(won);
+
 }
 
 
