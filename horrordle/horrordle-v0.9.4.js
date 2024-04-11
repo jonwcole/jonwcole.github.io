@@ -40,6 +40,15 @@ async function loadGame() {
         } else {
             console.error('Word for today not found');
         }
+
+        restoreGameStateIfPlayedToday();
+
+        // Ensure game board rows are initialized after the game board is ready
+        initializeTileRows();
+
+        // Now that the rows are initialized, attempt to restore game state if applicable
+        restoreGameStateIfPlayedToday();
+
     } catch (error) {
         console.error('Error loading game data:', error);
     }
@@ -190,6 +199,12 @@ function startNewGame() {
     localStorage.removeItem('horrordleGameState');
 }
 
+function initializeTileRows() {
+  const rows = document.querySelectorAll('.tile-row-wrapper');
+  rows.forEach((row, index) => {
+    row.setAttribute('data-attempt', index);
+  });
+}
 
 
 // ============= //
