@@ -380,62 +380,53 @@ function saveGameProgress(guess, result) {
 }
 
 function restoreGameStateIfPlayedToday() {
-    const stats = JSON.parse(localStorage.getItem('stats')) || {};
-    const today = getLocalDateISOString(); // Use local date
-    const gameOutcome = localStorage.getItem('gameOutcome');
+    const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
+    const today = getLocalDateISOString();
 
-    if (stats.lastPlayedDate === today) {
-        // Prevent further input
-        disableInput();
-
-        // Restore game state
-        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
-
-        // Display the Word of the Day if the user lost or won their last game
-        if (gameOutcome === 'lost' || gameOutcome === 'won') {
-            const wordElement = document.getElementById('word-reveal');
-            const wordContent = document.getElementById('word-content'); // Element where the word is displayed within #word-reveal
-            document.querySelectorAll('.splatter-box').forEach(box => {
-                box.style.display = 'block';
-                box.style.opacity = '1';
-            });
-            if (wordElement && wordContent) {
-                wordContent.textContent = wordOfTheDay; // Assuming this variable is still accessible
-                wordElement.style.display = 'flex';
-                setTimeout(() => {
-                    wordElement.style.opacity = 1;
-                }, 100);
-            }
+    if (gameProgress && gameProgress.date === today) {
+        // Disable input if the game has ended
+        if (gameProgress.gameEnded) {
+            disableInput();
         }
 
-        gameGuessLetters.forEach((guessLetters, attempt) => {
+        // Restore each guess on the game board
+        gameProgress.attempts.forEach((attemptObj, attempt) => {
             const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
             const tiles = row.querySelectorAll('.tile');
 
-            guessLetters.forEach((letter, index) => {
+            attemptObj.guess.split('').forEach((letter, index) => {
                 if (tiles[index]) {
                     const tile = tiles[index];
                     const front = tile.querySelector('.front');
                     const back = tile.querySelector('.back');
                     const backText = tile.querySelector('.back-text');
 
-                    // Set the text for front and back
-                    front.textContent = letter;
-                    backText.textContent = letter;
+                    front.textContent = letter; // Set the letter on the tile front
+                    backText.textContent = letter; // Set the letter on the tile back
+                    back.className = 'back ' + attemptObj.result[index]; // Apply the result styling
                     
-                    // Clear previous classes on back and add the new one
-                    back.className = 'back'; // Reset class
-                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
-                    
-                    // Add the flipped class to the tile for the flipping effect
-                    tile.classList.add('flipped');
+                    tile.classList.add('flipped'); // Flip the tile to show the result
                 }
             });
         });
 
-        // Display stats modal, assuming you have a function or logic to properly display it
-        displayStatsModal();
+        // Display the Word of the Day if the game is finished
+        if (gameProgress.gameEnded) {
+            const wordElement = document.getElementById('word-reveal');
+            const wordContent = document.getElementById('word-content');
+            if (wordElement && wordContent) {
+                wordContent.textContent = wordOfTheDay; // Display the word
+                wordElement.style.display = 'flex';
+                setTimeout(() => {
+                    wordElement.style.opacity = 1;
+                }, 100);
+            }
+
+            // Display end game messages or stats if needed
+            displayStatsModal();
+        }
+    } else {
+        console.log("No game progress found for today or different day.");
     }
 }
 
