@@ -383,26 +383,27 @@ function restoreGameStateIfPlayedToday() {
     const today = getLocalDateISOString();
 
     if (savedState && savedState.gameDate === today) {
-        const { gameGuessLetters, gameGuessColors, isGameOver } = savedState;
-
-        // Restore guesses on the board
-        gameGuessLetters.forEach((guessLetters, attempt) => {
-            updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
-        });
-
-        // Update the on-screen keyboard based on past guesses
-        refreshKeyboardState(gameGuessLetters, gameGuessColors);
+        // Extract necessary information from the saved state
+        const { gameGuessLetters, gameGuessColors, isGameOver, gameWon } = savedState;
 
         if (isGameOver) {
-            // The game had concluded (either won or lost)
-            disableInput(); // Keep inputs disabled
-            // Display end-game information (word reveal, win/loss message, etc.)
-            concludeGame(savedState.gameWon);
+            // Game was completed; show end-game state
+            disableInput(); // Prevent further game actions
+            concludeGame(gameWon); // Show the correct end-game information based on win/loss
         } else {
-            // The game was in progress and has not concluded
-            enableInput(); // Re-enable inputs so the user can continue playing
+            // Game is still in progress, restore guesses on the board
+            gameGuessLetters.forEach((guessLetters, attempt) => {
+                updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
+            });
+
+            // Update the on-screen keyboard based on past guesses
+            refreshKeyboardState(gameGuessLetters, gameGuessColors);
+            
+            // Allow player to continue playing
+            enableInput(); // Make sure this function enables game input if you have it
+            currentAttempt = gameGuessLetters.length; // Set to correct attempt number
         }
-    } else if (!savedState || savedState.gameDate !== today) {
+    } else {
         // No saved state or it's a new day
         startNewGame();
     }
@@ -575,6 +576,7 @@ function displayStatsModal() {
 }
 
 function concludeGame(won) {
+    isGameOver = true;
     updateStats(won, currentAttempt);
     // Optionally delay the stats modal display if needed
     setTimeout(displayStatsModal, 1200); // Adjust the delay as needed
