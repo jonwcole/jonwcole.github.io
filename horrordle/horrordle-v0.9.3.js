@@ -53,6 +53,7 @@ let maxAttempts = 6;
 let isGameOver = false;
 let incorrectGuesses = 0;
 let hintDisplayed = false;
+let isRevealingGuess = false; // Flag to track reveal state
 
 let currentGuess = []; // An array to hold the current guess's letters
 
@@ -66,28 +67,27 @@ function handleKeyPress(key) {
 }
 
 function submitGuess() {
-    // Ensure currentGuess has exactly 5 letters before proceeding
-    if (currentGuess.length !== 5) {
-        console.log("You must enter 5 letters to make a guess.");
-        return; // Exit the function if not exactly 5 letters
+    // Check if a guess is currently being revealed or if the game is over
+    if (isRevealingGuess || isGameOver || currentGuess.length !== 5) {
+        return; // Do not proceed if a guess is being revealed, the game is over, or if the guess isn't 5 letters
     }
 
-    if (isGameOver) return; // Additional check to prevent submissions after the game is over
+    isRevealingGuess = true; // Set flag to indicate guess is being revealed
 
     const guess = currentGuess.join('').toUpperCase();
     if (!dictionary.includes(guess)) {
         shakeCurrentRow();
+        isRevealingGuess = false; // Reset flag if guess is invalid
         return;
     }
 
-    if (guess !== wordOfTheDay) {
-        incorrectGuesses++;
-    }
-
     processGuess(guess);
+
+    // Set a timeout for the length of the reveal animation before allowing next submission
     setTimeout(() => {
         handleGuessFinalization(guess);
-    }, currentGuess.length * 500 + 600);
+        isRevealingGuess = false; // Reset flag after guess has been processed and revealed
+    }, currentGuess.length * 500 + 600); // Adjust timing based on your reveal animation
 }
 
 function processGuess(guess) {
