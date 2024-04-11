@@ -1,4 +1,4 @@
-// v 0.9.4.01 //
+// v 0.9.4.03 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -383,8 +383,6 @@ function restoreGameStateIfPlayedToday() {
     const today = getLocalDateISOString();
 
     if (savedState && savedState.gameDate === today) {
-        disableInput(); // Assume this function disables game input
-
         const { gameGuessLetters, gameGuessColors, isGameOver } = savedState;
 
         // Restore guesses on the board
@@ -396,11 +394,14 @@ function restoreGameStateIfPlayedToday() {
         refreshKeyboardState(gameGuessLetters, gameGuessColors);
 
         if (isGameOver) {
-            // Display end-game information (word reveal, win/loss message)
+            // The game had concluded (either won or lost)
+            disableInput(); // Keep inputs disabled
+            // Display end-game information (word reveal, win/loss message, etc.)
             concludeGame(savedState.gameWon);
+        } else {
+            // The game was in progress and has not concluded
+            enableInput(); // Re-enable inputs so the user can continue playing
         }
-
-        // Additional logic to show stats or other info if needed
     } else if (!savedState || savedState.gameDate !== today) {
         // No saved state or it's a new day
         startNewGame();
@@ -648,12 +649,14 @@ function getLocalDateISOString() {
     return `${year}-${formattedMonth}-${formattedDay}`;
 }
 
+function enableInput() {
+    document.getElementById('keyboard').style.pointerEvents = 'auto'; // Re-enables click events on the on-screen keyboard
+    inputDisabled = false; // Update the global flag controlling input, if you have one.
+}
+
 function disableInput() {
-    // Here you should disable the keyboard and any other input forms you have.
-    // This could be as simple as not allowing key presses to register or hiding the virtual keyboard if you have one.
-    // Example:
     document.getElementById('keyboard').style.pointerEvents = 'none'; // Disables click events on the on-screen keyboard
-    // You might also disable physical keyboard input by removing or disabling event listeners.
+    inputDisabled = true; // Update the global flag controlling input, if you have one.
 }
 
 document.addEventListener('DOMContentLoaded', function() {
