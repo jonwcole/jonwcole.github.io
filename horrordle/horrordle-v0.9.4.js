@@ -1,4 +1,4 @@
-// v0.9.4.01 //
+// 0.9.4.01 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -11,6 +11,15 @@ let hintOfTheDay = '';
 
 async function loadGame() {
     try {
+        const today = getLocalDateISOString(); // Get today's date in ISO format.
+
+        // Check if there's a game stored and if the date matches today.
+        const storedGameDate = localStorage.getItem('gameDate');
+        if (storedGameDate !== today) {
+            startNewGame(); // Start a new game if it's a new day.
+            return; // Exit early since a new game setup is already handled.
+        }
+
         // Fetch and set up the dictionary
         const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary-v1.json');
         const dictionaryData = await dictionaryResponse.json();
@@ -19,12 +28,6 @@ async function loadGame() {
         // Fetch and set up the word of the day
         const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.json');
         const wordsData = await wordsResponse.json();
-        
-        // Get today's date and word data as before
-        const now = new Date();
-        const timezoneOffset = now.getTimezoneOffset() * 60000;
-        const adjustedNow = new Date(now - timezoneOffset);
-        const today = adjustedNow.toISOString().slice(0, 10);
 
         const wordData = wordsData[today];
         if (wordData) {
@@ -118,16 +121,12 @@ function processGuess(guess) {
     updateTiles(currentAttempt, guess, result);
     gameGuessColors.push(result);
     gameGuessLetters.push(guess.split(''));
-    if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
-        saveGuessesToLocalStorage();
+    saveGameState();  // Call to save current game state to localStorage
+    currentAttempt++;
+    if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
+        concludeGame(guess === wordOfTheDay);
     }
-
-    // Append this guess and its result to arrays
-    gameGuessLetters.push(guess.split(''));
-    gameGuessColors.push(result);
-
-    // Save updated game state
-    saveCurrentGameState();
+    currentGuess = [];
 }
 
 function handleInvalidGuess() {
@@ -319,6 +318,23 @@ function updateGameUI(word, hint) {
     
 }
 
+// New function to reveal the word of the day if the player has lost
+function revealWordOfTheDay() {
+    const wordElement = document.getElementById('word');
+    if (wordElement) {
+        wordElement.style.display = 'flex';
+        setTimeout(() => {
+            wordElement.style.opacity = 1;
+        }, 100);
+    }
+}
+
+// New function to handle end game UI updates
+function showEndGameMessage(won) {
+    displayEndGameMessage(won); // Calls existing function to show the message
+    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
+}
+
 function triggerUIAction(action) {
     switch (action) {
         case 'invalidGuess':
@@ -350,84 +366,63 @@ localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
 localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
 }
 
+function saveGameState() {
+    const gameState = {
+        gameDate: gameDate,
+        gameGuessColors: gameGuessColors,
+        gameGuessLetters: gameGuessLetters,
+        currentAttempt: currentAttempt,
+        isGameOver: isGameOver,
+        hintDisplayed: hintDisplayed,
+        hintOfTheDay: hintOfTheDay
+    };
+    localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
+}
+
 function restoreGameStateIfPlayedToday() {
     const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
-    const stats = JSON.parse(localStorage.getItem('stats')) || {};
     const today = getLocalDateISOString();
-    const gameOutcome = localStorage.getItem('gameOutcome');
 
     if (savedState && savedState.gameDate === today) {
-        // Check if the game was already completed
-        if (savedState.isGameOver) {
-            // Game completed; show end-game state based on win/loss
-            disableInput(); // Ensure no further inputs are possible
-            if (gameOutcome === 'lost' || gameOutcome === 'won') {
-                showEndGameMessage(gameOutcome === 'won');
-                // Display the Word of the Day
-                revealWordOfTheDay();
+        if (!savedState.isGameOver) {
+            // Restore the game state if it's the same day and game is not over
+            gameDate = savedState.gameDate;
+            gameGuessColors = savedState.gameGuessColors;
+            gameGuessLetters = savedState.gameGuessLetters;
+            currentAttempt = savedState.currentAttempt;
+            isGameOver = savedState.isGameOver;
+            hintDisplayed = savedState.hintDisplayed;
+            hintOfTheDay = savedState.hintOfTheDay;
+
+            // Restore UI for each guess made so far
+            gameGuessLetters.forEach((guessLetters, attempt) => {
+                updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
+            });
+
+            if (hintDisplayed) {
+                displayHint();
             }
         } else {
-            // Game in progress; restore guesses and board state
-            restoreGameBoard(savedState);
+            // Display end game screen if the game was completed
+            concludeGame(savedState.gameWon);
         }
-    } else if (stats.lastPlayedDate === today && (gameOutcome === 'lost' || gameOutcome === 'won')) {
-        // Handle specific case where stats were updated but game state wasn't
-        disableInput();
-        showEndGameMessage(gameOutcome === 'won');
-        revealWordOfTheDay();
     } else {
-        // No saved state for today, or it's a new day; start a new game
+        // If it's a new day or no game state is saved, start a new game
         startNewGame();
     }
 }
 
-function restoreGameBoard(savedState) {
-    savedState.gameGuessLetters.forEach((guessLetters, attempt) => {
-        updateTiles(attempt, guessLetters.join(''), savedState.gameGuessColors[attempt]);
-    });
-
-    // Set the current attempt to continue from where left off
-    currentAttempt = savedState.gameGuessLetters.length;
-    // Restore the hint if it was shown
-    if (savedState.hintDisplayed) {
-        displayHint(); // Implement to show the hint based on savedState
-    }
-    // Re-enable input if it was disabled
-    enableInput();
+function startNewGame() {
+    currentAttempt = 0;
+    gameGuessColors = [];
+    gameGuessLetters = [];
+    isGameOver = false;
+    incorrectGuesses = 0;
+    hintDisplayed = false;
+    currentGuess = [];
+    loadGame();
 }
 
-function showEndGameMessage(won) {
-    // Implement showing the end game message based on win/loss
-    // For example:
-    displayEndGameMessage(won);
-    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
-    // Reveal word of the day or other end-game UI elements as needed
-    revealWordOfTheDay();
-}
-
-function revealWordOfTheDay() {
-    // Implement to reveal the word of the day in UI
-    const wordElement = document.getElementById('word-reveal');
-    const wordContent = document.getElementById('word-content'); // Assuming this is where the word is displayed
-    if (wordElement && wordContent) {
-        wordContent.textContent = wordOfTheDay;
-        wordElement.style.display = 'flex';
-        setTimeout(() => wordElement.style.opacity = 1, 100);
-    }
-}
-
-function saveCurrentGameState() {
-    const gameState = {
-        gameDate: getLocalDateISOString(),
-        gameGuessLetters,
-        gameGuessColors,
-        currentAttempt,
-        isGameOver,
-        hintDisplayed
-    };
-    
-    localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
-}
 
 
 // ======================================= //
@@ -655,45 +650,11 @@ function getLocalDateISOString() {
 }
 
 function disableInput() {
-    // Disable clicking on the virtual keyboard
-    const keys = document.querySelectorAll('.key');
-    keys.forEach(key => {
-        key.setAttribute('disabled', 'true');
-        key.classList.add('disabled');
-    });
-
-    // Disable typing through the physical keyboard
-    inputDisabled = true; // Assuming there's a flag controlling this
-
-    // Additional elements you might need to disable
-    // For example, the Enter and Backspace buttons, if they are separately handled
-    const enterKey = document.querySelector('.key-enter');
-    const backspaceKey = document.querySelector('.key-backspace');
-    if (enterKey) enterKey.setAttribute('disabled', 'true');
-    if (backspaceKey) backspaceKey.setAttribute('disabled', 'true');
-
-    // If you've enabled any other form of input or buttons, disable them here
-    // Example: document.getElementById('submit-guess').setAttribute('disabled', 'true');
-}
-
-function enableInput() {
-    // Re-enable clicking on the virtual keyboard
-    const keys = document.querySelectorAll('.key');
-    keys.forEach(key => {
-        key.removeAttribute('disabled');
-        key.classList.remove('disabled');
-    });
-
-    // Re-enable typing through the physical keyboard
-    inputDisabled = false; // Assuming there's a flag controlling this
-
-    // Additional elements you might need to re-enable
-    // For example, the Enter and Backspace buttons, if they are separately disabled
-    const enterKey = document.querySelector('.key-enter');
-    const backspaceKey = document.querySelector('.key-backspace');
-    if (enterKey) enterKey.removeAttribute('disabled');
-    if (backspaceKey) backspaceKey.removeAttribute('disabled');
-
+    // Here you should disable the keyboard and any other input forms you have.
+    // This could be as simple as not allowing key presses to register or hiding the virtual keyboard if you have one.
+    // Example:
+    document.getElementById('keyboard').style.pointerEvents = 'none'; // Disables click events on the on-screen keyboard
+    // You might also disable physical keyboard input by removing or disabling event listeners.
 }
 
 document.addEventListener('DOMContentLoaded', function() {
