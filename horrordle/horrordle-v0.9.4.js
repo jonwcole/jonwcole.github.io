@@ -319,17 +319,6 @@ function updateGameUI(word, hint) {
     
 }
 
-// New function to reveal the word of the day if the player has lost
-function revealWordOfTheDay() {
-    const wordElement = document.getElementById('word');
-    if (wordElement) {
-        wordElement.style.display = 'flex';
-        setTimeout(() => {
-            wordElement.style.opacity = 1;
-        }, 100);
-    }
-}
-
 function triggerUIAction(action) {
     switch (action) {
         case 'invalidGuess':
