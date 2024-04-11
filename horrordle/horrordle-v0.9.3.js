@@ -67,20 +67,34 @@ function handleKeyPress(key) {
 }
 
 function submitGuess() {
-    if (isGameOver || currentGuess.length < 5) return;
+    // Ensure we're not already revealing a guess, the game isn't over, and the guess has exactly 5 letters
+    if (isRevealingGuess || isGameOver || currentGuess.length !== 5) return;
+
+    isRevealingGuess = true; // Prevent further submissions during the reveal
     const guess = currentGuess.join('').toUpperCase();
+
     if (!dictionary.includes(guess)) {
         shakeCurrentRow();
+        isRevealingGuess = false; // Allow submissions again if the guess is invalid
         return;
     }
+
     if (guess !== wordOfTheDay) {
         incorrectGuesses++;
     }
     processGuess(guess);
+
     setTimeout(() => {
+        if (incorrectGuesses >= 5 && !hintDisplayed) {
+            displayHint();
+            hintDisplayed = true; // Ensure the hint is only displayed once
+        }
+
         handleGuessFinalization(guess);
+        isRevealingGuess = false; // Allow submissions again after handling the guess
     }, currentGuess.length * 500 + 600);
 }
+
 
 function processGuess(guess) {
     let wordArray = wordOfTheDay.split('');
