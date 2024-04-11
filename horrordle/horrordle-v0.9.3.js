@@ -66,15 +66,24 @@ function handleKeyPress(key) {
 }
 
 function submitGuess() {
-    if (isGameOver || currentGuess.length < 5) return;
+    // Ensure currentGuess has exactly 5 letters before proceeding
+    if (currentGuess.length !== 5) {
+        console.log("You must enter 5 letters to make a guess.");
+        return; // Exit the function if not exactly 5 letters
+    }
+
+    if (isGameOver) return; // Additional check to prevent submissions after the game is over
+
     const guess = currentGuess.join('').toUpperCase();
     if (!dictionary.includes(guess)) {
         shakeCurrentRow();
         return;
     }
+
     if (guess !== wordOfTheDay) {
         incorrectGuesses++;
     }
+
     processGuess(guess);
     setTimeout(() => {
         handleGuessFinalization(guess);
