@@ -69,6 +69,9 @@ function handleKeyPress(key) {
 }
 
 function submitGuess() {
+
+    console.log("submitGuess called"); // Log when the function is called
+
     // Ensure we're not already revealing a guess, the game isn't over, and the guess has exactly 5 letters
     if (isRevealingGuess || isGameOver || currentGuess.length !== 5) return;
 
@@ -84,6 +87,7 @@ function submitGuess() {
     if (guess !== wordOfTheDay) {
         incorrectGuesses++;
     }
+
     processGuess(guess);
 
     setTimeout(() => {
@@ -115,9 +119,10 @@ function processGuess(guess) {
         }
     }
     updateTiles(currentAttempt, guess, result);
-    saveGameProgress(guess, result);
-    currentAttempt++;
-    if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
+    currentAttempt++; // Ensure this is the only place where currentAttempt is incremented
+    saveGameProgress(guess, result); // Save progress right after incrementing the attempt
+
+    if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
         concludeGame(guess === wordOfTheDay);
     }
 }
