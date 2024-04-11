@@ -230,25 +230,34 @@ function updateCurrentGuessDisplay() {
 }
 
 function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-  const tiles = row.querySelectorAll('.tile');
-
-  tiles.forEach((tile, index) => {
-    // Set up the back face with the guessed letter and status class before starting the animation
-    const back = tile.querySelector('.back');
-    const backText = tile.querySelector('.back-text');
-    backText.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
-    back.className = 'back'; // Reset any previous result classes
-    back.classList.add(result[index]); // Preemptively add the result class to the back
+    const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+    if (!row) {
+        console.error('Row not found for attempt:', attempt);
+        return; // Early return if the row is not found
+    }
     
-    // Delay each tile's flip animation to visualize them one by one
-    setTimeout(() => {
-      // Start the flip animation
-      tile.classList.add('flipped');
-    }, index * 500); // Stagger the start of each tile's flip
-  });
+    const tiles = row.querySelectorAll('.tile');
+    tiles.forEach((tile, index) => {
+        // Attempt to find the back face and back text elements of the tile
+        const back = tile.querySelector('.back');
+        const backText = tile.querySelector('.back-text');
+        
+        if (back && backText) { // Ensure both elements exist
+            backText.textContent = guess[index]; // Update back text with the current letter
+            back.className = 'back'; // Reset classes
+            back.classList.add(result[index]); // Add the appropriate class based on the result
+            
+            // Delay the flip animation
+            setTimeout(() => {
+                tile.classList.add('flipped');
+            }, index * 500);
+        } else {
+            console.error('Failed to find .back or .back-text in tile:', tile);
+        }
+    });
 
-  updateKeyboard(guess, result);
+    // Assuming updateKeyboard is used to update the state of the on-screen keyboard based on the guess
+    updateKeyboard(guess, result);
 }
 
 function shakeCurrentRow() {
