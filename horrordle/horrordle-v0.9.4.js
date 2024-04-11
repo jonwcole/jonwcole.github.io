@@ -354,6 +354,44 @@ function triggerUIAction(action) {
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard for end of the game
 }
 
+function resetGameBoardUI() {
+    // Assuming you have tiles that need to be reset
+    const tiles = document.querySelectorAll('.tile');
+    tiles.forEach(tile => {
+        const front = tile.querySelector('.front');
+        const back = tile.querySelector('.back');
+        // Reset content and classes that may indicate tile state
+        if (front) front.textContent = '';
+        if (back) {
+            back.textContent = '';
+            back.className = 'back';
+        }
+        // Reset any flipped or highlighted state
+        tile.classList.remove('flipped', 'correct', 'present', 'absent');
+    });
+
+    // Reset other UI elements related to game status
+    const hintElement = document.getElementById('hint');
+    if (hintElement) {
+        hintElement.style.display = 'none';
+        hintElement.style.opacity = 0;
+    }
+
+    // Reset keyboard if there's a virtual keyboard used
+    const keys = document.querySelectorAll('.key');
+    keys.forEach(key => {
+        key.classList.remove('correct', 'present', 'absent');
+        key.removeAttribute('disabled');
+    });
+
+    // Clear any displayed messages or modals
+    const successDiv = document.querySelector('.success');
+    const errorDiv = document.querySelector('.error');
+    if (successDiv) successDiv.style.display = 'none';
+    if (errorDiv) errorDiv.style.display = 'none';
+}
+
+
 // ======================== //
 // 4. Game State Management //
 // ======================== //
