@@ -1,3 +1,5 @@
+// v 0.9.4.01 //
+
 // ================================== //
 // 1. Initialization and Data Loading //
 // ================================== //
@@ -95,30 +97,48 @@ function submitGuess() {
     }, currentGuess.length * 500 + 600);
 }
 
-
 function processGuess(guess) {
     let wordArray = wordOfTheDay.split('');
     let result = [];
     for (let i = 0; i < guess.length; i++) {
         if (guess[i] === wordOfTheDay[i]) {
-            result[i] = 'correct';
-            wordArray[i] = null;
+            result.push('correct');
+            wordArray[i] = null; // Mark as matched
+        } else if (wordArray.includes(guess[i])) {
+            result.push('present');
+            wordArray[wordArray.indexOf(guess[i])] = null; // Prevent re-matching
         } else {
-            result[i] = 'absent';
+            result.push('absent');
         }
     }
-    for (let i = 0; i < guess.length; i++) {
-        if (result[i] !== 'correct' && wordArray.includes(guess[i])) {
-            result[i] = 'present';
-            wordArray[wordArray.indexOf(guess[i])] = null;
-        }
-    }
+
+    // Update the UI to reflect this guess
     updateTiles(currentAttempt, guess, result);
+
+    // Append this guess and its result to our tracking arrays
     gameGuessColors.push(result);
-    gameGuessLetters.push(guess.split(''));
-    if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
-        saveGuessesToLocalStorage();
-    }
+    gameGuessLetters.push(guess.toUpperCase().split(''));
+
+    // Save the updated state
+    saveCurrentGameState();
+    
+    // Continue with any additional processing...
+}
+
+function saveCurrentGameState() {
+    // Prepare the game state object
+    const gameState = {
+        gameDate: gameDate,
+        gameGuessColors: gameGuessColors,
+        gameGuessLetters: gameGuessLetters,
+        currentAttempt: currentAttempt,
+        incorrectGuesses: incorrectGuesses,
+        hintDisplayed: hintDisplayed,
+        isGameOver: isGameOver
+    };
+
+    // Convert it to a string and save it in localStorage
+    localStorage.setItem('horrordleGameState', JSON.stringify(gameState));
 }
 
 function handleInvalidGuess() {
@@ -359,63 +379,48 @@ localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
 }
 
 function restoreGameStateIfPlayedToday() {
-    const stats = JSON.parse(localStorage.getItem('stats')) || {};
-    const today = getLocalDateISOString(); // Use local date
-    const gameOutcome = localStorage.getItem('gameOutcome');
+    const savedState = JSON.parse(localStorage.getItem('horrordleGameState'));
+    const today = getLocalDateISOString();
 
-    if (stats.lastPlayedDate === today) {
-        // Prevent further input
-        disableInput();
+    if (savedState && savedState.gameDate === today) {
+        disableInput(); // Assume this function disables game input
 
-        // Restore game state
-        const gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
-        const gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters') || '[]');
+        const { gameGuessLetters, gameGuessColors, isGameOver } = savedState;
 
-        // Display the Word of the Day if the user lost or won their last game
-        if (gameOutcome === 'lost' || gameOutcome === 'won') {
-            const wordElement = document.getElementById('word-reveal');
-            const wordContent = document.getElementById('word-content'); // Element where the word is displayed within #word-reveal
-            document.querySelectorAll('.splatter-box').forEach(box => {
-                box.style.display = 'block';
-                box.style.opacity = '1';
-            });
-            if (wordElement && wordContent) {
-                wordContent.textContent = wordOfTheDay; // Assuming this variable is still accessible
-                wordElement.style.display = 'flex';
-                setTimeout(() => {
-                    wordElement.style.opacity = 1;
-                }, 100);
-            }
-        }
-
+        // Restore guesses on the board
         gameGuessLetters.forEach((guessLetters, attempt) => {
-            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-            const tiles = row.querySelectorAll('.tile');
-
-            guessLetters.forEach((letter, index) => {
-                if (tiles[index]) {
-                    const tile = tiles[index];
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back');
-                    const backText = tile.querySelector('.back-text');
-
-                    // Set the text for front and back
-                    front.textContent = letter;
-                    backText.textContent = letter;
-                    
-                    // Clear previous classes on back and add the new one
-                    back.className = 'back'; // Reset class
-                    back.classList.add(gameGuessColors[attempt][index]); // Add correct, present, or absent class
-                    
-                    // Add the flipped class to the tile for the flipping effect
-                    tile.classList.add('flipped');
-                }
-            });
+            updateTiles(attempt, guessLetters.join(''), gameGuessColors[attempt]);
         });
 
-        // Display stats modal, assuming you have a function or logic to properly display it
-        displayStatsModal();
+        // Update the on-screen keyboard based on past guesses
+        refreshKeyboardState(gameGuessLetters, gameGuessColors);
+
+        if (isGameOver) {
+            // Display end-game information (word reveal, win/loss message)
+            concludeGame(savedState.gameWon);
+        }
+
+        // Additional logic to show stats or other info if needed
+    } else if (!savedState || savedState.gameDate !== today) {
+        // No saved state or it's a new day
+        startNewGame();
     }
+}
+
+function refreshKeyboardState(gameGuessLetters, gameGuessColors) {
+    // Flatten the arrays if they're arrays of arrays
+    const flatLetters = gameGuessLetters.flat();
+    const flatColors = gameGuessColors.flat();
+
+    flatLetters.forEach((letter, index) => {
+        const keyElement = document.querySelector(`.key[data-key="${letter.toUpperCase()}"]`);
+        if (keyElement) {
+            // Remove any previous state classes
+            keyElement.classList.remove('correct', 'present', 'absent');
+            // Add new state class
+            keyElement.classList.add(flatColors[index]);
+        }
+    });
 }
 
 
@@ -675,4 +680,3 @@ document.addEventListener('DOMContentLoaded', function() {
     loadGame(); // Example of other functions that run on page load
     restoreGameStateIfPlayedToday(); // Another example function
 });
-
