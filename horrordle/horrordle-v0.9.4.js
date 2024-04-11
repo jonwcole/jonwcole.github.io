@@ -693,7 +693,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Your existing page load functions
+    displayGameStatusMessage();
     loadGame(); // Example of other functions that run on page load
     restoreGameStateIfPlayedToday(); // Another example function
 });
 
+function displayGameStatusMessage() {
+    const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
+
+    if (!gameProgress) {
+        console.log("New Game: No previous game data found.");
+        return;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (gameProgress.date !== today) {
+        console.log("New Game: Today's game has not been started.");
+        return;
+    }
+
+    if (gameProgress.gameEnded) {
+        console.log("Finished Game: You've already completed today's game.");
+    } else {
+        console.log(`Resumed Game: Continuing your game from attempt ${gameProgress.attempts.length}.`);
+    }
+}
