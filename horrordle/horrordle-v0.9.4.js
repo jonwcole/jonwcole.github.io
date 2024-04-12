@@ -384,12 +384,6 @@ function restoreGameStateIfPlayedToday() {
     const today = getLocalDateISOString();
 
     if (gameProgress && gameProgress.date === today) {
-        // Disable input if the game has ended
-        if (gameProgress.gameEnded) {
-            disableInput();
-        }
-
-        // Restore each guess on the game board
         gameProgress.attempts.forEach((attemptObj, attempt) => {
             const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
             const tiles = row.querySelectorAll('.tile');
@@ -401,34 +395,40 @@ function restoreGameStateIfPlayedToday() {
                     const back = tile.querySelector('.back');
                     const backText = tile.querySelector('.back-text');
 
-                    front.textContent = letter; // Set the letter on the tile front
-                    backText.textContent = letter; // Set the letter on the tile back
-                    back.className = 'back ' + attemptObj.result[index]; // Apply the result styling
-                    
-                    tile.classList.add('flipped'); // Flip the tile to show the result
+                    front.textContent = letter;
+                    backText.textContent = letter;
+                    back.className = 'back ' + attemptObj.result[index];
+                    tile.classList.add('flipped');
                 }
             });
         });
 
-        // Display the Word of the Day if the game is finished
+        // Set the currentAttempt to continue from the next attempt
+        currentAttempt = gameProgress.attempts.length;
+
         if (gameProgress.gameEnded) {
+            disableInput();  // Disable further input
             const wordElement = document.getElementById('word-reveal');
             const wordContent = document.getElementById('word-content');
             if (wordElement && wordContent) {
-                wordContent.textContent = wordOfTheDay; // Display the word
+                wordContent.textContent = wordOfTheDay;
                 wordElement.style.display = 'flex';
-                setTimeout(() => {
-                    wordElement.style.opacity = 1;
-                }, 100);
+                setTimeout(() => wordElement.style.opacity = 1, 100);
             }
 
-            // Display end game messages or stats if needed
-            displayStatsModal();
+            // Set splatter boxes if necessary
+            document.querySelectorAll('.splatter-box').forEach(box => {
+                box.style.display = 'block';
+                box.style.opacity = '1';
+            });
+
+            displayStatsModal(); // Show stats modal if it's part of the UI
         }
     } else {
         console.log("No game progress found for today or different day.");
     }
 }
+
 
 
 // ======================================= //
