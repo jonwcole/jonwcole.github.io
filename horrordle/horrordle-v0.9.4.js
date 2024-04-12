@@ -590,6 +590,9 @@ function concludeGame(won) {
     localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 
     updateStats(won, currentAttempt); // Update game statistics
+
+    console.log("Concluded game!");
+
     setTimeout(displayStatsModal, 1200); // Delay the stats modal display if needed
 
     if (!won) {
