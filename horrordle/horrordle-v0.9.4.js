@@ -116,30 +116,26 @@ function processGuess(guess) {
             wordArray[wordArray.indexOf(guess[i])] = null;
         }
     }
+    // Update UI tiles
     updateTiles(currentAttempt, guess, result);
-    currentAttempt++; // Ensure this is the only place where currentAttempt is incremented
-    saveGameProgress(guess, result); // Save progress right after incrementing the attempt
-}
 
-function handleInvalidGuess() {
-    triggerUIAction('invalidGuess'); // Proposed indirect call
-}
+    // Add results to the global arrays
+    gameGuessColors.push(result);
+    gameGuessLetters.push(guess.split(''));
 
-function handleGuessFinalization(guess) {
-    currentGuess = [];
-    
-    // Check for hint display condition right before concluding the game
-    if (incorrectGuesses >= 5 && !hintDisplayed) {
-        displayHint();
-        hintDisplayed = true; // Prevent the hint from being displayed more than once
-    }
+    // Save the updated arrays to localStorage
+    saveGuessesToLocalStorage();
 
-    const won = guess === wordOfTheDay;
-    const lost = !won && currentAttempt >= maxAttempts;
-    
-    if (won || lost) {
+    // Increment attempt count
+    currentAttempt++; 
+
+    // Save game progress after processing the guess
+    saveGameProgress(guess, result);
+
+    // Handle guess finalization
+    if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
         isGameOver = true;
-        concludeGame(won);
+        concludeGame(guess === wordOfTheDay);
     }
 }
 
