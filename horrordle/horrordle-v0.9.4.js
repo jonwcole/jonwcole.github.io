@@ -649,18 +649,6 @@ document.getElementById('share-result').addEventListener('click', function() {
         .catch(err => console.error('Failed to copy result to clipboard:', err));
 });
 
-function getLocalDateISOString() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // getMonth() returns 0-11
-    const day = now.getDate();
-    // Format month and day to ensure two digits
-    const formattedMonth = month < 10 ? `0${month}` : month;
-    const formattedDay = day < 10 ? `0${day}` : day;
-    // Construct an ISO-like string with local date components
-    return `${year}-${formattedMonth}-${formattedDay}`;
-}
-
 function disableInput() {
     // Here you should disable the keyboard and any other input forms you have.
     // This could be as simple as not allowing key presses to register or hiding the virtual keyboard if you have one.
