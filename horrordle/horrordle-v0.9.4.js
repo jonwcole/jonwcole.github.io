@@ -153,7 +153,6 @@ function handleGuessFinalization(guess) {
     
     if (won || lost) {
         isGameOver = true;
-        concludeGame(won);
     }
 }
 
