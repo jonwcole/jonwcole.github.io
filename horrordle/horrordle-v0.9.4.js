@@ -381,14 +381,17 @@ function saveGameProgress(guess, result) {
 }
 
 function getLocalDateISOString(date) {
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - (offset * 60000));
+    const offset = date.getTimezoneOffset() * 60000; // Ensure offset is correctly applied
+    const localDate = new Date(date.getTime() - offset);
     return localDate.toISOString().slice(0, 10);
 }
 
 function restoreGameStateIfPlayedToday() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
     const today = getLocalDateISOString(new Date());
+
+    console.log("Game date from storage:", gameProgress ? gameProgress.date : "No gameProgress");
+    console.log("Today's local date:", today);
 
     if (gameProgress && gameProgress.date === today) {
         gameProgress.attempts.forEach((attemptObj, attempt) => {
@@ -408,6 +411,8 @@ function restoreGameStateIfPlayedToday() {
                     tile.classList.add('flipped');
                 }
             });
+
+            console.log("Resuming Game: Continuing your game from attempt!", gameProgress.attempts.length);
         });
 
         // Set the currentAttempt to continue from the next attempt
@@ -433,6 +438,7 @@ function restoreGameStateIfPlayedToday() {
         }
     } else {
         console.log("No game progress found for today or different day.");
+        console.log("New Game: Today's game has not been started!");
     }
 }
 
