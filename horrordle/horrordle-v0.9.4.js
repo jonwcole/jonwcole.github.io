@@ -119,10 +119,6 @@ function processGuess(guess) {
     updateTiles(currentAttempt, guess, result);
     currentAttempt++; // Ensure this is the only place where currentAttempt is incremented
     saveGameProgress(guess, result); // Save progress right after incrementing the attempt
-
-    if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
-        concludeGame(guess === wordOfTheDay);
-    }
 }
 
 function handleInvalidGuess() {
