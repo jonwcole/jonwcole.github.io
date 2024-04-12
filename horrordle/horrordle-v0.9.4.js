@@ -364,7 +364,7 @@ localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
 }
 
 function saveGameProgress(guess, result) {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getLocalDateISOString(new Date());
     let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
 
     // Initialize game progress if empty or date mismatch
@@ -379,9 +379,15 @@ function saveGameProgress(guess, result) {
     localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 }
 
+function getLocalDateISOString(date) {
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - (offset * 60000));
+    return localDate.toISOString().slice(0, 10);
+}
+
 function restoreGameStateIfPlayedToday() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
-    const today = getLocalDateISOString();
+    const today = getLocalDateISOString(new Date());
 
     if (gameProgress && gameProgress.date === today) {
         gameProgress.attempts.forEach((attemptObj, attempt) => {
