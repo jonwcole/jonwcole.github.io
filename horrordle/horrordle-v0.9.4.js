@@ -436,9 +436,6 @@ function restoreGameStateIfPlayedToday() {
 
             displayStatsModal(); // Show stats modal if it's part of the UI
         }
-    } else {
-        console.log("No game progress found for today or different day.");
-        console.log("New Game: Today's game has not been started!");
     }
 }
 
