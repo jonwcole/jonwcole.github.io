@@ -1,4 +1,4 @@
-// v0.9.4.01 //
+// v0.9.4.02 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -124,7 +124,9 @@ function processGuess(guess) {
     gameGuessLetters.push(guess.split(''));
 
     // Save the updated arrays to localStorage
-    saveGuessesToLocalStorage();
+    if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
+        saveGuessesToLocalStorage();
+    }
 
     // Increment attempt count
     currentAttempt++; 
