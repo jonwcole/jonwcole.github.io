@@ -620,11 +620,6 @@ function concludeGame(won) {
     }, 1200); // This delay should be sufficient for any tile flipping animations to complete
 }
 
-function showEndGameMessage(won) {
-    displayEndGameMessage(won);
-    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
-}
-
 
 // ==================== //
 // 7. Utility Functions //
