@@ -70,8 +70,6 @@ function handleKeyPress(key) {
 
 function submitGuess() {
 
-    console.log("submitGuess called"); // Log when the function is called
-
     // Ensure we're not already revealing a guess, the game isn't over, and the guess has exactly 5 letters
     if (isRevealingGuess || isGameOver || currentGuess.length !== 5) return;
 
@@ -682,29 +680,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Your existing page load functions
-    displayGameStatusMessage();
     loadGame(); // Example of other functions that run on page load
     restoreGameStateIfPlayedToday(); // Another example function
 });
-
-function displayGameStatusMessage() {
-    const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
-
-    if (!gameProgress) {
-        console.log("New Game: No previous game data found.");
-        return;
-    }
-
-    const today = new Date().toISOString().slice(0, 10);
-
-    if (gameProgress.date !== today) {
-        console.log("New Game: Today's game has not been started.");
-        return;
-    }
-
-    if (gameProgress.gameEnded) {
-        console.log("Finished Game: You've already completed today's game.");
-    } else {
-        console.log(`Resumed Game: Continuing your game from attempt ${gameProgress.attempts.length}.`);
-    }
-}
