@@ -602,25 +602,27 @@ function concludeGame(won) {
 
     updateStats(won, currentAttempt); // Update game statistics
 
-    console.log("Concluded game!");
+    // Wait for animations to complete before showing the end game message
+    setTimeout(() => {
+        displayStatsModal(); // Display stats modal after a delay
 
-    setTimeout(displayStatsModal, 1200); // Delay the stats modal display if needed
-
-    if (!won) {
-        revealWordOfTheDay(); // Additional UI logic for revealing the word of the day upon losing
-
-        const wordRevealDiv = document.getElementById('word-reveal');
-        const wordContent = document.getElementById('word-content');
-        if (wordRevealDiv && wordContent) {
-            wordContent.textContent = wordOfTheDay; // Display the correct word
-            wordRevealDiv.style.display = 'flex';
+        if (!won) {
+            revealWordOfTheDay(); // Reveal the word if the game is lost
             setTimeout(() => {
-                wordRevealDiv.style.opacity = 1;
-            }, 100);
+                showEndGameMessage(won); // Show end game message after revealing the word
+            }, 1000); // Adjust delay to match reveal timing
+        } else {
+            // For success, wait a bit longer to allow any ongoing animations to complete
+            setTimeout(() => {
+                showEndGameMessage(won);
+            }, 1000); // Ensure this matches or exceeds any animation durations
         }
-    }
+    }, 1200); // This delay should be sufficient for any tile flipping animations to complete
+}
 
-    showEndGameMessage(won); // Handles UI updates for end of the game
+function showEndGameMessage(won) {
+    displayEndGameMessage(won);
+    toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
 }
 
 
