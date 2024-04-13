@@ -119,7 +119,6 @@ function processGuess(guess) {
     updateTiles(currentAttempt, guess, result);
     currentAttempt++; // Ensure this is the only place where currentAttempt is incremented
     saveGameProgress(guess, result); // Save progress right after incrementing the attempt
-    console.log("Restored currentAttempt:", currentAttempt);
 
     if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
         concludeGame(guess === wordOfTheDay);
@@ -387,9 +386,6 @@ function getLocalDateISOString(date) {
 function restoreGameStateIfPlayedToday() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
     const today = getLocalDateISOString(new Date());
-
-    console.log("Game date from storage:", gameProgress ? gameProgress.date : "No gameProgress");
-    console.log("Today's local date:", today);
 
     if (gameProgress && gameProgress.date === today) {
         gameProgress.attempts.forEach((attemptObj, attempt) => {
