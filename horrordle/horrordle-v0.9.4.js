@@ -364,13 +364,16 @@ function triggerUIAction(action) {
 // 4. Game State Management //
 // ======================== //
 
-let gameGuessColors = []; // Stores the result colors (correct, present, absent) for each guess.
-let gameGuessLetters = []; // Stores the actual letters guessed in each attempt.
+// Initialize or load game guess colors and letters from localStorage
+let gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
+let gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
 
+// Save function to update localStorage whenever changes are made to these arrays
 function saveGuessesToLocalStorage() {
-localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
-localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
+    localStorage.setItem('gameGuessColors', JSON.stringify(gameGuessColors));
+    localStorage.setItem('gameGuessLetters', JSON.stringify(gameGuessLetters));
 }
+
 
 function saveGameProgress(guess, result) {
     const today = getLocalDateISOString(new Date());
