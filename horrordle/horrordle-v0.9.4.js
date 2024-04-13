@@ -592,7 +592,7 @@ function displayStatsModal() {
         if (navButton) {
             navButton.click();
         }
-    }, 1200); // Delay of 1200ms
+    }, 3500); // Delay of 1200ms
 }
 
 function concludeGame(won) {
