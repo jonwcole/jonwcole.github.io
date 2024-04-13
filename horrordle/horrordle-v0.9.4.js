@@ -119,9 +119,13 @@ function processGuess(guess) {
     // Update UI tiles
     updateTiles(currentAttempt, guess, result);
 
+    console.log("Before updating:", gameGuessColors, gameGuessLetters);
+
     // Add results to the global arrays
     gameGuessColors.push(result);
     gameGuessLetters.push(guess.split(''));
+
+    console.log("After updating:", gameGuessColors, gameGuessLetters);
 
     // Save the updated arrays to localStorage
     if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
