@@ -626,20 +626,21 @@ function displayStatsModal() {
 
 function concludeGame(won) {
     let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
-    gameProgress.gameEnded = true;
-    localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
+    if (!gameProgress.gameEnded) {  // Check if the game has already been concluded to prevent double counting
+        gameProgress.gameEnded = true;
+        localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 
-    updateStats(won, currentAttempt); // Update game statistics
+        updateStats(won, currentAttempt); // Update game statistics
 
-    // Wait for animations to complete before showing the end game message
-    setTimeout(() => {
-        if (!won && currentAttempt >= maxAttempts) {
-            revealWordOfTheDay(); // Delayed reveal of the word if the game is lost after all attempts are done
-        }
-
-        showEndGameMessage(won); // Show end game message
-        displayStatsModal(); // Display stats modal immediately after the message
-    }, currentAttempt * 500 + 600); // Adjust time to after the last tile has flipped
+        // Display end game message and stats modal with appropriate delay
+        setTimeout(() => {
+            if (!won && currentAttempt >= maxAttempts) {
+                revealWordOfTheDay(); // Reveal the word if the game is lost
+            }
+            showEndGameMessage(won); // Show end game message
+            displayStatsModal(); // Display stats modal immediately after the message
+        }, currentAttempt * 500 + 600); // Ensure delays align with UI animations
+    }
 }
 
 
