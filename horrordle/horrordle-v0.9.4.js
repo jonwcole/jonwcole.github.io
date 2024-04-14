@@ -301,6 +301,16 @@ function updateKeyboard(guess, result) {
   }, delayBeforeUpdate);
 }
 
+function updateKeyboardState(cumulativeResults) {
+    for (const [letter, result] of Object.entries(cumulativeResults)) {
+        const keyElement = document.querySelector(`.key[data-key='${letter.toUpperCase()}']`);
+        if (keyElement) {
+            keyElement.className = 'key'; // Reset classes
+            keyElement.classList.add(result); // Add the appropriate class
+        }
+    }
+}
+
 function updateGameUI(word, hint) {
     const hintElement = document.getElementById('hint-text');
     if (hintElement) {
@@ -396,6 +406,8 @@ function restoreGameStateIfPlayedToday() {
         gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
         gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
 
+        let cumulativeResults = {}; // To keep track of letter states for the keyboard
+
         gameProgress.attempts.forEach((attemptObj, attempt) => {
             const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
             const tiles = row.querySelectorAll('.tile');
@@ -408,8 +420,17 @@ function restoreGameStateIfPlayedToday() {
                 backText.textContent = letter;
                 back.className = 'back ' + attemptObj.result[index];
                 tile.classList.add('flipped');
+
+                // Update cumulative results for keyboard
+                const result = attemptObj.result[index];
+                if (!cumulativeResults[letter] || result === 'correct' || (result === 'present' && cumulativeResults[letter] !== 'correct')) {
+                    cumulativeResults[letter] = result;
+                }
             });
         });
+
+        // Update the keyboard with cumulative results
+        updateKeyboardState(cumulativeResults);
 
         currentAttempt = gameProgress.attempts.length;
         isGameOver = gameProgress.gameEnded;
