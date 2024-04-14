@@ -391,35 +391,58 @@ function restoreGameStateIfPlayedToday() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
     const today = getLocalDateISOString(new Date());
 
-    // Restore arrays here
+    if (!gameProgress || gameProgress.date !== today) {
+        console.log("No game progress for today or mismatch in date, starting new game.");
+        return; // Early return if no game to restore
+    }
+
+    // Restore game guesses and state from localStorage
     gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
     gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
+    currentAttempt = gameProgress.attempts.length;
+    isGameOver = gameProgress.gameEnded;
 
-    if (gameProgress && gameProgress.date === today) {
-        gameProgress.attempts.forEach((attemptObj, attempt) => {
-            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-            const tiles = row.querySelectorAll('.tile');
-            attemptObj.guess.split('').forEach((letter, index) => {
-                if (tiles[index]) {
-                    const tile = tiles[index];
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back');
-                    const backText = tile.querySelector('.back-text');
-                    front.textContent = letter;
-                    backText.textContent = letter;
-                    back.className = 'back ' + attemptObj.result[index];
-                    tile.classList.add('flipped');
-                }
-            });
+    gameProgress.attempts.forEach((attemptObj, attempt) => {
+        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+        const tiles = row.querySelectorAll('.tile');
+        attemptObj.guess.split('').forEach((letter, index) => {
+            const tile = tiles[index];
+            const front = tile.querySelector('.front');
+            const back = tile.querySelector('.back');
+            const backText = tile.querySelector('.back-text');
+            front.textContent = letter;
+            backText.textContent = letter;
+            back.className = 'back ' + attemptObj.result[index];
+            tile.classList.add('flipped');
         });
-        currentAttempt = gameProgress.attempts.length;
-        if (gameProgress.gameEnded) {
-            disableInput();
-            displayEndGameState();
-        }
+    });
+
+    if (isGameOver) {
+        disableInput();  // Disable further input
+        displayEndGameState(); // Custom function to manage end-game UI
+    } else {
+        console.log("Game restored successfully. Continue playing!");
     }
 }
 
+function displayEndGameState() {
+    const wordElement = document.getElementById('word-reveal');
+    const wordContent = document.getElementById('word-content');
+    const splatterBoxes = document.querySelectorAll('.splatter-box');
+    
+    if (wordElement && wordContent) {
+        wordContent.textContent = wordOfTheDay;
+        wordElement.style.display = 'flex';
+        setTimeout(() => wordElement.style.opacity = 1, 100);
+    }
+    
+    splatterBoxes.forEach(box => {
+        box.style.display = 'block';
+        box.style.opacity = '1';
+    });
+
+    displayStatsModal(); // Show stats modal if it's part of the UI
+}
 
 
 
