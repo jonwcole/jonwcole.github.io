@@ -1,4 +1,4 @@
-// v0.9.4.02 //
+// v0.9.4.03 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -119,13 +119,9 @@ function processGuess(guess) {
     // Update UI tiles
     updateTiles(currentAttempt, guess, result);
 
-    console.log("Before updating:", gameGuessColors, gameGuessLetters);
-
     // Add results to the global arrays
     gameGuessColors.push(result);
     gameGuessLetters.push(guess.split(''));
-
-    console.log("After updating:", gameGuessColors, gameGuessLetters);
 
     // Save the updated arrays to localStorage
     if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
@@ -404,6 +400,10 @@ function getLocalDateISOString(date) {
 function restoreGameStateIfPlayedToday() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
     const today = getLocalDateISOString(new Date());
+
+    // Load the guess colors and letters from localStorage
+    gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
+    gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
 
     if (gameProgress && gameProgress.date === today) {
         gameProgress.attempts.forEach((attemptObj, attempt) => {
