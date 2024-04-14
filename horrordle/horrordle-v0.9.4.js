@@ -82,6 +82,7 @@ function submitGuess() {
 
     if (guess !== wordOfTheDay) {
         incorrectGuesses++;
+        localStorage.setItem('incorrectGuesses', incorrectGuesses); // Save the updated count
     }
 
     processGuess(guess);
@@ -414,6 +415,7 @@ function restoreGameStateIfPlayedToday() {
     if (gameProgress && gameProgress.date === today) {
         gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
         gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
+        incorrectGuesses = parseInt(localStorage.getItem('incorrectGuesses')) || 0; // Restore incorrect guesses
         currentAttempt = gameProgress.attempts.length;
         isGameOver = gameProgress.gameEnded;
 
@@ -421,8 +423,9 @@ function restoreGameStateIfPlayedToday() {
             restoreAttempt(attemptObj, attempt);
         });
 
-        if (currentAttempt >= 5) {
-            displayHint();
+        if (incorrectGuesses >= 5) {
+            displayHint(); // Display the hint if there were 5 or more incorrect guesses
+            hintDisplayed = true; // Ensure that hint is not shown again if the game is resumed
         }
 
         if (isGameOver) {
