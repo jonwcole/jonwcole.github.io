@@ -305,8 +305,9 @@ function updateKeyboardState(cumulativeResults) {
     for (const [letter, result] of Object.entries(cumulativeResults)) {
         const keyElement = document.querySelector(`.key[data-key='${letter.toUpperCase()}']`);
         if (keyElement) {
-            keyElement.className = 'key'; // Reset classes
-            keyElement.classList.add(result); // Add the appropriate class
+            // Remove previous result classes before adding the new one to avoid duplicate visual states
+            keyElement.classList.remove('correct', 'present', 'absent');
+            keyElement.classList.add(result); // Add the appropriate class based on the latest result
         }
     }
 }
