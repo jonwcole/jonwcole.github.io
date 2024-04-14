@@ -133,19 +133,24 @@ function processGuess(guess) {
 
 function handleGuessFinalization(guess) {
     currentGuess = [];
-    
-    // Check for hint display condition right before concluding the game
+    const won = guess === wordOfTheDay;
+    const lost = !won && (currentAttempt >= maxAttempts || incorrectGuesses >= 6);
+
     if (incorrectGuesses >= 5 && !hintDisplayed) {
         displayHint();
-        hintDisplayed = true; // Prevent the hint from being displayed more than once
+        hintDisplayed = true; // Ensure the hint is displayed only once per game
     }
 
-    const won = guess === wordOfTheDay;
-    const lost = !won && currentAttempt >= maxAttempts;
-    
-    if (won || lost) {
+    if (lost) {
         isGameOver = true;
+        revealWordOfTheDay(); // Ensure the word is revealed when the game is lost
+        concludeGame(false);
+    } else if (won) {
+        isGameOver = true;
+        concludeGame(true);
     }
+
+    // Continue handling any additional end-game logic here
 }
 
 
@@ -327,12 +332,13 @@ function updateGameUI(word, hint) {
 
 // New function to reveal the word of the day if the player has lost
 function revealWordOfTheDay() {
-    const wordElement = document.getElementById('word');
+    const wordElement = document.getElementById('word-reveal');
     if (wordElement) {
-        wordElement.style.display = 'flex';
+        wordElement.textContent = wordOfTheDay; // Make sure this element exists and is intended for showing the lost word
+        wordElement.style.display = 'block';
         setTimeout(() => {
             wordElement.style.opacity = 1;
-        }, 100);
+        }, 100); // Adjust timing as necessary
     }
 }
 
