@@ -412,50 +412,42 @@ function restoreGameStateIfPlayedToday() {
     const today = getLocalDateISOString(new Date());
 
     if (gameProgress && gameProgress.date === today) {
-        // Restore guesses
         gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
         gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
-
-        let cumulativeResults = {}; // To keep track of letter states for the keyboard
-
-        gameProgress.attempts.forEach((attemptObj, attempt) => {
-            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-            const tiles = row.querySelectorAll('.tile');
-            attemptObj.guess.split('').forEach((letter, index) => {
-                const tile = tiles[index];
-                const front = tile.querySelector('.front');
-                const back = tile.querySelector('.back');
-                const backText = tile.querySelector('.back-text');
-                front.textContent = letter;
-                backText.textContent = letter;
-                back.className = 'back ' + attemptObj.result[index];
-                tile.classList.add('flipped');
-
-                // Update cumulative results for keyboard
-                const result = attemptObj.result[index];
-                if (!cumulativeResults[letter] || result === 'correct' || (result === 'present' && cumulativeResults[letter] !== 'correct')) {
-                    cumulativeResults[letter] = result;
-                }
-            });
-        });
-
-        // Update the keyboard with cumulative results
-        updateKeyboardState(cumulativeResults);
-
         currentAttempt = gameProgress.attempts.length;
         isGameOver = gameProgress.gameEnded;
 
+        gameProgress.attempts.forEach((attemptObj, attempt) => {
+            restoreAttempt(attemptObj, attempt);
+        });
+
         if (currentAttempt >= 5) {
-            displayHint(); // Automatically display the hint if 5 or more attempts are made
+            displayHint();
         }
 
         if (isGameOver) {
-            disableInput(); // Disable further input
-            displayEndGameState(); // Custom function to manage end-game UI
-        } else {
-            console.log("Game restored successfully. Continue playing!");
+            disableInput();
+            if (currentAttempt >= maxAttempts) {
+                revealWordOfTheDay(); // Immediate reveal if resuming at max attempts
+            }
+            displayEndGameState();
         }
     }
+}
+
+function restoreAttempt(attemptObj, attempt) {
+    const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+    const tiles = row.querySelectorAll('.tile');
+    attemptObj.guess.split('').forEach((letter, index) => {
+        const tile = tiles[index];
+        const front = tile.querySelector('.front');
+        const back = tile.querySelector('.back');
+        const backText = tile.querySelector('.back-text');
+        front.textContent = letter;
+        backText.textContent = letter;
+        back.className = 'back ' + attemptObj.result[index];
+        tile.classList.add('flipped');
+    });
 }
 
 
@@ -638,20 +630,13 @@ function concludeGame(won) {
 
     // Wait for animations to complete before showing the end game message
     setTimeout(() => {
-        displayStatsModal(); // Display stats modal after a delay
-
-        if (!won) {
-            revealWordOfTheDay(); // Reveal the word if the game is lost
-            setTimeout(() => {
-                showEndGameMessage(won); // Show end game message after revealing the word
-            }, 1000); // Adjust delay to match reveal timing
-        } else {
-            // For success, wait a bit longer to allow any ongoing animations to complete
-            setTimeout(() => {
-                showEndGameMessage(won);
-            }, 1000); // Ensure this matches or exceeds any animation durations
+        if (!won && currentAttempt >= maxAttempts) {
+            revealWordOfTheDay(); // Delayed reveal of the word if the game is lost after all attempts are done
         }
-    }, 1200); // This delay should be sufficient for any tile flipping animations to complete
+
+        showEndGameMessage(won); // Show end game message
+        displayStatsModal(); // Display stats modal immediately after the message
+    }, currentAttempt * 500 + 600); // Adjust time to after the last tile has flipped
 }
 
 
