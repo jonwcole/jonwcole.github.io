@@ -252,14 +252,18 @@ function displayEndGameMessage(won) {
 }
 
 function displayHint() {
-    const hintElement = document.getElementById('hint');
-    if (hintElement && !hintDisplayed) {
-        hintElement.style.display = 'block';
-        void hintElement.offsetWidth; // Trigger reflow for CSS transition
-        hintElement.style.opacity = 1;
-        hintDisplayed = true; // Update the state
-        saveGameProgress(currentGuess.join(''), gameGuessColors[currentAttempt]); // Save state with hint display updated
-    }
+  const hintElement = document.getElementById('hint');
+  if (hintElement && !hintDisplayed) {
+    hintElement.style.display = 'block'; // Make the hint visible
+
+    // Force a reflow to ensure the opacity transition is triggered
+    void hintElement.offsetWidth;
+
+    // Start the fade-in
+    hintElement.style.opacity = 1;
+
+    hintDisplayed = true; // Mark the hint as displayed
+  }
 }
 
 function toggleOnScreenKeyboard(enable) {
@@ -367,12 +371,11 @@ function saveGameProgress(guess, result) {
 
     // Initialize game progress if empty or date mismatch
     if (!gameProgress.date || gameProgress.date !== today) {
-        gameProgress = { date: today, attempts: [], gameEnded: false, hintDisplayed: hintDisplayed };
+        gameProgress = { date: today, attempts: [], gameEnded: false };
     }
 
     // Append current guess and result
     gameProgress.attempts.push({ guess, result, attemptNumber: currentAttempt });
-    gameProgress.hintDisplayed = hintDisplayed; // Save the current state of hintDisplayed
 
     // Save the updated game progress
     localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
@@ -388,40 +391,37 @@ function restoreGameStateIfPlayedToday() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
     const today = getLocalDateISOString(new Date());
 
-    if (gameProgress && gameProgress.date === today) {
-        // Restore guesses and hint display state
-        gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
-        gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
-        hintDisplayed = gameProgress.hintDisplayed || false; // Restore the hint displayed state
+    if (!gameProgress || gameProgress.date !== today) {
+        console.log("No game progress for today or mismatch in date, starting new game.");
+        return; // Early return if no game to restore
+    }
 
-        gameProgress.attempts.forEach((attemptObj, attempt) => {
-            const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
-            const tiles = row.querySelectorAll('.tile');
-            attemptObj.guess.split('').forEach((letter, index) => {
-                const tile = tiles[index];
-                const front = tile.querySelector('.front');
-                const back = tile.querySelector('.back');
-                const backText = tile.querySelector('.back-text');
-                front.textContent = letter;
-                backText.textContent = letter;
-                back.className = 'back ' + attemptObj.result[index];
-                tile.classList.add('flipped');
-            });
+    // Restore game guesses and state from localStorage
+    gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
+    gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
+    currentAttempt = gameProgress.attempts.length;
+    isGameOver = gameProgress.gameEnded;
+
+    gameProgress.attempts.forEach((attemptObj, attempt) => {
+        const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
+        const tiles = row.querySelectorAll('.tile');
+        attemptObj.guess.split('').forEach((letter, index) => {
+            const tile = tiles[index];
+            const front = tile.querySelector('.front');
+            const back = tile.querySelector('.back');
+            const backText = tile.querySelector('.back-text');
+            front.textContent = letter;
+            backText.textContent = letter;
+            back.className = 'back ' + attemptObj.result[index];
+            tile.classList.add('flipped');
         });
+    });
 
-        currentAttempt = gameProgress.attempts.length;
-        isGameOver = gameProgress.gameEnded;
-
-        if (hintDisplayed) {
-            displayHint(); // Show the hint if it was displayed previously
-        }
-
-        if (isGameOver) {
-            disableInput();  // Disable further input
-            displayEndGameState(); // Custom function to manage end-game UI
-        } else {
-            console.log("Game restored successfully. Continue playing!");
-        }
+    if (isGameOver) {
+        disableInput();  // Disable further input
+        displayEndGameState(); // Custom function to manage end-game UI
+    } else {
+        console.log("Game restored successfully. Continue playing!");
     }
 }
 
