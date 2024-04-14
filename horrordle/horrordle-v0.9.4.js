@@ -116,25 +116,15 @@ function processGuess(guess) {
             wordArray[wordArray.indexOf(guess[i])] = null;
         }
     }
-    // Update UI tiles
-    updateTiles(currentAttempt, guess, result);
 
-    // Add results to the global arrays
+    updateTiles(currentAttempt, guess, result);
     gameGuessColors.push(result);
     gameGuessLetters.push(guess.split(''));
 
-    // Save the updated arrays to localStorage
-    if (currentAttempt >= maxAttempts - 1 || guess === wordOfTheDay) {
-        saveGuessesToLocalStorage();
-    }
+    saveGuessesToLocalStorage(); // Save after every guess
 
-    // Increment attempt count
     currentAttempt++; 
-
-    // Save game progress after processing the guess
     saveGameProgress(guess, result);
-
-    // Handle guess finalization
     if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
         isGameOver = true;
         concludeGame(guess === wordOfTheDay);
@@ -401,7 +391,7 @@ function restoreGameStateIfPlayedToday() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress'));
     const today = getLocalDateISOString(new Date());
 
-    // Load the guess colors and letters from localStorage
+    // Restore arrays here
     gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
     gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
 
@@ -409,47 +399,27 @@ function restoreGameStateIfPlayedToday() {
         gameProgress.attempts.forEach((attemptObj, attempt) => {
             const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
             const tiles = row.querySelectorAll('.tile');
-
             attemptObj.guess.split('').forEach((letter, index) => {
                 if (tiles[index]) {
                     const tile = tiles[index];
                     const front = tile.querySelector('.front');
                     const back = tile.querySelector('.back');
                     const backText = tile.querySelector('.back-text');
-
                     front.textContent = letter;
                     backText.textContent = letter;
                     back.className = 'back ' + attemptObj.result[index];
                     tile.classList.add('flipped');
                 }
             });
-
-            console.log("Resuming Game: Continuing your game from attempt!", gameProgress.attempts.length);
         });
-
-        // Set the currentAttempt to continue from the next attempt
         currentAttempt = gameProgress.attempts.length;
-
         if (gameProgress.gameEnded) {
-            disableInput();  // Disable further input
-            const wordElement = document.getElementById('word-reveal');
-            const wordContent = document.getElementById('word-content');
-            if (wordElement && wordContent) {
-                wordContent.textContent = wordOfTheDay;
-                wordElement.style.display = 'flex';
-                setTimeout(() => wordElement.style.opacity = 1, 100);
-            }
-
-            // Set splatter boxes if necessary
-            document.querySelectorAll('.splatter-box').forEach(box => {
-                box.style.display = 'block';
-                box.style.opacity = '1';
-            });
-
-            displayStatsModal(); // Show stats modal if it's part of the UI
+            disableInput();
+            displayEndGameState();
         }
     }
 }
+
 
 
 
