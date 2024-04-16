@@ -445,11 +445,19 @@ function restoreGameStateIfPlayedToday() {
 
         if (isGameOver) {
             disableInput();
+            displayCompletedMessage();  // Display the completed message if the game is over
             if (currentAttempt >= maxAttempts) {
                 revealWordOfTheDay(); // Immediate reveal if resuming at max attempts
             }
             displayEndGameState();
         }
+    }
+}
+
+function displayCompletedMessage() {
+    const completedMessageElement = document.getElementById('completed-message');
+    if (completedMessageElement) {
+        completedMessageElement.style.display = 'block'; // Show the completed message
     }
 }
 
