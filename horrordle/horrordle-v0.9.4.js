@@ -23,20 +23,21 @@ async function loadGame() {
         // Get today's date and word data as before
         const now = new Date();
         const timezoneOffset = now.getTimezoneOffset() * 60000;
-        const adjustedNow = new Date(now - timezoneOffset);
+        const adjustedNow = new Date(now.getTime() - timezoneOffset);
         const today = adjustedNow.toISOString().slice(0, 10);
 
         const wordData = wordsData[today];
         if (wordData) {
-            // Set up the game with the word of the day and hint
+            // Set up the game with the word of the day, hint, and context if available
             wordOfTheDay = wordData.word.toUpperCase();
             hintOfTheDay = wordData.hint;
+            const contextOfTheDay = wordData.context || ''; // Get context if available
             gameDate = today;
 
             localStorage.setItem('gameDate', gameDate);
 
-            // Call the UI update function instead of updating UI elements here
-            updateGameUI(wordOfTheDay, hintOfTheDay);
+            // Call the UI update function including context
+            updateGameUI(wordOfTheDay, hintOfTheDay, contextOfTheDay);
         } else {
             console.error('Word for today not found');
         }
@@ -320,17 +321,27 @@ function updateKeyboardState(cumulativeResults) {
     }
 }
 
-function updateGameUI(word, hint) {
+function updateGameUI(word, hint, context) {
     const hintElement = document.getElementById('hint-text');
+    const wordElement = document.getElementById('word-content');
+    const contextElement = document.getElementById('context');
+    const contextTextElement = document.getElementById('context-text');
+
+    // Update hint and word
     if (hintElement) {
         hintElement.textContent = hint || ''; // Update with hint or empty string if not available
     }
-    
-    const wordElement = document.getElementById('word-content');
     if (wordElement) {
         wordElement.textContent = word || ''; // Update with word or empty string if not available
     }
-    
+
+    // Check and update context
+    if (context) {
+        contextTextElement.textContent = context;
+        contextElement.style.display = 'block'; // Display the context section if context exists
+    } else {
+        contextElement.style.display = 'none'; // Hide the context section if no context is provided
+    }
 }
 
 // New function to reveal the word of the day if the player has lost
