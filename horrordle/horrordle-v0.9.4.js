@@ -654,23 +654,28 @@ function displayStatsModal() {
 
 function concludeGame(won) {
     let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
-    if (won) {
-        animateWinningTiles(currentAttempt);
-    }
     if (!gameProgress.gameEnded) {  // Check if the game has already been concluded to prevent double counting
         gameProgress.gameEnded = true;
         localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 
         updateStats(won, currentAttempt); // Update game statistics
 
-        // Display end game message and stats modal with appropriate delay
-        setTimeout(() => {
-            if (!won && currentAttempt >= maxAttempts) {
+        // Handle the conclusion based on whether the game was won or lost
+        if (won) {
+            // Trigger the winning tiles animation
+            animateWinningTiles(currentAttempt);
+            setTimeout(() => {
+                showEndGameMessage(won); // Show end game message after animation
+                displayStatsModal(); // Display stats modal immediately after the message
+            }, 1000); // Delay showing the message to allow for the animation to play out
+        } else {
+            if (currentAttempt >= maxAttempts) {
                 revealWordOfTheDay(); // Reveal the word if the game is lost
             }
+            // No need for delay if lost, as there is no win animation
             showEndGameMessage(won); // Show end game message
             displayStatsModal(); // Display stats modal immediately after the message
-        }, currentAttempt * 500 + 600); // Ensure delays align with UI animations
+        }
     }
 }
 
