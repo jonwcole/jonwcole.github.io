@@ -195,25 +195,32 @@ function updateCurrentGuessDisplay() {
 }
 
 function updateTiles(attempt, guess, result) {
-  const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-  const tiles = row.querySelectorAll('.tile');
+    const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+    const tiles = row.querySelectorAll('.tile');
 
-  tiles.forEach((tile, index) => {
-    // Set up the back face with the guessed letter and status class before starting the animation
-    const back = tile.querySelector('.back');
-    const backText = tile.querySelector('.back-text');
-    backText.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
-    back.className = 'back'; // Reset any previous result classes
-    back.classList.add(result[index]); // Preemptively add the result class to the back
-    
-    // Delay each tile's flip animation to visualize them one by one
-    setTimeout(() => {
-      // Start the flip animation
-      tile.classList.add('flipped');
-    }, index * 500); // Stagger the start of each tile's flip
-  });
+    tiles.forEach((tile, index) => {
+        // Set up the back face with the guessed letter and status class before starting the animation
+        const back = tile.querySelector('.back');
+        const backText = tile.querySelector('.back-text');
+        backText.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
+        back.className = 'back'; // Reset any previous result classes
+        back.classList.add(result[index]); // Preemptively add the result class to the back
 
-  updateKeyboard(guess, result);
+        // Delay each tile's flip animation to visualize them one by one
+        setTimeout(() => {
+            // Start the flip animation
+            tile.classList.add('flipped');
+
+            // If the result is correct, add a win animation class with the same delay
+            if (result[index] === 'correct') {
+                setTimeout(() => {
+                    tile.classList.add('tile-win-pop'); // Apply win animation class
+                }, 500); // Additional delay to sync with the flipping for better visual effect
+            }
+        }, index * 500); // Stagger the start of each tile's flip
+    });
+
+    updateKeyboard(guess, result);
 }
 
 function shakeCurrentRow() {
@@ -660,31 +667,15 @@ function concludeGame(won) {
 
         updateStats(won, currentAttempt); // Update game statistics
 
-        // Handle the conclusion based on whether the game was won or lost
-        if (won) {
-            // Trigger the winning tiles animation
-            animateWinningTiles(currentAttempt);
-            setTimeout(() => {
-                showEndGameMessage(won); // Show end game message after animation
-                displayStatsModal(); // Display stats modal immediately after the message
-            }, 1000); // Delay showing the message to allow for the animation to play out
-        } else {
-            if (currentAttempt >= maxAttempts) {
+        // Display end game message and stats modal with appropriate delay
+        setTimeout(() => {
+            if (!won && currentAttempt >= maxAttempts) {
                 revealWordOfTheDay(); // Reveal the word if the game is lost
             }
-            // No need for delay if lost, as there is no win animation
             showEndGameMessage(won); // Show end game message
             displayStatsModal(); // Display stats modal immediately after the message
-        }
+        }, currentAttempt * 500 + 600); // Ensure delays align with UI animations
     }
-}
-
-function animateWinningTiles(attempt) {
-    const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
-    const tiles = row.querySelectorAll('.tile');
-    tiles.forEach(tile => {
-        tile.classList.add('tile-win-pop'); // Apply the animation class to each tile
-    });
 }
 
 
