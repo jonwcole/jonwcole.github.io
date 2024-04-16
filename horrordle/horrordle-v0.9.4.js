@@ -654,6 +654,9 @@ function displayStatsModal() {
 
 function concludeGame(won) {
     let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
+    if (won) {
+        animateWinningTiles(currentAttempt);
+    }
     if (!gameProgress.gameEnded) {  // Check if the game has already been concluded to prevent double counting
         gameProgress.gameEnded = true;
         localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
@@ -669,6 +672,14 @@ function concludeGame(won) {
             displayStatsModal(); // Display stats modal immediately after the message
         }, currentAttempt * 500 + 600); // Ensure delays align with UI animations
     }
+}
+
+function animateWinningTiles(attempt) {
+    const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
+    const tiles = row.querySelectorAll('.tile');
+    tiles.forEach(tile => {
+        tile.classList.add('tile-win-pop'); // Apply the animation class to each tile
+    });
 }
 
 
