@@ -17,7 +17,7 @@ async function loadGame() {
         dictionary = dictionaryData.map(word => word.toUpperCase());
 
         // Fetch and set up the word of the day
-        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.json');
+        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.1.json');
         const wordsData = await wordsResponse.json();
         
         // Get today's date and word data as before
