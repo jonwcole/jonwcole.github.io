@@ -197,25 +197,25 @@ function updateCurrentGuessDisplay() {
 function updateTiles(attempt, guess, result) {
     const row = document.querySelector(`#game-board .tile-row-wrapper:nth-child(${attempt + 1})`);
     const tiles = row.querySelectorAll('.tile');
+    let allCorrect = result.every(status => status === 'correct'); // Check if all tiles are correct
 
     tiles.forEach((tile, index) => {
         // Set up the back face with the guessed letter and status class before starting the animation
         const back = tile.querySelector('.back');
         const backText = tile.querySelector('.back-text');
-        backText.textContent = guess[index]; // Optionally, set the letter here as well for a reveal effect
+        backText.textContent = guess[index];
         back.className = 'back'; // Reset any previous result classes
-        back.classList.add(result[index]); // Preemptively add the result class to the back
+        back.classList.add(result[index]);
 
         // Delay each tile's flip animation to visualize them one by one
         setTimeout(() => {
-            // Start the flip animation
             tile.classList.add('flipped');
 
-            // If the result is correct, add a win animation class with the same delay
-            if (result[index] === 'correct') {
+            // If the guess is entirely correct, trigger the win animation for each tile after all have been revealed
+            if (allCorrect && index === tiles.length - 1) { // Only trigger after the last tile has flipped
                 setTimeout(() => {
-                    tile.classList.add('tile-win-pop'); // Apply win animation class
-                }, 500); // Additional delay to sync with the flipping for better visual effect
+                    tiles.forEach(tile => tile.classList.add('tile-win-pop')); // Apply win animation class to all tiles
+                }, 500); // Delay to ensure the last tile's flip completes before celebration starts
             }
         }, index * 500); // Stagger the start of each tile's flip
     });
