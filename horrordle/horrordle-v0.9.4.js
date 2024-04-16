@@ -415,17 +415,21 @@ function restoreGameStateIfPlayedToday() {
     if (gameProgress && gameProgress.date === today) {
         gameGuessColors = JSON.parse(localStorage.getItem('gameGuessColors')) || [];
         gameGuessLetters = JSON.parse(localStorage.getItem('gameGuessLetters')) || [];
-        incorrectGuesses = parseInt(localStorage.getItem('incorrectGuesses')) || 0; // Restore incorrect guesses
+        incorrectGuesses = parseInt(localStorage.getItem('incorrectGuesses')) || 0; // Ensure incorrect guesses are restored
         currentAttempt = gameProgress.attempts.length;
         isGameOver = gameProgress.gameEnded;
 
+        let cumulativeResults = {}; // Initialize an object to hold final state of each letter
+
         gameProgress.attempts.forEach((attemptObj, attempt) => {
-            restoreAttempt(attemptObj, attempt);
+            restoreAttempt(attemptObj, attempt, cumulativeResults);
         });
+
+        updateKeyboardState(cumulativeResults); // Update the keyboard after all attempts have been processed
 
         if (incorrectGuesses >= 5) {
             displayHint(); // Display the hint if there were 5 or more incorrect guesses
-            hintDisplayed = true; // Ensure that hint is not shown again if the game is resumed
+            hintDisplayed = true; // Prevent hint from being shown again
         }
 
         if (isGameOver) {
@@ -438,7 +442,7 @@ function restoreGameStateIfPlayedToday() {
     }
 }
 
-function restoreAttempt(attemptObj, attempt) {
+function restoreAttempt(attemptObj, attempt, cumulativeResults) {
     const row = document.querySelector(`.tile-row-wrapper[data-attempt="${attempt}"]`);
     const tiles = row.querySelectorAll('.tile');
     attemptObj.guess.split('').forEach((letter, index) => {
@@ -450,9 +454,14 @@ function restoreAttempt(attemptObj, attempt) {
         backText.textContent = letter;
         back.className = 'back ' + attemptObj.result[index];
         tile.classList.add('flipped');
+
+        // Determine the most relevant result for each letter for the keyboard
+        const result = attemptObj.result[index];
+        if (!cumulativeResults[letter] || result === 'correct' || (result === 'present' && cumulativeResults[letter] !== 'correct')) {
+            cumulativeResults[letter] = result;
+        }
     });
 }
-
 
 function displayEndGameState() {
     const wordElement = document.getElementById('word-reveal');
