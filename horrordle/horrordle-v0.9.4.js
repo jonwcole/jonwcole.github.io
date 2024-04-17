@@ -223,6 +223,7 @@ function updateTiles(attempt, guess, result) {
     updateKeyboard(guess, result);
 }
 
+
 function shakeCurrentRow() {
     const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
     if (currentRow) {
