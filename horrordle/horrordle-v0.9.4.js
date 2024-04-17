@@ -365,8 +365,10 @@ function revealWordOfTheDay() {
 
 // New function to handle end game UI updates
 function showEndGameMessage(won) {
-    displayEndGameMessage(won); // Calls existing function to show the message
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
+    setTimeout(() => {
+        displayEndGameMessage(won); // Consolidate all UI display logic here
+    }, currentAttempt * 500 + 600);
 }
 
 function triggerUIAction(action) {
