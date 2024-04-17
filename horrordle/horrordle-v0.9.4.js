@@ -212,10 +212,15 @@ function updateTiles(attempt, guess, result) {
             tile.classList.add('flipped');
 
             // If the guess is entirely correct, trigger the win animation for each tile after all have been revealed
-            if (allCorrect) {
+            if (allCorrect && index === tiles.length - 1) {
+                // Start celebration animation 500ms after the last tile has flipped
                 setTimeout(() => {
-                    tile.classList.add('tile-win-pop'); // Apply win animation class to the current tile
-                }, 250 * index); // Stagger each win animation by 100ms after all flips
+                    tiles.forEach((celebrationTile, celebrationIndex) => {
+                        setTimeout(() => {
+                            celebrationTile.classList.add('tile-win-pop'); // Apply win animation class
+                        }, 100 * celebrationIndex); // Stagger each win animation by 100ms
+                    });
+                }, 500);
             }
         }, index * 500); // Stagger the start of each tile's flip
     });
