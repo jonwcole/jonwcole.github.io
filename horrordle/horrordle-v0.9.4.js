@@ -252,6 +252,16 @@ function shakeCurrentRow() {
 function displayEndGameMessage(won) {
     revealWordOfTheDay(); // Handle revealing the word for both winning and losing cases
 
+    // Update the result text based on the game outcome
+    const resultTextElement = document.getElementById('result-text');
+    if (resultTextElement) {
+        if (won) {
+            resultTextElement.textContent = 'won'; // Set text to 'won' if the user wins
+        } else {
+            resultTextElement.textContent = 'lost'; // Optionally set text to 'lost' if the user loses
+        }
+    }
+
     // Display splatter boxes and simulate stats modal click after a delay
     document.querySelectorAll('.splatter-box').forEach(box => {
         box.style.display = 'block';
