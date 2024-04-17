@@ -365,10 +365,8 @@ function revealWordOfTheDay() {
 
 // New function to handle end game UI updates
 function showEndGameMessage(won) {
+    displayEndGameMessage(won); // Consolidate all UI display logic here
     toggleOnScreenKeyboard(false); // Disables the on-screen keyboard
-    setTimeout(() => {
-        displayEndGameMessage(won); // Consolidate all UI display logic here
-    }, currentAttempt * 500 + 600);
 }
 
 function triggerUIAction(action) {
@@ -662,20 +660,24 @@ function displayStatsModal() {
 
 function concludeGame(won) {
     let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
-    if (!gameProgress.gameEnded) {  // Prevent double conclusion
+    if (!gameProgress.gameEnded) {  // Check if the game has already been concluded to prevent double counting
         gameProgress.gameEnded = true;
         localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 
         updateStats(won, currentAttempt); // Update game statistics
 
-        // Handle all UI updates in one place after a delay to account for animations
+        // Calculate the total delay needed for all tiles to flip before showing the end game UI
+        let totalFlipDelay = (currentGuess.length * 500) + 600;  // Adjust based on your tile flip timing
+
+        // Display end game message and stats modal after all tiles have flipped
         setTimeout(() => {
-            displayEndGameMessage(won); // Consolidate all UI display logic here
-            displayCompletedMessage(); // Always show completed message
+            displayEndGameMessage(won); // Handle UI updates for winning or losing
+            displayCompletedMessage(); // Show completed game message if it's a new game day
             displayStatsModal(); // Show stats modal last
-        }, currentAttempt * 500 + 600);
+        }, totalFlipDelay);
     }
 }
+
 
 
 // ==================== //
