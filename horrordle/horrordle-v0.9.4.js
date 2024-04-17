@@ -250,23 +250,20 @@ function shakeCurrentRow() {
 }
 
 function displayEndGameMessage(won) {
-    // Display the word of the day for both win and loss scenarios
-    revealWordOfTheDay();
+    revealWordOfTheDay(); // Handle revealing the word for both winning and losing cases
 
-    // Display splatter boxes for visual effect
+    // Display splatter boxes and simulate stats modal click after a delay
     document.querySelectorAll('.splatter-box').forEach(box => {
         box.style.display = 'block';
-        setTimeout(() => box.style.opacity = '1', 10); // Ensure the fade-in animation plays
+        setTimeout(() => box.style.opacity = '1', 10);
     });
 
-    // Additional actions after displaying the elements
     setTimeout(() => {
-        // Simulate a click on the nav button to open the stats modal after the elements have been shown
         const navButton = document.querySelector('.nav-button-default-state');
         if (navButton) {
-            navButton.click();
+            navButton.click();  // Simulate click to open stats modal
         }
-    }, 3500); // Adjust this timing if necessary to fit your animations
+    }, 3500);
 }
 
 function displayHint() {
@@ -663,21 +660,18 @@ function displayStatsModal() {
 
 function concludeGame(won) {
     let gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
-    if (!gameProgress.gameEnded) {  // Check if the game has already been concluded to prevent double counting
+    if (!gameProgress.gameEnded) {  // Prevent double conclusion
         gameProgress.gameEnded = true;
         localStorage.setItem('gameProgress', JSON.stringify(gameProgress));
 
         updateStats(won, currentAttempt); // Update game statistics
 
-        // Display end game message, completed message, and stats modal with appropriate delay
+        // Handle all UI updates in one place after a delay to account for animations
         setTimeout(() => {
-            if (!won && currentAttempt >= maxAttempts) {
-                revealWordOfTheDay(); // Reveal the word if the game is lost
-            }
-            showEndGameMessage(won); // Show end game message
-            displayCompletedMessage(); // Show completed game message
-            displayStatsModal(); // Display stats modal immediately after the message
-        }, currentAttempt * 500 + 600); // Ensure delays align with UI animations
+            displayEndGameMessage(won); // Consolidate all UI display logic here
+            displayCompletedMessage(); // Always show completed message
+            displayStatsModal(); // Show stats modal last
+        }, currentAttempt * 500 + 600);
     }
 }
 
