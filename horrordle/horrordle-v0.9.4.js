@@ -683,12 +683,13 @@ function concludeGame(won) {
 
         updateStats(won, currentAttempt); // Update game statistics
 
-        // Display end game message and stats modal with appropriate delay
+        // Display end game message, completed message, and stats modal with appropriate delay
         setTimeout(() => {
             if (!won && currentAttempt >= maxAttempts) {
                 revealWordOfTheDay(); // Reveal the word if the game is lost
             }
             showEndGameMessage(won); // Show end game message
+            displayCompletedMessage(); // Show completed game message
             displayStatsModal(); // Display stats modal immediately after the message
         }, currentAttempt * 500 + 600); // Ensure delays align with UI animations
     }
