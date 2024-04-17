@@ -215,9 +215,9 @@ function updateTiles(attempt, guess, result) {
             if (allCorrect) {
                 setTimeout(() => {
                     tile.classList.add('tile-win-pop'); // Apply win animation class to the current tile
-                }, 500 * tiles.length + (500 * index)); // Start celebrations after all tiles are flipped, then stagger each
+                }, 100 * tiles.length + (500 * index)); // Start celebrations after all tiles are flipped, then stagger each
             }
-        }, index * 100); // Stagger the start of each tile's flip
+        }, index * 500); // Stagger the start of each tile's flip
     });
 
     updateKeyboard(guess, result);
