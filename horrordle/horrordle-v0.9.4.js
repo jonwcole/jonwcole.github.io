@@ -702,12 +702,21 @@ function generateResultString() {
         'correct': '🟥'
     };
 
+    // Fetch the game date from localStorage
+    const gameDate = localStorage.getItem('gameDate');
+
+    // Format the date string for output, if the gameDate is not null
+    let formattedDate = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }); // Default to current date
+    if (gameDate) {
+        const dateObj = new Date(gameDate);
+        formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+    }
+
     const resultString = storedGuesses.map(guess =>
         guess.map(status => emojiMap[status]).join('')
     ).join('\n');
 
-    const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-    return `Horrordle.app, ${date}\n\n${resultString}`;
+    return `Horrordle.app, ${formattedDate}\n\n${resultString}`;
 }
 
 document.getElementById('share-result').addEventListener('click', function() {
