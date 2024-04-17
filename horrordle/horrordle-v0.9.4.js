@@ -11,6 +11,22 @@ let hintOfTheDay = '';
 
 async function loadGame() {
     try {
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        const adjustedNow = new Date(now.getTime() - timezoneOffset);
+        const today = adjustedNow.toISOString().slice(0, 10);
+
+        // Check if today's date is the same as the stored game date
+        const storedGameDate = localStorage.getItem('gameDate');
+        if (storedGameDate !== today) {
+            // Reset game-specific data for a new day
+            gameGuessColors = [];
+            gameGuessLetters = [];
+            localStorage.removeItem('gameGuessColors');
+            localStorage.removeItem('gameGuessLetters');
+            localStorage.removeItem('incorrectGuesses'); // Resetting incorrect guesses count
+        }
+
         // Fetch and set up the dictionary
         const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary-v1.json');
         const dictionaryData = await dictionaryResponse.json();
@@ -20,23 +36,17 @@ async function loadGame() {
         const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.1.json');
         const wordsData = await wordsResponse.json();
         
-        // Get today's date and word data as before
-        const now = new Date();
-        const timezoneOffset = now.getTimezoneOffset() * 60000;
-        const adjustedNow = new Date(now.getTime() - timezoneOffset);
-        const today = adjustedNow.toISOString().slice(0, 10);
-
         const wordData = wordsData[today];
         if (wordData) {
             // Set up the game with the word of the day, hint, and context if available
             wordOfTheDay = wordData.word.toUpperCase();
             hintOfTheDay = wordData.hint;
-            const contextOfTheDay = wordData.context || ''; // Get context if available
+            const contextOfTheDay = wordData.context || '';
             gameDate = today;
 
             localStorage.setItem('gameDate', gameDate);
 
-            // Call the UI update function including context
+            // Update the UI to reflect the new game state
             updateGameUI(wordOfTheDay, hintOfTheDay, contextOfTheDay);
         } else {
             console.error('Word for today not found');
@@ -45,6 +55,7 @@ async function loadGame() {
         console.error('Error loading game data:', error);
     }
 }
+
 
 
 // ================== //
