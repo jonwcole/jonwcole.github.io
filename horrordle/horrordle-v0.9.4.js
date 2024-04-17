@@ -250,37 +250,23 @@ function shakeCurrentRow() {
 }
 
 function displayEndGameMessage(won) {
-    
-    const hintElement = document.querySelector('.hint');
-    const hintWord = document.getElementById('hint-text');
-    if (hintElement && hintOfTheDay) {
-        hintWord.textContent = hintOfTheDay; // Set the hint text
-        hintElement.style.display = 'block';
-        setTimeout(() => hintElement.style.opacity = 1, 10); // Start the fade-in
-    }
+    // Display the word of the day for both win and loss scenarios
+    revealWordOfTheDay();
 
-    // Display the success or failure message
-    if (won) {
-        const successDiv = document.querySelector('.success');
-        successDiv.style.display = 'flex';
-        // Delay the opacity transition slightly
-        setTimeout(() => successDiv.style.opacity = '1', 10);
-    } else {
-        document.querySelectorAll('.splatter-box').forEach(box => {
-            box.style.display = 'block';
-            // Delay the opacity transition slightly
-            setTimeout(() => box.style.opacity = '1', 10);
-        });
-    }
+    // Display splatter boxes for visual effect
+    document.querySelectorAll('.splatter-box').forEach(box => {
+        box.style.display = 'block';
+        setTimeout(() => box.style.opacity = '1', 10); // Ensure the fade-in animation plays
+    });
 
+    // Additional actions after displaying the elements
     setTimeout(() => {
-
-        // Simulate a click on the nav button to open the stats modal after the hint and message have been shown
+        // Simulate a click on the nav button to open the stats modal after the elements have been shown
         const navButton = document.querySelector('.nav-button-default-state');
         if (navButton) {
             navButton.click();
         }
-    }, 3500); // Wait for fade out
+    }, 3500); // Adjust this timing if necessary to fit your animations
 }
 
 function displayHint() {
