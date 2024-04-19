@@ -695,6 +695,9 @@ function concludeGame(won) {
 // ==================== //
 
 function generateResultString() {
+    const gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
+    const gameDate = gameProgress.date || new Date().toISOString().slice(0, 10); // Use stored game date, fallback to current date
+
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
         'absent': '⬛',
@@ -702,19 +705,13 @@ function generateResultString() {
         'correct': '🟥'
     };
 
-    // Fetch the game date from localStorage
-    const gameDate = localStorage.getItem('gameDate');
-
-    // Format the date string for output, if the gameDate is not null
-    let formattedDate = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }); // Default to current date
-    if (gameDate) {
-        const dateObj = new Date(gameDate);
-        formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-    }
-
     const resultString = storedGuesses.map(guess =>
         guess.map(status => emojiMap[status]).join('')
     ).join('\n');
+
+    // Formatting the date to a more readable format if necessary
+    const dateObj = new Date(gameDate);
+    const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj.getFullYear()}`;
 
     return `Horrordle.app, ${formattedDate}\n\n${resultString}`;
 }
