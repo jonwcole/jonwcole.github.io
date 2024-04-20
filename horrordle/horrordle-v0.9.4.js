@@ -696,7 +696,7 @@ function concludeGame(won) {
 
 function generateResultString() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
-    const date = gameProgress.date || new Date().toISOString().slice(0, 10); // Use the game date from the progress, or today if unavailable
+    const storedDate = gameProgress.date; // Retrieve the date directly as stored
 
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
@@ -705,15 +705,12 @@ function generateResultString() {
         'correct': '🟥'
     };
 
+    // Build the result string for each guess
     const resultString = storedGuesses.map(guess =>
         guess.map(status => emojiMap[status]).join('')
     ).join('\n');
 
-    // Convert ISO date to more readable format
-    const dateObj = new Date(date);
-    const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj.getFullYear()}`;
-
-    return `Horrordle.app, ${formattedDate}\n\n${resultString}`;
+    return `Horrordle.app, ${storedDate}\n\n${resultString}`;
 }
 
 
