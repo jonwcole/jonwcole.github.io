@@ -698,9 +698,11 @@ function generateResultString() {
     const gameProgress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
     const storedDate = gameProgress.date; // Retrieve the date directly as stored
 
-    // Convert the stored date to the required format "month/day"
-    const dateObj = new Date(storedDate);
-    const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`; // +1 because getMonth() returns 0-11
+    // Format the date from "YYYY-MM-DD" to "M/D"
+    const dateParts = storedDate.split('-'); // Split the date into components
+    const month = parseInt(dateParts[1], 10); // Convert the month part to integer and remove leading zeros
+    const day = parseInt(dateParts[2], 10); // Convert the day part to integer and remove leading zeros
+    const formattedDate = `${month}/${day}`; // Construct the new date format
 
     const storedGuesses = JSON.parse(localStorage.getItem('gameGuessColors') || '[]');
     const emojiMap = {
@@ -716,7 +718,6 @@ function generateResultString() {
 
     return `Horrordle.app, ${formattedDate}\n\n${resultString}`;
 }
-
 
 document.getElementById('share-result').addEventListener('click', function() {
     const resultString = generateResultString();
