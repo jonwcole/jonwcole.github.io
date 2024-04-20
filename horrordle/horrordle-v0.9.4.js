@@ -716,6 +716,7 @@ function generateResultString() {
     return `Horrordle.app, ${formattedDate}\n\n${resultString}`;
 }
 
+
 document.getElementById('share-result').addEventListener('click', function() {
     const resultString = generateResultString();
     navigator.clipboard.writeText(resultString)
