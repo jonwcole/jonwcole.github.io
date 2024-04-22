@@ -35,10 +35,10 @@
   "2024-04-19": {"word": "cabin", "hint": "Where you'll find the Necronomicon Ex-Mortis.", "context": ""},
   "2024-04-20": {"word": "whale", "hint": "Director whose monstrous creations haunted the early silver screen.", "context": "James Whale"},
   "2024-04-21": {"word": "bleed", "hint": "Plug it up! Plug it up!", "context": ""},
-  "2024-04-22": {"word": "dante", "hint": "Mischievous. Intelligent. Dangerous.", "context": "Joe Dante"},
-  "2024-04-23": {"word": "Okuno", "hint": "Directs deeply unsettling psychological horror.", "context": "Chloe Okuno"},
-  "2024-04-24": {"word": "choke", "hint": "What you might do if you're too scared to scream.", "context": ""},
-  "2024-04-25": {"word": "dread", "hint": "The overwhelming sense of fear about what's coming next.", "context": ""},
+  "2024-04-22": {"word": "dewey", "hint": "That's Deputy Riley today, Sid.", "context": "Dewey Riley"},
+  "2024-04-23": {"word": "heart", "hint": "This hellbound organ launched Clive Barker's franchise.", "context": ""},
+  "2024-04-24": {"word": "yorke", "hint": "British musician scored the Suspiria remake.", "context": "Thom Yorke"},
+  "2024-04-25": {"word": "vecna", "hint": "A very strange final boss.", "context": ""},
   "2024-04-26": {"word": "Lisey", "hint": "Her story is tale of love and horror.", "context": "Lisey's Story"},
   "2024-04-27": {"word": "Zombi", "hint": "An Italian film that brought new life to the undead.", "context": ""},
   "2024-04-28": {"word": "house", "hint": "Not always a home, especially when one's not alone.", "context": ""},
@@ -122,5 +122,10 @@
   "2024-07-15": {"word": "noire", "hint": "A dark and mysterious genre.", "context": ""},
   "2024-07-16": {"word": "juice", "hint": "The Ghost with the Most", "context": ""},
   "2024-07-17": {"word": "Anwar", "hint": "A filmmaker who's no stranger to the macabre and unsettling.", "context": "Joko Anwar"},
-  "2024-07-18": {"word": "lucky", "hint": "A filmmaker who often explores the dark side of humanity.", "context": "Lucky McKee"}
+  "2024-07-18": {"word": "lucky", "hint": "A filmmaker who often explores the dark side of humanity.", "context": "Lucky McKee"},
+  "2024-07-19": {"word": "dante", "hint": "Mischievous. Intelligent. Dangerous.", "context": "Joe Dante"},
+  "2024-07-20": {"word": "Okuno", "hint": "Directs deeply unsettling psychological horror.", "context": "Chloe Okuno"},
+  "2024-07-21": {"word": "choke", "hint": "What you might do if you're too scared to scream.", "context": ""},
+  "2024-07-22": {"word": "dread", "hint": "The overwhelming sense of fear about what's coming next.", "context": ""},
+
 }
