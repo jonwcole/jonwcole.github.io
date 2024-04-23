@@ -716,7 +716,7 @@ function generateResultString() {
         guess.map(status => emojiMap[status]).join('')
     ).join('\n');
 
-    return `Horrordle.app, ${formattedDate}\n\n${resultString}`;
+    return `www.horrordle.app, ${formattedDate}\n\n${resultString}`;
 }
 
 document.getElementById('share-result').addEventListener('click', function() {
