@@ -768,3 +768,4 @@ document.addEventListener('DOMContentLoaded', function() {
     loadGame(); // Example of other functions that run on page load
     restoreGameStateIfPlayedToday(); // Another example function
 });
+
