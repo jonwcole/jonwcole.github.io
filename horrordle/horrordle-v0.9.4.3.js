@@ -28,12 +28,12 @@ async function loadGame() {
         }
 
         // Fetch and set up the dictionary
-        const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary-v1.3.json');
+        const dictionaryResponse = await fetch('https://jonwcole.github.io/horrordle/dictionary-v1.2.json');
         const dictionaryData = await dictionaryResponse.json();
         dictionary = dictionaryData.map(word => word.toUpperCase());
 
         // Fetch and set up the word of the day
-        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.2.json');
+        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.3.json');
         const wordsData = await wordsResponse.json();
         
         const wordData = wordsData[today];
