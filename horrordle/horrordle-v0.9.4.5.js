@@ -180,10 +180,15 @@ function normalizeWord(word) {
         'í': 'i', 'ì': 'i', 'ï': 'i', 'î': 'i',
         'ó': 'o', 'ò': 'o', 'ö': 'o', 'ô': 'o',
         'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u',
-        'ñ': 'n', 'ç': 'c'
+        'ñ': 'n', 'Ñ': 'N', 'ç': 'c', 'Ç': 'C'
     };
 
-    return word.split('').map(letter => accentsMap[letter] || letter).join('');
+    return word
+        .normalize('NFD') // Decompose characters
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks
+        .split('')
+        .map(letter => accentsMap[letter] || letter) // Replace using accentsMap
+        .join('');
 }
 
 
