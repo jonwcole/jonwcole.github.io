@@ -57,7 +57,7 @@ async function loadGame() {
             // Display a message if the word for today is missing
             const errorMessage = document.getElementById('error-message');
             if (errorMessage) {
-                errorMessage.innerHTML = "No Horrordle word for today! Email <a href='mailto:jon@livingdead.co'>jon@livingdead.co</a> &amp; let him know.";
+                errorMessage.innerHTML = "Uh oh! No Horrordle word for today.<br /><br />Email <a href='mailto:jon@livingdead.co'>jon@livingdead.co</a> &amp; let him know.";
                 errorMessage.style.display = 'block'; // Make it visible after setting content
             }
             console.error('Word for today not found');
