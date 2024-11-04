@@ -53,7 +53,7 @@ async function loadGame() {
             // Update the UI with the original word for display
             updateGameUI(wordOfTheDay, hintOfTheDay, contextOfTheDay);
         }
-        if (!wordData) {
+        else {
             // Display a message if the word for today is missing
             const errorMessage = document.getElementById('error-message');
             if (errorMessage) {
