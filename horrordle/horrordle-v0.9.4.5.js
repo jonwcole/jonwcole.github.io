@@ -42,9 +42,9 @@ async function loadGame() {
         
         const wordData = wordsData[today];
         if (wordData) {
-            // Store both the original and normalized word of the day
-            wordOfTheDay = wordData.word.toUpperCase();  // Store original
-            wordOfTheDayNormalized = normalizeWord(wordOfTheDay); // Store normalized version
+            // Assign the original and normalized word of the day without redeclaring
+            wordOfTheDay = wordData.word.toUpperCase();
+            wordOfTheDayNormalized = normalizeWord(wordOfTheDay);
 
             console.log("Original word:", wordOfTheDay); // Should display the original word
             console.log("Normalized word:", wordOfTheDayNormalized); // Should display the normalized word
