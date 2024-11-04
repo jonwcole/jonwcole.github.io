@@ -10,9 +10,6 @@ let gameDate = ''; // Ensure this is declared globally for use in stats
 let hintOfTheDay = '';
 let wordOfTheDayNormalized = '';
 
-let wordOfTheDay = ''; // Global variable to store the original word
-let wordOfTheDayNormalized = ''; // Global variable for the normalized word
-
 async function loadGame() {
     try {
         const now = new Date();
