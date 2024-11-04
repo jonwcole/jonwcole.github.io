@@ -33,13 +33,13 @@ async function loadGame() {
         dictionary = dictionaryData.map(word => word.toUpperCase());
 
         // Fetch and set up the word of the day
-        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-v1.4.json');
+        const wordsResponse = await fetch('https://jonwcole.github.io/horrordle/words-beta.json');
         const wordsData = await wordsResponse.json();
         
         const wordData = wordsData[today];
         if (wordData) {
             // Set up the game with the word of the day, hint, and context if available
-            wordOfTheDay = wordData.word.toUpperCase();
+            wordOfTheDay = normalizeWord(wordData.word.toUpperCase());
             hintOfTheDay = wordData.hint;
             const contextOfTheDay = wordData.context || '';
             gameDate = today;
@@ -168,6 +168,20 @@ function handleGuessFinalization(guess) {
     }
 }
 
+// Function to normalize non-standard characters
+function normalizeWord(word) {
+    const accentsMap = {
+        'á': 'a', 'à': 'a', 'ä': 'a', 'â': 'a',
+        'é': 'e', 'è': 'e', 'ë': 'e', 'ê': 'e',
+        'í': 'i', 'ì': 'i', 'ï': 'i', 'î': 'i',
+        'ó': 'o', 'ò': 'o', 'ö': 'o', 'ô': 'o',
+        'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u',
+        'ñ': 'n', 'ç': 'c'
+        // Add more mappings as needed
+    };
+
+    return word.split('').map(letter => accentsMap[letter] || letter).join('');
+}
 
 
 // ============= //
