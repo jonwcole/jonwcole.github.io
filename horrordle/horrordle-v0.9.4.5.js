@@ -43,9 +43,6 @@ async function loadGame() {
             wordOfTheDay = wordData.word.toUpperCase();
             wordOfTheDayNormalized = normalizeWord(wordOfTheDay);
 
-            console.log("Original word:", wordOfTheDay); // Should display the original word
-            console.log("Normalized word:", wordOfTheDayNormalized); // Should display the normalized word
-
             // Set up hint and context as usual
             hintOfTheDay = wordData.hint;
             const contextOfTheDay = wordData.context || '';
