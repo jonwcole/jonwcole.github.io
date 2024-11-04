@@ -8,6 +8,7 @@ let wordOfTheDay = '';
 let dictionary = [];
 let gameDate = ''; // Ensure this is declared globally for use in stats
 let hintOfTheDay = '';
+let wordOfTheDayNormalized = '';
 
 async function loadGame() {
     try {
@@ -38,18 +39,18 @@ async function loadGame() {
         
         const wordData = wordsData[today];
         if (wordData) {
-            // Store both the original and normalized words
-            wordOfTheDayOriginal = wordData.word.toUpperCase(); // original, unnormalized word for display
-            wordOfTheDayNormalized = normalizeWord(wordOfTheDayOriginal); // normalized for comparison
+            // Store both the original and normalized word of the day
+            const wordOfTheDayOriginal = wordData.word.toUpperCase();
+            wordOfTheDayNormalized = normalizeWord(wordOfTheDayOriginal);
             
-            // Store the hint and context as usual
+            // Set up hint and context as usual
             hintOfTheDay = wordData.hint;
             const contextOfTheDay = wordData.context || '';
             gameDate = today;
 
             localStorage.setItem('gameDate', gameDate);
 
-            // Update the UI with original word for display
+            // Update the UI with the original word for display
             updateGameUI(wordOfTheDayOriginal, hintOfTheDay, contextOfTheDay);
         } else {
             console.error('Word for today not found');
@@ -97,7 +98,7 @@ function submitGuess() {
 
     if (guess !== wordOfTheDayNormalized) {
         incorrectGuesses++;
-        localStorage.setItem('incorrectGuesses', incorrectGuesses); // Save the updated count
+        localStorage.setItem('incorrectGuesses', incorrectGuesses);
     }
 
     processGuess(guess);
