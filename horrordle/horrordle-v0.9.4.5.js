@@ -38,16 +38,19 @@ async function loadGame() {
         
         const wordData = wordsData[today];
         if (wordData) {
-            // Set up the game with the word of the day, hint, and context if available
-            wordOfTheDay = normalizeWord(wordData.word.toUpperCase());
+            // Store both the original and normalized words
+            wordOfTheDayOriginal = wordData.word.toUpperCase(); // original, unnormalized word for display
+            wordOfTheDayNormalized = normalizeWord(wordOfTheDayOriginal); // normalized for comparison
+            
+            // Store the hint and context as usual
             hintOfTheDay = wordData.hint;
             const contextOfTheDay = wordData.context || '';
             gameDate = today;
 
             localStorage.setItem('gameDate', gameDate);
 
-            // Update the UI to reflect the new game state
-            updateGameUI(wordOfTheDay, hintOfTheDay, contextOfTheDay);
+            // Update the UI with original word for display
+            updateGameUI(wordOfTheDayOriginal, hintOfTheDay, contextOfTheDay);
         } else {
             console.error('Word for today not found');
         }
@@ -84,7 +87,7 @@ function submitGuess() {
     if (isRevealingGuess || isGameOver || currentGuess.length !== 5) return;
 
     isRevealingGuess = true;
-    const guess = currentGuess.join('').toUpperCase();
+    const guess = normalizeWord(currentGuess.join('').toUpperCase());
 
     if (!dictionary.includes(guess)) {
         shakeCurrentRow();
@@ -92,7 +95,7 @@ function submitGuess() {
         return;
     }
 
-    if (guess !== wordOfTheDay) {
+    if (guess !== wordOfTheDayNormalized) {
         incorrectGuesses++;
         localStorage.setItem('incorrectGuesses', incorrectGuesses); // Save the updated count
     }
@@ -177,7 +180,6 @@ function normalizeWord(word) {
         'ó': 'o', 'ò': 'o', 'ö': 'o', 'ô': 'o',
         'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u',
         'ñ': 'n', 'ç': 'c'
-        // Add more mappings as needed
     };
 
     return word.split('').map(letter => accentsMap[letter] || letter).join('');
