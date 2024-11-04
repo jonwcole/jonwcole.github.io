@@ -10,6 +10,9 @@ let gameDate = ''; // Ensure this is declared globally for use in stats
 let hintOfTheDay = '';
 let wordOfTheDayNormalized = '';
 
+let wordOfTheDay = ''; // Global variable to store the original word
+let wordOfTheDayNormalized = ''; // Global variable for the normalized word
+
 async function loadGame() {
     try {
         const now = new Date();
@@ -40,9 +43,12 @@ async function loadGame() {
         const wordData = wordsData[today];
         if (wordData) {
             // Store both the original and normalized word of the day
-            const wordOfTheDayOriginal = wordData.word.toUpperCase();
-            wordOfTheDayNormalized = normalizeWord(wordOfTheDayOriginal);
-            
+            wordOfTheDay = wordData.word.toUpperCase();  // Store original
+            wordOfTheDayNormalized = normalizeWord(wordOfTheDay); // Store normalized version
+
+            console.log("Original word:", wordOfTheDay); // Should display the original word
+            console.log("Normalized word:", wordOfTheDayNormalized); // Should display the normalized word
+
             // Set up hint and context as usual
             hintOfTheDay = wordData.hint;
             const contextOfTheDay = wordData.context || '';
@@ -51,7 +57,7 @@ async function loadGame() {
             localStorage.setItem('gameDate', gameDate);
 
             // Update the UI with the original word for display
-            updateGameUI(wordOfTheDayOriginal, hintOfTheDay, contextOfTheDay);
+            updateGameUI(wordOfTheDay, hintOfTheDay, contextOfTheDay);
         } else {
             console.error('Word for today not found');
         }
