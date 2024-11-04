@@ -127,20 +127,25 @@ function submitGuess() {
 }
 
 function processGuess(guess) {
-    let wordArray = wordOfTheDay.split('');
+    // Use the normalized version for comparisons
+    let wordArray = wordOfTheDayNormalized.split('');
     let result = [];
+    
+    // First, mark correct positions
     for (let i = 0; i < guess.length; i++) {
-        if (guess[i] === wordOfTheDay[i]) {
+        if (guess[i] === wordOfTheDayNormalized[i]) {
             result[i] = 'correct';
-            wordArray[i] = null;
+            wordArray[i] = null; // Mark as used
         } else {
             result[i] = 'absent';
         }
     }
+
+    // Then, mark present positions
     for (let i = 0; i < guess.length; i++) {
         if (result[i] !== 'correct' && wordArray.includes(guess[i])) {
             result[i] = 'present';
-            wordArray[wordArray.indexOf(guess[i])] = null;
+            wordArray[wordArray.indexOf(guess[i])] = null; // Mark as used
         }
     }
 
@@ -152,9 +157,10 @@ function processGuess(guess) {
 
     currentAttempt++; 
     saveGameProgress(guess, result);
-    if (currentAttempt >= maxAttempts || guess === wordOfTheDay) {
+    
+    if (currentAttempt >= maxAttempts || guess === wordOfTheDayNormalized) {
         isGameOver = true;
-        concludeGame(guess === wordOfTheDay);
+        concludeGame(guess === wordOfTheDayNormalized); // Compare against normalized word here
     }
 }
 
@@ -167,7 +173,7 @@ function handleGuessFinalization(guess) {
         hintDisplayed = true; // Prevent the hint from being displayed more than once
     }
 
-    const won = guess === wordOfTheDay;
+    const won = guess === wordOfTheDayNormalized; // Compare against normalized word
     const lost = !won && currentAttempt >= maxAttempts;
     
     if (won || lost) {
