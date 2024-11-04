@@ -52,8 +52,16 @@ async function loadGame() {
 
             // Update the UI with the original word for display
             updateGameUI(wordOfTheDay, hintOfTheDay, contextOfTheDay);
-        } else {
+        } 
+        else {
+            // Display a message if the word for today is missing
+            const errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = "No Horrordle word for today! Email <a href='mailto:jon@livingdead.co'>jon@livingdead.co</a> &amp; let him know.";
+            }
             console.error('Word for today not found');
+            return; // Exit function early
         }
     } catch (error) {
         console.error('Error loading game data:', error);
@@ -797,3 +805,7 @@ document.addEventListener('DOMContentLoaded', function() {
     restoreGameStateIfPlayedToday(); // Another example function
 });
 
+// Refresh every 12 hours (12 * 60 * 60 * 1000 ms)
+setInterval(() => {
+    location.reload(true); // true forces reload from server, not cache
+}, 12 * 60 * 60 * 1000);
