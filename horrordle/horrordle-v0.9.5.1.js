@@ -625,6 +625,10 @@ const defaultStats = {
 
 function loadStats() {
   const stats = JSON.parse(localStorage.getItem('stats')) || defaultStats;
+
+  // Update the participation streak when loading stats
+  updateParticipationStreak();
+
   return stats;
 }
 
@@ -635,17 +639,31 @@ function saveStats(stats) {
 const stats = loadStats(); // Load stats at the start of the game
 displayStats(); // Call this function to update the UI with the latest stats
 
+// Update the participation streak only if a day is missed, reset it
+function updateParticipationStreak() {
+    const today = new Date().toISOString().slice(0, 10);
+    const lastPlayed = stats.lastPlayedDate;
+
+    if (!lastPlayed || new Date(lastPlayed).getTime() < new Date(today).getTime() - 86400000) {
+        // Missed a day, reset streak only if player did not play yesterday
+        stats.currentStreak = 0;
+    }
+
+    stats.lastPlayedDate = today; // Update last played date to today
+    saveStats(stats);
+}
+
 function updateStats(win, guessesTaken) {
     stats.gamesPlayed += 1;
     if (win) {
         stats.wins += 1;
-        stats.currentStreak += 1;
+        stats.currentStreak += 1; // Increment streak only on win
         stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
         stats.guessDistribution[guessesTaken] += 1;
         stats.lastGameWon = true;
         stats.lastWinGuesses = guessesTaken;
     } else {
-        stats.currentStreak = 0;
+        stats.currentStreak = 0; // Reset streak if player loses
         stats.lastGameWon = false;
     }
     stats.lastPlayedDate = gameDate;
