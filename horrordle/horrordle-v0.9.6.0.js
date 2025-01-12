@@ -66,7 +66,7 @@ const gameElements = {
     validateElements() {
         // Validate all elements exist
         for (const [key, element] of Object.entries(this.elements)) {
-            if (!element && !['distributionBars', 'splatterBoxes'].includes(key)) {
+            if (!element && !['distributionBars', 'splatterBoxes', 'completedMessage'].includes(key)) {
                 console.warn(`Missing element: ${key}`);
             }
         }
@@ -102,7 +102,7 @@ const gameElements = {
         }
 
         // Add share button setup
-        this.setupShareButton();
+        this.setupShare();
     },
 
     // UI Update Methods
