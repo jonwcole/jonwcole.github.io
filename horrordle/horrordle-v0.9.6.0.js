@@ -319,21 +319,27 @@ async function loadGame() {
 }
 
 function initializeGameWithData(dictionaryData, wordsData) {
-    const today = getLocalDateISOString(new Date());
-    dictionary = dictionaryData.map(word => word.toUpperCase());
-    
-    const wordData = wordsData[today];
-    if (!wordData) {
-        throw new Error('No word found for today');
-    }
+    try {
+        const today = getLocalDateISOString(new Date());
+        dictionary = dictionaryData.map(word => word.toUpperCase());
+        
+        const wordData = wordsData[today];
+        if (!wordData) {
+            throw new Error('No word found for today');
+        }
 
-    gameState.state.wordOfTheDay = wordData.word.toUpperCase();
-    wordOfTheDayNormalized = normalizeWord(gameState.state.wordOfTheDay);
-    gameState.state.hintOfTheDay = wordData.hint;
-    gameState.state.gameDate = today;
-    
-    updateGameUI(gameState.state.wordOfTheDay, gameState.state.hintOfTheDay, wordData.context);
-    gameState.save();
+        gameState.state.wordOfTheDay = wordData.word.toUpperCase();
+        wordOfTheDayNormalized = normalizeWord(gameState.state.wordOfTheDay);
+        gameState.state.hintOfTheDay = wordData.hint;
+        gameState.state.gameDate = today;
+        
+        updateGameUI(gameState.state.wordOfTheDay, gameState.state.hintOfTheDay, wordData.context);
+        gameState.save();
+    } catch (error) {
+        console.error('Error initializing game data:', error);
+        gameElements.showError('Unable to initialize game. Please refresh the page.');
+        throw error;
+    }
 }
 
 
@@ -980,22 +986,12 @@ function enhanceShareFeature() {
 }
 
 // Add offline gameplay capability
-function cacheGameData() {
-    const gameData = {
-        dictionary,
-        wordOfTheDay,
-        gameDate,
-        hintOfTheDay
-    };
-    localStorage.setItem('gameData', JSON.stringify(gameData));
+function cacheGameData(data) {
+    offlineStorage.cacheGameData(data);
 }
 
 function loadOfflineGameData() {
-    const cached = localStorage.getItem('gameData');
-    if (cached) {
-        return JSON.parse(cached);
-    }
-    return null;
+    return offlineStorage.loadGameData();
 }
 
 function setupShareButton() {
