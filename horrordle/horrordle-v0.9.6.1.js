@@ -1,4 +1,4 @@
-// v0.9.5.3 //
+// v0.9.6.1 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -912,3 +912,57 @@ const StateManager = {
         this.saveToStorage();
     }
 };
+
+function submitGuess() {
+    // Get current state
+    const isRevealingGuess = StateManager.get('ui.isAnimating');
+    const isGameOver = StateManager.get('game.isGameOver');
+    const currentAttempt = StateManager.get('game.currentAttempt');
+    const currentGuess = StateManager.get('game.guesses')[currentAttempt] || [];
+
+    if (isRevealingGuess || isGameOver || currentGuess.length !== 5) {
+        return;
+    }
+
+    // Set animating state
+    StateManager.set('ui.isAnimating', true);
+
+    const guessWord = normalizeWord(currentGuess.join('').toUpperCase());
+    const wordOfDayNormalized = StateManager.get('game.wordOfDayNormalized');
+
+    // Check if word is valid
+    if (!dictionary.includes(guessWord)) {
+        shakeCurrentRow();
+        StateManager.set('ui.isAnimating', false);
+        return;
+    }
+
+    // Process the guess
+    processGuess(guessWord);
+
+    // Set timeout for post-guess processing
+    setTimeout(() => {
+        const currentAttempt = StateManager.get('game.currentAttempt');
+        if (currentAttempt >= 5 && !StateManager.get('game.hint.displayed')) {
+            StateManager.set('game.hint.displayed', true);
+        }
+
+        if (!StateManager.get('game.isGameOver')) {
+            handleGuessFinalization(guessWord);
+            StateManager.set('ui.isAnimating', false);
+        }
+    }, currentGuess.length * 500 + 600);
+}
+
+function handleGuessFinalization(guess) {
+    const currentAttempt = StateManager.get('game.currentAttempt');
+    const wordOfDayNormalized = StateManager.get('game.wordOfDayNormalized');
+    
+    const won = guess === wordOfDayNormalized;
+    const lost = !won && currentAttempt >= 6;
+    
+    if (won || lost) {
+        StateManager.set('game.isGameOver', true);
+        concludeGame(won);
+    }
+}
