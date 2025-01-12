@@ -463,16 +463,17 @@ function handleKeyPress(key) {
     }
 
     // Get current guess from state
-    const currentGuess = StateManager.get('game.guesses')[StateManager.get('game.currentAttempt')] || [];
+    let guesses = StateManager.get('game.guesses') || [];
+    let currentGuess = guesses[StateManager.get('game.currentAttempt')] || [];
 
     // Handle letter input
     if (/^[A-Z]$/i.test(key) && currentGuess.length < 5) {
         // Create new guess array with added letter
-        const newGuess = [...currentGuess, key.toUpperCase()];
+        currentGuess = [...currentGuess, key.toUpperCase()];
         
         // Update guesses array in state
-        const guesses = [...StateManager.get('game.guesses')];
-        guesses[StateManager.get('game.currentAttempt')] = newGuess;
+        guesses = [...guesses];
+        guesses[StateManager.get('game.currentAttempt')] = currentGuess;
         StateManager.set('game.guesses', guesses);
 
         // Update display
@@ -918,9 +919,10 @@ function submitGuess() {
     const isRevealingGuess = StateManager.get('ui.isAnimating');
     const isGameOver = StateManager.get('game.isGameOver');
     const currentAttempt = StateManager.get('game.currentAttempt');
-    const currentGuess = StateManager.get('game.guesses')[currentAttempt] || [];
+    const guesses = StateManager.get('game.guesses') || [];
+    const currentGuess = guesses[currentAttempt] || [];
 
-    if (isRevealingGuess || isGameOver || currentGuess.length !== 5) {
+    if (isRevealingGuess || isGameOver || !currentGuess || currentGuess.length !== 5) {
         return;
     }
 
@@ -942,8 +944,7 @@ function submitGuess() {
 
     // Set timeout for post-guess processing
     setTimeout(() => {
-        const currentAttempt = StateManager.get('game.currentAttempt');
-        if (currentAttempt >= 5 && !StateManager.get('game.hint.displayed')) {
+        if (StateManager.get('game.currentAttempt') >= 5 && !StateManager.get('game.hint.displayed')) {
             StateManager.set('game.hint.displayed', true);
         }
 
@@ -951,7 +952,7 @@ function submitGuess() {
             handleGuessFinalization(guessWord);
             StateManager.set('ui.isAnimating', false);
         }
-    }, currentGuess.length * 500 + 600);
+    }, 5 * 500 + 600); // Use fixed delay for consistency
 }
 
 function handleGuessFinalization(guess) {
@@ -993,13 +994,13 @@ function processGuess(guess) {
     // Update UI
     updateTiles(StateManager.get('game.currentAttempt'), guess, result);
 
-    // Update state
-    const guessResults = [...(StateManager.get('game.guesses') || [])];
-    guessResults.push({
-        word: guess,
+    // Update state with new guess
+    let guesses = [...(StateManager.get('game.guesses') || [])];
+    guesses[StateManager.get('game.currentAttempt')] = {
+        word: guess.split(''),
         result: result
-    });
-    StateManager.set('game.guesses', guessResults);
+    };
+    StateManager.set('game.guesses', guesses);
 
     // Increment attempt counter
     StateManager.set('game.currentAttempt', StateManager.get('game.currentAttempt') + 1);
