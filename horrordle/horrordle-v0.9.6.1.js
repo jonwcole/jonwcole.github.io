@@ -456,53 +456,88 @@ function disableInput() {
 // 5. Event Listeners and User Interaction //
 // ======================================= //
 
-let inputDisabled = false; // flag to control input globally
+function handleKeyPress(key) {
+    // Check if input is disabled or game is over
+    if (StateManager.get('ui.inputDisabled') || StateManager.get('game.isGameOver')) {
+        return;
+    }
+
+    // Get current guess from state
+    const currentGuess = StateManager.get('game.guesses')[StateManager.get('game.currentAttempt')] || [];
+
+    // Handle letter input
+    if (/^[A-Z]$/i.test(key) && currentGuess.length < 5) {
+        // Create new guess array with added letter
+        const newGuess = [...currentGuess, key.toUpperCase()];
+        
+        // Update guesses array in state
+        const guesses = [...StateManager.get('game.guesses')];
+        guesses[StateManager.get('game.currentAttempt')] = newGuess;
+        StateManager.set('game.guesses', guesses);
+
+        // Update display
+        updateCurrentGuessDisplay();
+    }
+}
+
+function deleteLastCharacter() {
+    // Get current guess from state
+    const currentAttempt = StateManager.get('game.currentAttempt');
+    const guesses = [...StateManager.get('game.guesses')];
+    const currentGuess = guesses[currentAttempt] || [];
+
+    // Check if there's at least one character to remove
+    if (currentGuess.length > 0) {
+        // Remove the last letter
+        currentGuess.pop();
+        
+        // Update state
+        guesses[currentAttempt] = currentGuess;
+        StateManager.set('game.guesses', guesses);
+        
+        // Update display
+        updateCurrentGuessDisplay();
+    }
+}
 
 // Handling virtual keyboard clicks
 document.getElementById('keyboard').addEventListener('click', function(e) {
-  if (e.target.matches('.key')) { // Now all keys, including special ones, are handled here
-    const key = e.target.getAttribute('data-key');
-    switch (key) {
-      case 'ENTER':
-        submitGuess();
-        break;
-      case 'BACKSPACE':
-        deleteLastCharacter();
-        updateCurrentGuessDisplay(); // Refresh the display to show the current guess state
-        break;
-      default:
-        handleKeyPress(key); // For letter keys
+    if (e.target.matches('.key')) {
+        const key = e.target.getAttribute('data-key');
+        switch (key) {
+            case 'ENTER':
+                submitGuess();
+                break;
+            case 'BACKSPACE':
+                deleteLastCharacter();
+                break;
+            default:
+                handleKeyPress(key);
+        }
     }
-  }
 });
 
 // Handling physical keyboard input
 document.addEventListener('keydown', function(e) {
-  // Check if Ctrl, Cmd, or Alt is pressed
-  if (e.ctrlKey || e.metaKey || e.altKey) {
-    return; // Do nothing if any of these keys are pressed
-  }
-  if (e.key === 'Enter') {
-    submitGuess();
-  } else if (e.key === 'Backspace') {
-    e.preventDefault(); // Prevent the default backspace behavior (e.g., navigating back)
-    deleteLastCharacter();
-  } else {
-    const key = e.key.toUpperCase();
-    // Accept only alphabetical characters, and ignore non-letter keys
-    if (/^[A-Z]$/i.test(key)) {
-      handleKeyPress(key);
+    // Check if Ctrl, Cmd, or Alt is pressed
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+        return; // Do nothing if any of these keys are pressed
     }
-  }
+    
+    if (e.key === 'Enter') {
+        submitGuess();
+    } else if (e.key === 'Backspace') {
+        e.preventDefault(); // Prevent the default backspace behavior
+        deleteLastCharacter();
+    } else {
+        const key = e.key.toUpperCase();
+        // Accept only alphabetical characters
+        if (/^[A-Z]$/i.test(key)) {
+            handleKeyPress(key);
+        }
+    }
 });
 
-function deleteLastCharacter() {
-  // Check if there's at least one character to remove
-  if (currentGuess.length > 0) {
-    currentGuess.pop(); // Remove the last letter from the current guess
-    updateCurrentGuessDisplay(); // Update the display accordingly
-  }
-}
 
 
 // ================================== //
