@@ -966,3 +966,48 @@ function handleGuessFinalization(guess) {
         concludeGame(won);
     }
 }
+
+function processGuess(guess) {
+    const wordOfDayNormalized = StateManager.get('game.wordOfDayNormalized');
+    let wordArray = wordOfDayNormalized.split('');
+    let result = [];
+    
+    // Mark correct positions
+    for (let i = 0; i < guess.length; i++) {
+        if (guess[i] === wordOfDayNormalized[i]) {
+            result[i] = 'correct';
+            wordArray[i] = null;
+        } else {
+            result[i] = 'absent';
+        }
+    }
+
+    // Mark present positions
+    for (let i = 0; i < guess.length; i++) {
+        if (result[i] !== 'correct' && wordArray.includes(guess[i])) {
+            result[i] = 'present';
+            wordArray[wordArray.indexOf(guess[i])] = null;
+        }
+    }
+
+    // Update UI
+    updateTiles(StateManager.get('game.currentAttempt'), guess, result);
+
+    // Update state
+    const guessResults = [...(StateManager.get('game.guesses') || [])];
+    guessResults.push({
+        word: guess,
+        result: result
+    });
+    StateManager.set('game.guesses', guessResults);
+
+    // Increment attempt counter
+    StateManager.set('game.currentAttempt', StateManager.get('game.currentAttempt') + 1);
+
+    // Check for game over conditions
+    const maxAttempts = 6;
+    if (StateManager.get('game.currentAttempt') >= maxAttempts || guess === wordOfDayNormalized) {
+        StateManager.set('game.isGameOver', true);
+        concludeGame(guess === wordOfDayNormalized);
+    }
+}
