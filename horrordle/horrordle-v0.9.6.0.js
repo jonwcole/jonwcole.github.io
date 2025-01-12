@@ -476,9 +476,9 @@ function normalizeWord(word) {
 // ============= //
 
 function updateCurrentGuessDisplay() {
-    const currentRow = gameElements.elements.tileRows[currentAttempt];
+    const currentRow = gameElements.elements.tileRows[gameState.state.currentAttempt];
     if (!currentRow) {
-        console.error('Current row not found:', currentAttempt);
+        console.error('Current row not found:', gameState.state.currentAttempt);
         return;
     }
 
