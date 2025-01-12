@@ -1,6 +1,6 @@
 const CACHE_NAME = 'horrordle-v1';
 const ASSETS_TO_CACHE = [
-    '/',
+    'https://www.horrordle.app/beta/',
     'https://jonwcole.github.io/horrordle/horrordle-v0.9.6.0.js',
     'https://cdn.prod.website-files.com/65f6874e5f83391382f1899f/css/horrordle.webflow.ed75adc46.min.css',
     'https://jonwcole.github.io/horrordle/dictionary-v1.2.json',
