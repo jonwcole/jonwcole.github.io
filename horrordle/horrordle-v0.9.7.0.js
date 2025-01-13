@@ -338,6 +338,14 @@ class UIController {
             setTimeout(() => box.style.opacity = '1', 10);
         });
     }
+
+    restorePreviousGuesses(guessLetters, guessColors) {
+        guessLetters.forEach((guess, attemptIndex) => {
+            const result = guessColors[attemptIndex];
+            this.updateTiles(attemptIndex, guess.join(''), result);
+            this.updateKeyboard(guess.join(''), result, 0); // Immediate update for keyboard
+        });
+    }
 }
 
 // ===================
@@ -356,6 +364,7 @@ class StatsManager {
             lastPlayedDate: null
         };
         this.stats = this.loadStats();
+        this.displayStats(); // Display stats immediately on construction
     }
 
     loadStats() {
@@ -579,6 +588,12 @@ class HorrordleGame {
         // Bind game state to other components
         this.gameState.statsManager = this.statsManager;
         this.gameState.uiController = this.uiController;
+        
+        // Display stats if game is already completed
+        const gameProgress = LocalStorageManager.get('gameProgress', {});
+        if (gameProgress.gameEnded) {
+            this.statsManager.displayStats();
+        }
     }
 
     async initialize() {
@@ -589,11 +604,24 @@ class HorrordleGame {
             this.gameState.contextOfTheDay
         );
         
+        // Restore previous game state
+        if (this.gameState.gameGuessLetters.length > 0) {
+            this.uiController.restorePreviousGuesses(
+                this.gameState.gameGuessLetters,
+                this.gameState.gameGuessColors
+            );
+        }
+        
         if (this.gameState.isGameOver) {
             this.inputHandler.disableInput();
             this.uiController.displayEndGameMessage(
-                this.gameState.gameGuessLetters.join('') === this.gameState.wordOfTheDayNormalized
+                this.gameState.gameGuessLetters[this.gameState.gameGuessLetters.length - 1].join('') === 
+                this.gameState.wordOfTheDayNormalized
             );
+            this.uiController.revealWordOfTheDay(this.gameState.wordOfTheDay);
+            if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
+                this.uiController.displayHint();
+            }
         }
 
         // Add guess processing to game state
@@ -657,6 +685,7 @@ class HorrordleGame {
 
     updateGameState(guess, result) {
         this.uiController.updateTiles(this.gameState.currentAttempt, guess, result);
+        this.uiController.updateKeyboard(guess, result);
         this.gameState.gameGuessColors.push(result);
         this.gameState.gameGuessLetters.push(guess.split(''));
         
@@ -699,6 +728,11 @@ class HorrordleGame {
             );
         }
 
+        // Always show these on game end
+        this.uiController.revealWordOfTheDay(this.gameState.wordOfTheDay);
+        if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
+            this.uiController.displayHint();
+        }
         this.uiController.displayEndGameMessage(won);
     }
 
