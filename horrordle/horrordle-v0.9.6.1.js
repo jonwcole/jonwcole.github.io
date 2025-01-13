@@ -1,4 +1,4 @@
-// v0.9.6.1 //
+// v0.9.6.1.1 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -1013,4 +1013,64 @@ function processGuess(guess) {
         StateManager.set('game.isGameOver', true);
         concludeGame(guess === wordOfDayNormalized);
     }
+}
+
+function displayEndGameState() {
+    // Get current state
+    const wordOfDay = StateManager.get('game.wordOfDay');
+    const context = StateManager.get('game.hint.context');
+    const isGameWon = StateManager.get('stats.lastGameWon');
+
+    // Update word reveal
+    const wordElement = document.getElementById('word-reveal');
+    const wordContent = document.getElementById('word-content');
+    const contextElement = document.getElementById('context');
+    const contextText = document.getElementById('context-text');
+
+    if (wordElement && wordContent) {
+        wordContent.textContent = wordOfDay;
+        wordElement.style.display = 'flex';
+        
+        if (context && contextElement && contextText) {
+            contextText.textContent = context;
+            contextElement.style.display = 'block';
+        }
+        
+        setTimeout(() => wordElement.style.opacity = 1, 100);
+    }
+
+    // Show completed message
+    const completedMessage = document.querySelector('.completed-message');
+    if (completedMessage) {
+        completedMessage.style.display = 'flex';
+    }
+
+    // Show hint if not already displayed
+    const hintElement = document.getElementById('hint');
+    if (hintElement && !StateManager.get('game.hint.displayed')) {
+        hintElement.style.display = 'block';
+        setTimeout(() => {
+            hintElement.style.opacity = 1;
+        }, 100);
+    }
+
+    // Display splatter effects
+    document.querySelectorAll('.splatter-box').forEach(box => {
+        box.style.display = 'block';
+        setTimeout(() => box.style.opacity = '1', 10);
+    });
+
+    // Update result text
+    const resultTextElement = document.getElementById('result-text');
+    if (resultTextElement) {
+        resultTextElement.textContent = isGameWon ? 'won' : 'lost';
+    }
+
+    // Show stats modal after delay
+    setTimeout(() => {
+        const navButton = document.querySelector('.nav-button-default-state');
+        if (navButton) {
+            navButton.click();
+        }
+    }, 3500);
 }
