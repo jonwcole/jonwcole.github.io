@@ -1,4 +1,4 @@
-// v0.9.6.1.1 //
+// v0.9.6.1.2 //
 
 // ================================== //
 // 1. Initialization and Data Loading //
@@ -17,9 +17,11 @@ async function loadGame() {
         const adjustedNow = new Date(now.getTime() - timezoneOffset);
         const today = adjustedNow.toISOString().slice(0, 10);
 
-        // Check if today's date is the same as the stored game date
-        if (StateManager.get('game.date') !== today) {
-            // Reset game state for a new day
+        // Load saved state first
+        const stateLoaded = StateManager.loadFromStorage();
+        
+        // Check if we need to reset for a new day
+        if (!stateLoaded || StateManager.get('game.date') !== today) {
             StateManager.resetGameState();
             StateManager.set('game.date', today);
         }
@@ -56,6 +58,30 @@ async function loadGame() {
             }
             console.error('Word for today not found');
             return;
+        }
+
+        // Update UI based on restored state
+        if (stateLoaded) {
+            // Restore the game board
+            const guesses = StateManager.get('game.guesses') || [];
+            guesses.forEach((guess, index) => {
+                if (guess && guess.word) {
+                    updateTiles(index, guess.word.join(''), guess.result);
+                }
+            });
+
+            // Show hint if it was displayed
+            if (StateManager.get('game.hint.displayed')) {
+                displayHint();
+            }
+
+            // Show end game state if game was over
+            if (StateManager.get('game.isGameOver')) {
+                displayEndGameState();
+            }
+
+            // Update stats display
+            displayStats();
         }
 
         // Load saved state if it exists
@@ -590,26 +616,34 @@ function updateStats(win, guessesTaken) {
 }
 
 function displayStats() {
-  document.getElementById('games-played').textContent = stats.gamesPlayed;
-  const winPercentage = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
-  document.getElementById('win-percentage').textContent = `${winPercentage}%`;
-  document.getElementById('current-streak').textContent = stats.currentStreak;
-  document.getElementById('max-streak').textContent = stats.maxStreak;
+    const stats = StateManager.get('stats');
+    
+    // Update stats display
+    document.getElementById('games-played').textContent = stats.gamesPlayed;
+    
+    const winPercentage = stats.gamesPlayed > 0 
+        ? Math.round((stats.wins / stats.gamesPlayed) * 100) 
+        : 0;
+    document.getElementById('win-percentage').textContent = `${winPercentage}%`;
+    
+    document.getElementById('current-streak').textContent = stats.currentStreak;
+    document.getElementById('max-streak').textContent = stats.maxStreak;
 
-  let totalWins = Object.values(stats.guessDistribution).reduce((acc, count) => acc + count, 0);
+    // Update guess distribution
+    const totalWins = Object.values(stats.guessDistribution).reduce((acc, count) => acc + count, 0);
 
-  Object.entries(stats.guessDistribution).forEach(([guess, count]) => {
-    const bar = document.getElementById(`distribution-${guess}`);
-    const percentage = totalWins > 0 ? (count / totalWins) * 100 : 0;
-    bar.style.width = `${percentage}%`; // Set the width of the bar to reflect the percentage
-    bar.textContent = count; // Set the text inside the bar to reflect the actual count
+    Object.entries(stats.guessDistribution).forEach(([guess, count]) => {
+        const bar = document.getElementById(`distribution-${guess}`);
+        const percentage = totalWins > 0 ? (count / totalWins) * 100 : 0;
+        bar.style.width = `${percentage}%`;
+        bar.textContent = count;
 
-    // Optionally, remove 'correct' class from all, then add back to only the relevant one
-    bar.classList.remove('correct');
-    if (stats.lastGameWon && stats.lastWinGuesses.toString() === guess) {
-      bar.classList.add('correct');
-    }
-  });
+        // Handle highlighting of current game's guess count
+        bar.classList.remove('correct');
+        if (stats.lastGameWon && stats.lastWinGuesses === parseInt(guess)) {
+            bar.classList.add('correct');
+        }
+    });
 }
 
 function displayStatsModal() {
@@ -648,28 +682,31 @@ function concludeGame(won) {
     // Update game state
     StateManager.set('game.isGameOver', true);
     
-    // Update stats
+    // Get current stats
     const currentAttempt = StateManager.get('game.currentAttempt');
-    const stats = {
-        ...StateManager.get('stats'),
-        gamesPlayed: StateManager.get('stats.gamesPlayed') + 1,
+    const currentStats = StateManager.get('stats');
+    
+    // Create updated stats
+    const newStats = {
+        ...currentStats,
+        gamesPlayed: currentStats.gamesPlayed + 1,
         lastPlayedDate: StateManager.get('game.date')
     };
 
     if (won) {
-        stats.wins++;
-        stats.currentStreak++;
-        stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-        stats.guessDistribution[currentAttempt]++;
-        stats.lastGameWon = true;
-        stats.lastWinGuesses = currentAttempt;
+        newStats.wins++;
+        newStats.currentStreak++;
+        newStats.maxStreak = Math.max(newStats.maxStreak, newStats.currentStreak);
+        newStats.guessDistribution[currentAttempt]++;
+        newStats.lastGameWon = true;
+        newStats.lastWinGuesses = currentAttempt;
     } else {
-        stats.currentStreak = 0;
-        stats.lastGameWon = false;
+        newStats.currentStreak = 0;
+        newStats.lastGameWon = false;
     }
 
     // Update state with new stats
-    StateManager.set('stats', stats);
+    StateManager.set('stats', newStats);
 
     // Disable input
     StateManager.set('ui.inputDisabled', true);
@@ -677,6 +714,7 @@ function concludeGame(won) {
     // Display end game UI
     displayEndGameMessage(won);
     displayCompletedMessage();
+    displayStats(); // Update stats display
 
     // Save final state
     StateManager.saveToStorage();
