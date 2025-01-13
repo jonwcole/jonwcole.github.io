@@ -178,7 +178,8 @@ class GameState {
 // UI Controller
 // ==================
 class UIController {
-    constructor() {
+    constructor(gameState) {
+        this.gameState = gameState;
         this.elements = {
             gameBoard: document.getElementById('game-board'),
             keyboard: document.getElementById('keyboard'),
@@ -289,8 +290,10 @@ class UIController {
             // Force reflow
             void this.elements.hint.offsetWidth;
             this.elements.hint.style.opacity = '1';
-            this.gameState.hintDisplayed = true;
-            LocalStorageManager.set('hintDisplayed', true);
+            if (this.gameState) {
+                this.gameState.hintDisplayed = true;
+                LocalStorageManager.set('hintDisplayed', true);
+            }
         }
     }
 
@@ -597,7 +600,7 @@ class InputHandler {
 class HorrordleGame {
     constructor() {
         this.gameState = new GameState();
-        this.uiController = new UIController();
+        this.uiController = new UIController(this.gameState);
         this.statsManager = new StatsManager();
         this.inputHandler = new InputHandler(this.gameState, this.uiController);
         
