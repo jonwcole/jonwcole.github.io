@@ -157,11 +157,13 @@ class GameState {
         this.incorrectGuesses = 0;
         this.isGameOver = false;
         this.isRevealingGuess = false;
+        this.hintDisplayed = false;
         
         // Clear localStorage
         LocalStorageManager.remove('gameGuessLetters');
         LocalStorageManager.remove('gameGuessColors');
         LocalStorageManager.remove('incorrectGuesses');
+        LocalStorageManager.remove('hintDisplayed');
         LocalStorageManager.set('gameProgress', {});
     }
 
@@ -817,4 +819,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-export { HorrordleGame, GameState, UIController, InputHandler, StatsManager }; 
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { HorrordleGame, GameState, UIController, InputHandler, StatsManager };
+} else if (typeof window !== 'undefined') {
+    window.HorrordleGame = HorrordleGame;
+    window.GameState = GameState;
+    window.UIController = UIController;
+    window.InputHandler = InputHandler;
+    window.StatsManager = StatsManager;
+} 
