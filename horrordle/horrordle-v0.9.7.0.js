@@ -65,84 +65,68 @@ class GameState {
     }
 
     async initialize() {
-        await this.loadGameData();
-        this.restoreGameState();
-        return this;
-    }
-
-    async loadGameData() {
         try {
-            const [dictionaryResponse, wordsResponse] = await Promise.all([
-                fetch(CONFIG.URLS.DICTIONARY),
-                fetch(CONFIG.URLS.WORDS)
+            // Load dictionary and words
+            const [dictionary, words] = await Promise.all([
+                this.loadDictionary(),
+                this.loadWords()
             ]);
-
-            this.dictionary = (await dictionaryResponse.json()).map(word => word.toUpperCase());
-            const wordsData = await wordsResponse.json();
             
-            const today = this.getTodayDate();
-            const wordData = wordsData[today];
-
+            this.dictionary = dictionary;
+            const today = new Date().toISOString().split('T')[0];
+            const wordData = words[today];
+            
             if (!wordData) {
-                throw new Error('Word for today not found');
+                throw new Error('No word found for today');
             }
 
+            // Get saved game progress
+            const gameProgress = LocalStorageManager.get('gameProgress', {});
+            
+            // Check if the saved game is from a different day
+            if (gameProgress.date !== today) {
+                // Reset game state for new day
+                this.resetGameState();
+                LocalStorageManager.set('gameProgress', { date: today });
+            } else {
+                // Restore previous game state
+                this.gameGuessLetters = LocalStorageManager.get('gameGuessLetters', []);
+                this.gameGuessColors = LocalStorageManager.get('gameGuessColors', []);
+                this.currentAttempt = this.gameGuessLetters.length;
+                this.incorrectGuesses = LocalStorageManager.get('incorrectGuesses', 0);
+                this.isGameOver = gameProgress.gameEnded || false;
+            }
+
+            // Set up today's word
             this.wordOfTheDay = wordData.word.toUpperCase();
             this.wordOfTheDayNormalized = this.normalizeWord(this.wordOfTheDay);
             this.hintOfTheDay = wordData.hint;
-            this.contextOfTheDay = wordData.context || '';
+            this.contextOfTheDay = wordData.context;
             this.gameDate = today;
 
-            this.checkNewDay();
         } catch (error) {
             console.error('Error loading game data:', error);
-            this.handleGameLoadError(error);
+            throw error;
         }
     }
 
-    getTodayDate() {
-        const now = new Date();
-        const timezoneOffset = now.getTimezoneOffset() * 60000;
-        const adjustedNow = new Date(now.getTime() - timezoneOffset);
-        return adjustedNow.toISOString().slice(0, 10);
-    }
-
-    checkNewDay() {
-        const storedDate = LocalStorageManager.get('gameDate');
-        if (storedDate !== this.gameDate) {
-            this.resetGameState();
-            LocalStorageManager.set('gameDate', this.gameDate);
+    async loadDictionary() {
+        try {
+            const dictionaryResponse = await fetch(CONFIG.URLS.DICTIONARY);
+            return (await dictionaryResponse.json()).map(word => word.toUpperCase());
+        } catch (error) {
+            console.error('Error loading dictionary:', error);
+            throw error;
         }
     }
 
-    resetGameState() {
-        this.gameGuessColors = [];
-        this.gameGuessLetters = [];
-        this.incorrectGuesses = 0;
-        this.currentAttempt = 0;
-        this.isGameOver = false;
-        this.hintDisplayed = false;
-        
-        LocalStorageManager.remove('gameGuessColors');
-        LocalStorageManager.remove('gameGuessLetters');
-        LocalStorageManager.remove('incorrectGuesses');
-        LocalStorageManager.remove('hintDisplayed');
-    }
-
-    restoreGameState() {
-        this.gameGuessColors = LocalStorageManager.get('gameGuessColors', []);
-        this.gameGuessLetters = LocalStorageManager.get('gameGuessLetters', []);
-        this.incorrectGuesses = LocalStorageManager.get('incorrectGuesses', 0);
-        this.hintDisplayed = LocalStorageManager.get('hintDisplayed', false);
-        this.currentAttempt = this.gameGuessLetters.length;
-        
-        const gameProgress = LocalStorageManager.get('gameProgress', {});
-        this.isGameOver = gameProgress.gameEnded || false;
-
-        // Show hint if conditions are met
-        if (this.incorrectGuesses >= CONFIG.HINT_THRESHOLD || this.isGameOver) {
-            this.hintDisplayed = true;
-            LocalStorageManager.set('hintDisplayed', true);
+    async loadWords() {
+        try {
+            const wordsResponse = await fetch(CONFIG.URLS.WORDS);
+            return await wordsResponse.json();
+        } catch (error) {
+            console.error('Error loading words:', error);
+            throw error;
         }
     }
 
@@ -163,6 +147,22 @@ class GameState {
             .map(letter => accentsMap[letter] || letter)
             .join('')
             .toUpperCase();
+    }
+
+    resetGameState() {
+        this.gameGuessLetters = [];
+        this.gameGuessColors = [];
+        this.currentAttempt = 0;
+        this.currentGuess = [];
+        this.incorrectGuesses = 0;
+        this.isGameOver = false;
+        this.isRevealingGuess = false;
+        
+        // Clear localStorage
+        LocalStorageManager.remove('gameGuessLetters');
+        LocalStorageManager.remove('gameGuessColors');
+        LocalStorageManager.remove('incorrectGuesses');
+        LocalStorageManager.set('gameProgress', {});
     }
 
     handleGameLoadError(error) {
@@ -815,4 +815,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
-}); 
+});
+
+export { HorrordleGame, GameState, UIController, InputHandler, StatsManager }; 
