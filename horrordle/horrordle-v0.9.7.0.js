@@ -126,16 +126,24 @@ class GameState {
         LocalStorageManager.remove('gameGuessColors');
         LocalStorageManager.remove('gameGuessLetters');
         LocalStorageManager.remove('incorrectGuesses');
+        LocalStorageManager.remove('hintDisplayed');
     }
 
     restoreGameState() {
         this.gameGuessColors = LocalStorageManager.get('gameGuessColors', []);
         this.gameGuessLetters = LocalStorageManager.get('gameGuessLetters', []);
         this.incorrectGuesses = LocalStorageManager.get('incorrectGuesses', 0);
+        this.hintDisplayed = LocalStorageManager.get('hintDisplayed', false);
         this.currentAttempt = this.gameGuessLetters.length;
         
         const gameProgress = LocalStorageManager.get('gameProgress', {});
         this.isGameOver = gameProgress.gameEnded || false;
+
+        // Show hint if conditions are met
+        if (this.incorrectGuesses >= CONFIG.HINT_THRESHOLD || this.isGameOver) {
+            this.hintDisplayed = true;
+            LocalStorageManager.set('hintDisplayed', true);
+        }
     }
 
     normalizeWord(word) {
@@ -282,6 +290,7 @@ class UIController {
             void this.elements.hint.offsetWidth;
             this.elements.hint.style.opacity = '1';
             this.gameState.hintDisplayed = true;
+            LocalStorageManager.set('hintDisplayed', true);
         }
     }
 
@@ -613,16 +622,17 @@ class HorrordleGame {
             );
         }
         
+        // Show hint if conditions are met
+        if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD || this.gameState.isGameOver) {
+            this.uiController.displayHint();
+        }
+        
         if (this.gameState.isGameOver) {
             this.inputHandler.disableInput();
-            this.uiController.displayEndGameMessage(
-                this.gameState.gameGuessLetters[this.gameState.gameGuessLetters.length - 1].join('') === 
-                this.gameState.wordOfTheDayNormalized
-            );
+            const lastGuess = this.gameState.gameGuessLetters[this.gameState.gameGuessLetters.length - 1];
+            const won = lastGuess && lastGuess.join('') === this.gameState.wordOfTheDayNormalized;
+            this.uiController.displayEndGameMessage(won);
             this.uiController.revealWordOfTheDay(this.gameState.wordOfTheDay);
-            if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
-                this.uiController.displayHint();
-            }
         }
 
         // Add guess processing to game state
@@ -700,21 +710,13 @@ class HorrordleGame {
     checkGameConditions() {
         // Check hint threshold first
         if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
-            if (!this.gameState.hintDisplayed) {
-                this.uiController.displayHint();
-                this.gameState.hintDisplayed = true;
-            }
+            this.uiController.displayHint();
         }
 
         const isWin = this.gameState.currentGuess.join('') === this.gameState.wordOfTheDayNormalized;
         const isLoss = this.gameState.currentAttempt >= CONFIG.MAX_ATTEMPTS;
 
-        // Then check win/loss conditions
         if (isWin || isLoss) {
-            // Ensure hint is displayed if threshold was reached
-            if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
-                this.uiController.displayHint();
-            }
             this.concludeGame(isWin);
         }
     }
@@ -735,11 +737,9 @@ class HorrordleGame {
             );
         }
 
-        // Always show these on game end
+        // Always show hint and word on game end
+        this.uiController.displayHint();
         this.uiController.revealWordOfTheDay(this.gameState.wordOfTheDay);
-        if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
-            this.uiController.displayHint();
-        }
         this.uiController.displayEndGameMessage(won);
     }
 
