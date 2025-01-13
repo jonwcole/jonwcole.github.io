@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Handle instructions dismiss
+    // Handle instructions dismiss via click
     const dismissBtn = document.querySelector('.instructions-dismiss');
     if (dismissBtn) {
         dismissBtn.addEventListener('click', (e) => {
@@ -809,7 +809,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const rulesDismissButton = document.querySelector('.instructions-dismiss-ghost-button');
             
             if (statsCloseButton) statsCloseButton.click();
-            if (rulesDismissButton) rulesDismissButton.click();
+            if (rulesDismissButton) {
+                rulesDismissButton.click();
+                LocalStorageManager.set('hasVisited', true);
+            }
         }
     });
 }); 
