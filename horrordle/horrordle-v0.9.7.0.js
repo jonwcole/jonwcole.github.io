@@ -276,11 +276,12 @@ class UIController {
     }
 
     displayHint() {
-        if (this.elements.hint && !this.elements.hint.style.opacity) {
+        if (this.elements.hint) {
             this.elements.hint.style.display = 'block';
             // Force reflow
             void this.elements.hint.offsetWidth;
             this.elements.hint.style.opacity = '1';
+            this.gameState.hintDisplayed = true;
         }
     }
 
@@ -697,6 +698,7 @@ class HorrordleGame {
     }
 
     checkGameConditions() {
+        // Check hint threshold first
         if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
             if (!this.gameState.hintDisplayed) {
                 this.uiController.displayHint();
@@ -707,7 +709,12 @@ class HorrordleGame {
         const isWin = this.gameState.currentGuess.join('') === this.gameState.wordOfTheDayNormalized;
         const isLoss = this.gameState.currentAttempt >= CONFIG.MAX_ATTEMPTS;
 
+        // Then check win/loss conditions
         if (isWin || isLoss) {
+            // Ensure hint is displayed if threshold was reached
+            if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
+                this.uiController.displayHint();
+            }
             this.concludeGame(isWin);
         }
     }
