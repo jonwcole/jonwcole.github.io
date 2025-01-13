@@ -194,7 +194,9 @@ function updateTiles(attempt, guess, result) {
 }
 
 function shakeCurrentRow() {
+    const currentAttempt = StateManager.get('game.currentAttempt');
     const currentRow = document.querySelector(`.tile-row-wrapper[data-attempt="${currentAttempt}"]`);
+    
     if (currentRow) {
         currentRow.classList.add('shake');
         setTimeout(() => {
