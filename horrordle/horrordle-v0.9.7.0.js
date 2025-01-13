@@ -334,6 +334,11 @@ class UIController {
         this.showEndGameUI();
         this.toggleOnScreenKeyboard(false);
         
+        // Show hint and word reveal first
+        this.displayHint();
+        this.revealWordOfTheDay(this.gameState.wordOfTheDay);
+        
+        // Then show stats after a delay
         setTimeout(() => {
             const navButton = document.querySelector('.nav-button-default-state');
             if (navButton) {
@@ -343,6 +348,7 @@ class UIController {
     }
 
     showEndGameUI() {
+        // Show splatter boxes
         document.querySelectorAll('.splatter-box').forEach(box => {
             box.style.display = 'block';
             setTimeout(() => box.style.opacity = '1', 10);
@@ -631,8 +637,9 @@ class HorrordleGame {
             this.inputHandler.disableInput();
             const lastGuess = this.gameState.gameGuessLetters[this.gameState.gameGuessLetters.length - 1];
             const won = lastGuess && lastGuess.join('') === this.gameState.wordOfTheDayNormalized;
+            
+            // Show end game UI in proper sequence
             this.uiController.displayEndGameMessage(won);
-            this.uiController.revealWordOfTheDay(this.gameState.wordOfTheDay);
         }
 
         // Add guess processing to game state
@@ -737,9 +744,7 @@ class HorrordleGame {
             );
         }
 
-        // Always show hint and word on game end
-        this.uiController.displayHint();
-        this.uiController.revealWordOfTheDay(this.gameState.wordOfTheDay);
+        // Display end game UI elements in sequence
         this.uiController.displayEndGameMessage(won);
     }
 
