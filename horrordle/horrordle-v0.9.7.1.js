@@ -283,7 +283,6 @@ class UIController {
     }
 
     triggerWinAnimation(tiles) {
-        HapticFeedback.heavy();
         tiles.forEach((tile, index) => {
             setTimeout(() => {
                 tile.classList.add('tile-win-pop');
