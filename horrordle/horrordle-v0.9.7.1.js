@@ -207,26 +207,9 @@ class GameState {
         const keyboard = document.getElementById('keyboard');
         
         if (errorMessage) {
-            // Show specific error message based on error type
-            if (error.message.includes('internet connection')) {
-                errorMessage.innerHTML = `
-                    <span class='text-l'>Connection Error</span><br/>
-                    Please check your internet connection and <a href="javascript:location.reload()">refresh the page</a>.
-                `;
-            } else if (error.message.includes('No word available')) {
-                errorMessage.innerHTML = `
-                    <span class='text-l'>No Word Available</span><br/>
-                    Please try again later or email <a href='mailto:jon@livingdead.co'>jon@livingdead.co</a>.
-                `;
-            } else {
-                errorMessage.innerHTML = `
-                    <span class='text-l'>Something went wrong</span><br/>
-                    Please <a href="javascript:location.reload()">refresh the page</a> or try again later.
-                `;
-            }
-            
+            errorMessage.innerHTML = `There was an error retrieving the word of the day. Please e-mail <a href="mailto:jon@livingdead.co?subject=Horrordle%20Error" class="text---green-400">jon@livingdead.co</a>.`;
             errorMessage.style.display = 'block';
-            HapticFeedback.error(); // Add haptic feedback for error
+            errorMessage.style.opacity = '1';
         }
 
         // Disable game interface
