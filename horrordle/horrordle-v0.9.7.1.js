@@ -205,6 +205,7 @@ class GameState {
         const errorMessage = document.getElementById('error-message');
         const gameBoard = document.getElementById('game-board');
         const keyboard = document.getElementById('keyboard');
+        const logoWrapper = document.querySelector('.logo-wrapper');
         
         if (errorMessage) {
             errorMessage.innerHTML = `There was an error retrieving the word of the day. Please e-mail <a href="mailto:jon@livingdead.co?subject=Horrordle%20Error" class="text---green-400">jon@livingdead.co</a>.`;
@@ -215,6 +216,7 @@ class GameState {
         // Disable game interface
         if (gameBoard) gameBoard.style.opacity = '0.5';
         if (keyboard) keyboard.style.opacity = '0.5';
+        if (logoWrapper) logoWrapper.style.opacity = '0.5';
         
         // Disable input
         this.isGameOver = true;
