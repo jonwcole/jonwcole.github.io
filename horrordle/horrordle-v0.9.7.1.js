@@ -100,14 +100,16 @@ class GameState {
             const [dictionary, words] = await Promise.all([
                 this.loadDictionary(),
                 this.loadWords()
-            ]);
+            ]).catch(error => {
+                throw new Error('Failed to load game data. Please check your internet connection.');
+            });
             
             this.dictionary = dictionary;
             const today = new Date().toISOString().split('T')[0];
             const wordData = words[today];
             
             if (!wordData) {
-                throw new Error('No word found for today');
+                throw new Error('No word available for today. Please try again later.');
             }
 
             // Get saved game progress
@@ -135,7 +137,8 @@ class GameState {
             this.gameDate = today;
 
         } catch (error) {
-            console.error('Error loading game data:', error);
+            console.error('Error initializing game:', error);
+            this.handleGameLoadError(error);
             throw error;
         }
     }
@@ -198,11 +201,46 @@ class GameState {
     }
 
     handleGameLoadError(error) {
+        // Update UI to show error state
         const errorMessage = document.getElementById('error-message');
+        const gameBoard = document.getElementById('game-board');
+        const keyboard = document.getElementById('keyboard');
+        
         if (errorMessage) {
-            errorMessage.innerHTML = "<span class='text-l'>Uh oh! No word for today.</span><br />Email <a href='mailto:jon@livingdead.co'>jon@livingdead.co</a> &amp; let him know.";
+            // Show specific error message based on error type
+            if (error.message.includes('internet connection')) {
+                errorMessage.innerHTML = `
+                    <span class='text-l'>Connection Error</span><br/>
+                    Please check your internet connection and <a href="javascript:location.reload()">refresh the page</a>.
+                `;
+            } else if (error.message.includes('No word available')) {
+                errorMessage.innerHTML = `
+                    <span class='text-l'>No Word Available</span><br/>
+                    Please try again later or email <a href='mailto:jon@livingdead.co'>jon@livingdead.co</a>.
+                `;
+            } else {
+                errorMessage.innerHTML = `
+                    <span class='text-l'>Something went wrong</span><br/>
+                    Please <a href="javascript:location.reload()">refresh the page</a> or try again later.
+                `;
+            }
+            
             errorMessage.style.display = 'block';
+            HapticFeedback.error(); // Add haptic feedback for error
         }
+
+        // Disable game interface
+        if (gameBoard) gameBoard.style.opacity = '0.5';
+        if (keyboard) keyboard.style.opacity = '0.5';
+        
+        // Disable input
+        this.isGameOver = true;
+        
+        // Save error state
+        LocalStorageManager.set('errorState', {
+            date: new Date().toISOString(),
+            error: error.message
+        });
     }
 }
 
