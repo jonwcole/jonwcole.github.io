@@ -105,7 +105,7 @@ class GameState {
             });
             
             this.dictionary = dictionary;
-            const today = new Date().toISOString().split('T')[0];
+            const today = this.getCurrentDate();
             const wordData = words[today];
             
             if (!wordData) {
@@ -226,6 +226,17 @@ class GameState {
             date: new Date().toISOString(),
             error: error.message
         });
+    }
+
+    getCurrentDate() {
+        const now = new Date();
+        // Convert to user's local timezone for consistent date across all timezones
+        return now.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            timeZone: 'America/New_York'  // Use EST/EDT as the reference timezone
+        }).split('/').join('-');  // Convert MM/DD/YYYY to YYYY-MM-DD
     }
 }
 
