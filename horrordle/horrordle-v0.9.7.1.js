@@ -230,13 +230,13 @@ class GameState {
 
     getCurrentDate() {
         const now = new Date();
-        // Convert to user's local timezone for consistent date across all timezones
-        return now.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            timeZone: 'America/New_York'  // Use EST/EDT as the reference timezone
-        }).split('/').join('-');  // Convert MM/DD/YYYY to YYYY-MM-DD
+        // Format parts individually to ensure YYYY-MM-DD format
+        const year = now.toLocaleString('en-US', { year: 'numeric', timeZone: 'America/New_York' });
+        const month = now.toLocaleString('en-US', { month: '2-digit', timeZone: 'America/New_York' });
+        const day = now.toLocaleString('en-US', { day: '2-digit', timeZone: 'America/New_York' });
+        
+        // Combine in YYYY-MM-DD format
+        return `${year}-${month}-${day}`;
     }
 }
 
