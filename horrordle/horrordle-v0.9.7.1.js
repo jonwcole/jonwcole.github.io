@@ -7,8 +7,8 @@ const CONFIG = {
     HINT_THRESHOLD: 5,
     ANIMATION_DELAY: 500,
     URLS: {
-        DICTIONARY: 'https://jonwcole.github.io/horrordle/dictionary-v1.2.json',
-        WORDS: 'https://jonwcole.github.io/horrordle/words-v1.6.json'
+        DICTIONARY: 'https://jonwcole.github.io/horrordle/dictionary-v2.0.json',
+        WORDS: 'https://jonwcole.github.io/horrordle/words-v2.0.json'
     }
 };
 
