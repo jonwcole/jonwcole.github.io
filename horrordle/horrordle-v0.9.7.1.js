@@ -157,10 +157,14 @@ class ModalController {
 
     toggleStatsModal() {
         if (this.statsModal) {
-            const isVisible = this.statsModal.style.display === 'flex';
+            const isVisible = this.statsModal.classList.contains('modal-visible');
             if (isVisible) {
                 this.hideStatsModal();
             } else {
+                // Ensure display is set before adding visible class
+                this.statsModal.style.display = 'flex';
+                // Force a reflow
+                this.statsModal.offsetHeight;
                 this.showStatsModal();
             }
         }
@@ -169,15 +173,21 @@ class ModalController {
 
     showStatsModal() {
         if (this.statsModal) {
-            this.statsModal.style.display = 'flex';
-            setTimeout(() => this.statsModal.style.opacity = '1', 10);
+            // Add visible class to trigger transition
+            this.statsModal.classList.add('modal-visible');
         }
     }
 
     hideStatsModal() {
         if (this.statsModal) {
-            this.statsModal.style.opacity = '0';
-            setTimeout(() => this.statsModal.style.display = 'none', 600);
+            // Remove visible class to trigger transition
+            this.statsModal.classList.remove('modal-visible');
+            // Wait for transition to complete before hiding
+            setTimeout(() => {
+                if (!this.statsModal.classList.contains('modal-visible')) {
+                    this.statsModal.style.display = 'none';
+                }
+            }, 600);
         }
     }
 
