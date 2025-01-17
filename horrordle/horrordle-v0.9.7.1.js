@@ -443,11 +443,18 @@ class UIController {
         if (instructionsButton && instructionsModal) {
             instructionsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                instructionsModal.style.display = 'block';
-                // Small delay to ensure display is set before adding visibility class
-                setTimeout(() => {
-                    instructionsModal.classList.add('modal-visible');
-                }, 10);
+                // Toggle behavior
+                if (instructionsModal.classList.contains('modal-visible')) {
+                    instructionsModal.classList.remove('modal-visible');
+                    setTimeout(() => {
+                        instructionsModal.style.display = 'none';
+                    }, 600);
+                } else {
+                    instructionsModal.style.display = 'block';
+                    setTimeout(() => {
+                        instructionsModal.classList.add('modal-visible');
+                    }, 10);
+                }
             });
         }
 
@@ -455,7 +462,6 @@ class UIController {
             instructionsDismiss.addEventListener('click', (e) => {
                 e.preventDefault();
                 instructionsModal.classList.remove('modal-visible');
-                // Wait for fade out animation before hiding
                 setTimeout(() => {
                     instructionsModal.style.display = 'none';
                 }, 600);
@@ -469,21 +475,19 @@ class UIController {
         if (statsButton && statsModal) {
             statsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                statsModal.style.display = 'flex';
-                statsButton.classList.add('nav-button-active');
-                setTimeout(() => {
-                    statsModal.classList.add('modal-visible');
-                }, 10);
-            });
-
-            // Close stats when clicking outside
-            statsModal.addEventListener('click', (e) => {
-                if (e.target === statsModal) {
+                // Toggle behavior
+                if (statsModal.classList.contains('modal-visible')) {
                     statsModal.classList.remove('modal-visible');
                     statsButton.classList.remove('nav-button-active');
                     setTimeout(() => {
                         statsModal.style.display = 'none';
                     }, 600);
+                } else {
+                    statsModal.style.display = 'flex';
+                    statsButton.classList.add('nav-button-active');
+                    setTimeout(() => {
+                        statsModal.classList.add('modal-visible');
+                    }, 10);
                 }
             });
         }
