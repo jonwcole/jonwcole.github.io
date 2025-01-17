@@ -91,7 +91,7 @@ class ModalController {
         // Instructions modal controls
         this.instructionsButton?.addEventListener('click', (e) => {
             e.preventDefault();
-            this.showInstructionsModal();
+            this.toggleInstructionsModal();
         });
 
         this.instructionsDismiss?.addEventListener('click', (e) => {
@@ -118,6 +118,18 @@ class ModalController {
                 this.hideStatsModal();
             }
         });
+    }
+
+    toggleInstructionsModal() {
+        if (this.instructionsModal) {
+            const isVisible = this.instructionsModal.style.display === 'block' || 
+                            this.instructionsModal.style.opacity === '1';
+            if (isVisible) {
+                this.hideInstructionsModal();
+            } else {
+                this.showInstructionsModal();
+            }
+        }
     }
 
     showInstructionsModal() {
