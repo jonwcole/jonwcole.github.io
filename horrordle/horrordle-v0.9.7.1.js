@@ -77,7 +77,7 @@ class ModalController {
     constructor() {
         // Modal elements
         this.instructionsModal = document.querySelector('.instructions');
-        this.statsModal = document.querySelector('.stats-overlay');
+        this.statsModal = document.querySelector('.stats');
         
         // Buttons
         this.instructionsButton = document.querySelector('.instructions-button');
