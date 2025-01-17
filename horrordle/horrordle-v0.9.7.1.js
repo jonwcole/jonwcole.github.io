@@ -202,29 +202,9 @@ class ModalController {
 
     toggleStatsButton() {
         if (!this.statsButton) return;
-
-        const button1 = this.statsButton.querySelector('.stats-button-1');
-        const button2 = this.statsButton.querySelector('.stats-button-2');
-        const button3 = this.statsButton.querySelector('.stats-button-3');
-        const fillers = this.statsButton.querySelectorAll('.nav-filler');
-
-        const isActive = button1.style.transform.includes('rotateZ(45deg)');
-
-        if (isActive) {
-            // Return to default state
-            button1.style.transform = 'translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)';
-            button1.style.height = '60%';
-            button2.style.opacity = '1';
-            button3.style.transform = 'translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)';
-            fillers.forEach(filler => filler.style.opacity = '0');
-        } else {
-            // Set to active state
-            button1.style.transform = 'translate3d(-0.1em, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(45deg) skew(0deg, 0deg)';
-            button1.style.height = '100%';
-            button2.style.opacity = '0';
-            button3.style.transform = 'translate3d(-1.4em, 0.2em, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(-45deg) skew(0deg, 0deg)';
-            fillers.forEach(filler => filler.style.opacity = '1');
-        }
+        
+        // Toggle active class on the button
+        this.statsButton.classList.toggle('nav-button-active');
     }
 }
 
