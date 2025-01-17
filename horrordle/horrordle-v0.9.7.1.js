@@ -120,7 +120,9 @@ class ModalController {
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
                 this.hideInstructionsModal();
-                this.hideStatsModal();
+                if (this.statsModal?.classList.contains('modal-visible')) {
+                    this.toggleStatsModal();  // This will handle both hiding the modal and toggling the button
+                }
             }
         });
     }
