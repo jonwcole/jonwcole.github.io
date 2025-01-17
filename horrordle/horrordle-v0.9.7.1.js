@@ -528,8 +528,17 @@ class StatsManager {
             lastWinGuesses: null,
             lastPlayedDate: null
         };
+        
+        // Check for stats restoration parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('restore')) {
+            this.restoreBackupStats();
+            return;
+        }
+
         this.stats = this.loadStats();
-        this.displayStats(); // Display stats immediately on construction
+        this.backupCurrentStats(); // Create backup when loading stats
+        this.displayStats();
     }
 
     loadStats() {
@@ -538,6 +547,37 @@ class StatsManager {
 
     saveStats() {
         LocalStorageManager.set('stats', this.stats);
+        this.backupCurrentStats(); // Create backup when saving stats
+    }
+
+    backupCurrentStats() {
+        const currentStats = LocalStorageManager.get('stats');
+        if (currentStats) {
+            LocalStorageManager.set('stats_backup', currentStats);
+            LocalStorageManager.set('last_backup_date', new Date().toISOString());
+        }
+    }
+
+    restoreBackupStats() {
+        const backupStats = LocalStorageManager.get('stats_backup');
+        if (backupStats) {
+            LocalStorageManager.set('stats', backupStats);
+            
+            // Show restoration message
+            const errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.innerHTML = 'Your previous stats have been restored. <a href="/">Click here</a> to reload the game.';
+                errorMessage.style.display = 'block';
+            }
+
+            // Disable game
+            if (window.game) {
+                window.game.disableGame();
+            }
+
+            // Remove restore parameter from URL
+            window.history.replaceState({}, '', window.location.pathname);
+        }
     }
 
     updateStats(win, guessesTaken, gameDate) {
@@ -923,6 +963,15 @@ class HorrordleGame {
         setInterval(() => {
             location.reload(true);
         }, 12 * 60 * 60 * 1000);
+    }
+
+    disableGame() {
+        if (this.inputHandler) {
+            this.inputHandler.isInputEnabled = false;
+        }
+        // Optionally add visual indicators that game is disabled
+        document.getElementById('game-board').style.opacity = '0.5';
+        document.getElementById('keyboard').style.opacity = '0.5';
     }
 }
 
