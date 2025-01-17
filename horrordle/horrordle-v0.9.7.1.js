@@ -992,7 +992,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const instructionsElement = document.querySelector('.instructions');
         if (instructionsElement) {
             instructionsElement.style.display = 'block';
-            setTimeout(() => instructionsElement.style.opacity = 1, 10);
+            setTimeout(() => instructionsElement.classList.add('modal-visible'), 10);
         }
     }
 
