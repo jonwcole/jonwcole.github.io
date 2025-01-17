@@ -45,10 +45,13 @@ class LocalStorageManager {
 
 class HapticFeedback {
     static isAvailable() {
-        return 'vibrate' in navigator;
+        const available = 'vibrate' in navigator;
+        console.log('Haptic feedback available:', available);
+        return available;
     }
 
     static light() {
+        console.log('Attempting light haptic feedback');
         if (this.isAvailable()) {
             navigator.vibrate(10);
         }
@@ -661,6 +664,25 @@ class InputHandler {
     enableInput() {
         this.inputDisabled = false;
         this.uiController.toggleOnScreenKeyboard(true);
+    }
+
+    setupKeyboardListeners() {
+        // Physical keyboard input
+        document.addEventListener('keydown', (e) => {
+            if (!this.isInputEnabled) return;
+            this.handleKeyInput(e.key.toUpperCase());
+        });
+
+        // On-screen keyboard input
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('click', (e) => {
+                if (!this.isInputEnabled) return;
+                const keyValue = e.target.getAttribute('data-key');
+                // Add haptic feedback here
+                HapticFeedback.light();
+                this.handleKeyInput(keyValue);
+            });
+        });
     }
 }
 
