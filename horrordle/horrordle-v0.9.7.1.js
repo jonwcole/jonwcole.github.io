@@ -12,14 +12,6 @@ const CONFIG = {
     }
 };
 
-// Add animation timing constants
-const ANIMATION_TIMINGS = {
-    MODAL_FADE: 300,      // Reduced from 600ms
-    TILE_FLIP: 250,       // Optimized flip animation
-    SPLATTER: 200,        // Blood splatter effect
-    KEYBOARD_UPDATE: 50   // Keyboard visual feedback
-};
-
 // =================
 // Utility Classes
 // =================
@@ -317,96 +309,74 @@ class GameState {
 class UIController {
     constructor(gameState) {
         this.gameState = gameState;
-        // Enhanced DOM caching
         this.elements = {
-            keyboard: {
-                container: document.getElementById('keyboard'),
-                keys: Array.from(document.querySelectorAll('.key')),
-                rows: Array.from(document.querySelectorAll('.keyboard-row'))
-            },
-            gameBoard: {
-                container: document.getElementById('game-board'),
-                rows: Array.from(document.querySelectorAll('.tile-row-wrapper')),
-                tiles: Array.from(document.querySelectorAll('.tile')),
-                fronts: Array.from(document.querySelectorAll('.front')),
-                backs: Array.from(document.querySelectorAll('.back-text')),
-                splatters: Array.from(document.querySelectorAll('.splatter-box'))
-            },
-            modals: {
-                stats: document.querySelector('.stats'),
-                instructions: document.querySelector('.instructions'),
-                error: document.getElementById('error-message'),
-                hint: document.getElementById('hint'),
-                wordReveal: document.getElementById('word-reveal'),
-                context: document.getElementById('context'),
-                copyConfirmation: document.getElementById('copy-confirmation'),
-                completedMessage: document.getElementById('completed-message')
-            },
-            text: {
-                hint: document.getElementById('hint-text'),
-                word: document.getElementById('word-content'),
-                context: document.getElementById('context-text')
-            },
-            buttons: {
-                statsToggle: document.querySelector('.nav-button-default-state'),
-                instructionsToggle: document.querySelector('.instructions-button'),
-                instructionsDismiss: document.querySelector('.instructions-dismiss')
-            }
+            gameBoard: document.getElementById('game-board'),
+            keyboard: document.getElementById('keyboard'),
+            hint: document.getElementById('hint'),
+            hintText: document.getElementById('hint-text'),
+            wordReveal: document.getElementById('word-reveal'),
+            wordContent: document.getElementById('word-content'),
+            context: document.getElementById('context'),
+            contextText: document.getElementById('context-text'),
+            errorMessage: document.getElementById('error-message'),
+            copyConfirmation: document.getElementById('copy-confirmation'),
+            completedMessage: document.getElementById('completed-message')
         };
         
         // Cache tile rows for better performance
-        this.tileRows = Array.from(this.elements.gameBoard.rows);
+        this.tileRows = Array.from(this.elements.gameBoard.querySelectorAll('.tile-row-wrapper'));
         this.setupModalListeners();
     }
 
     updateGameUI(word, hint, context) {
-        requestAnimationFrame(() => {
-            if (this.elements.text.hint) {
-                this.elements.text.hint.textContent = hint || '';
-            }
-            if (this.elements.text.word) {
-                this.elements.text.word.textContent = word || '';
-            }
-            if (context && this.elements.text.context) {
-                this.elements.text.context.textContent = context;
-                this.elements.modals.context.style.display = 'block';
-            } else if (this.elements.modals.context) {
-                this.elements.modals.context.style.display = 'none';
-            }
-        });
+        if (this.elements.hintText) {
+            this.elements.hintText.textContent = hint || '';
+        }
+        if (this.elements.wordContent) {
+            this.elements.wordContent.textContent = word || '';
+        }
+        if (context && this.elements.context && this.elements.contextText) {
+            this.elements.contextText.textContent = context;
+            this.elements.context.style.display = 'block';
+        } else if (this.elements.context) {
+            this.elements.context.style.display = 'none';
+        }
     }
 
     updateCurrentGuessDisplay(currentGuess, currentAttempt) {
-        const currentRow = this.elements.gameBoard.rows[currentAttempt];
+        const currentRow = this.tileRows[currentAttempt];
         if (!currentRow) return;
 
-        requestAnimationFrame(() => {
-            const tiles = currentRow.querySelectorAll('.front');
-            tiles.forEach((front, index) => {
+        const tiles = currentRow.querySelectorAll('.tile');
+        tiles.forEach((tile, index) => {
+            const front = tile.querySelector('.front');
+            if (front) {
                 front.textContent = currentGuess[index] || '';
-            });
+            }
         });
     }
 
-    updateTiles(attemptIndex, guess, result, delay = 0) {
-        const row = this.elements.gameBoard.rows[attemptIndex];
+    updateTiles(attempt, guess, result) {
+        const row = this.tileRows[attempt];
         if (!row) return;
 
         const tiles = row.querySelectorAll('.tile');
-        const fragment = document.createDocumentFragment();
+        const allCorrect = result.every(status => status === 'correct');
 
-        requestAnimationFrame(() => {
-            tiles.forEach((tile, index) => {
-                setTimeout(() => {
-                    const front = tile.querySelector('.front');
-                    const back = tile.querySelector('.back-text');
-                    if (front && back) {
-                        front.textContent = guess[index] || '';
-                        back.textContent = guess[index] || '';
-                        tile.className = `tile ${result[index]}`;
-                    }
-                }, delay + (index * ANIMATION_TIMINGS.TILE_FLIP));
-            });
+        tiles.forEach((tile, index) => {
+            const back = tile.querySelector('.back');
+            const backText = tile.querySelector('.back-text');
+            
+            backText.textContent = guess[index];
+            back.className = 'back ' + result[index];
+
+            setTimeout(() => {
+                tile.classList.add('flipped');
+
+                if (allCorrect && index === tiles.length - 1) {
+                    setTimeout(() => this.triggerWinAnimation(tiles), CONFIG.ANIMATION_DELAY);
+                }
+            }, index * CONFIG.ANIMATION_DELAY);
         });
     }
 
@@ -419,7 +389,7 @@ class UIController {
     }
 
     shakeCurrentRow(currentAttempt) {
-        const row = this.elements.gameBoard.rows[currentAttempt];
+        const row = this.tileRows[currentAttempt];
         if (row) {
             HapticFeedback.error();
             row.classList.add('shake');
@@ -446,11 +416,11 @@ class UIController {
     }
 
     displayHint() {
-        if (this.elements.modals.hint) {
-            this.elements.modals.hint.style.display = 'block';
+        if (this.elements.hint) {
+            this.elements.hint.style.display = 'block';
             // Force reflow
-            void this.elements.modals.hint.offsetWidth;
-            this.elements.modals.hint.style.opacity = '1';
+            void this.elements.hint.offsetWidth;
+            this.elements.hint.style.opacity = '1';
             if (this.gameState) {
                 this.gameState.hintDisplayed = true;
                 LocalStorageManager.set('hintDisplayed', true);
@@ -459,11 +429,11 @@ class UIController {
     }
 
     revealWordOfTheDay(word) {
-        if (this.elements.modals.wordReveal && this.elements.text.word) {
-            this.elements.text.word.textContent = word;
-            this.elements.modals.wordReveal.style.display = 'flex';
+        if (this.elements.wordReveal && this.elements.wordContent) {
+            this.elements.wordContent.textContent = word;
+            this.elements.wordReveal.style.display = 'flex';
             setTimeout(() => {
-                this.elements.modals.wordReveal.style.opacity = '1';
+                this.elements.wordReveal.style.opacity = '1';
             }, 100);
         }
     }
@@ -482,13 +452,13 @@ class UIController {
     }
 
     showCopyConfirmation() {
-        if (this.elements.modals.copyConfirmation) {
-            this.elements.modals.copyConfirmation.style.display = 'block';
-            this.elements.modals.copyConfirmation.style.opacity = '1';
+        if (this.elements.copyConfirmation) {
+            this.elements.copyConfirmation.style.display = 'block';
+            this.elements.copyConfirmation.style.opacity = '1';
             setTimeout(() => {
-                this.elements.modals.copyConfirmation.style.opacity = '0';
+                this.elements.copyConfirmation.style.opacity = '0';
                 setTimeout(() => {
-                    this.elements.modals.copyConfirmation.style.display = 'none';
+                    this.elements.copyConfirmation.style.display = 'none';
                 }, 600);
             }, 6000);
         }
@@ -512,11 +482,10 @@ class UIController {
     }
 
     showEndGameUI() {
-        requestAnimationFrame(() => {
-            this.elements.gameBoard.splatters.forEach(box => {
-                box.style.display = 'block';
-                setTimeout(() => box.style.opacity = '1', ANIMATION_TIMINGS.SPLATTER);
-            });
+        // Show splatter boxes
+        document.querySelectorAll('.splatter-box').forEach(box => {
+            box.style.display = 'block';
+            setTimeout(() => box.style.opacity = '1', 10);
         });
     }
 
@@ -530,74 +499,79 @@ class UIController {
 
     setupModalListeners() {
         // Instructions modal
-        if (this.elements.buttons.instructionsToggle && this.elements.modals.instructions) {
-            this.elements.buttons.instructionsToggle.addEventListener('click', (e) => {
+        const instructionsButton = document.querySelector('.instructions-button');
+        const instructionsDismiss = document.querySelector('.instructions-dismiss');
+        const instructionsModal = document.querySelector('.instructions');
+
+        if (instructionsButton && instructionsModal) {
+            instructionsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.toggleModal('instructions');
+                // Toggle behavior
+                if (instructionsModal.classList.contains('modal-visible')) {
+                    instructionsModal.classList.remove('modal-visible');
+                    setTimeout(() => {
+                        instructionsModal.style.display = 'none';
+                    }, 600);
+                } else {
+                    instructionsModal.style.display = 'block';
+                    setTimeout(() => {
+                        instructionsModal.classList.add('modal-visible');
+                    }, 10);
+                }
             });
         }
 
-        if (this.elements.buttons.instructionsDismiss && this.elements.modals.instructions) {
-            this.elements.buttons.instructionsDismiss.addEventListener('click', (e) => {
+        if (instructionsDismiss && instructionsModal) {
+            instructionsDismiss.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.hideModal('instructions');
+                instructionsModal.classList.remove('modal-visible');
+                setTimeout(() => {
+                    instructionsModal.style.display = 'none';
+                }, 600);
             });
         }
 
         // Stats modal
-        if (this.elements.buttons.statsToggle && this.elements.modals.stats) {
-            this.elements.buttons.statsToggle.addEventListener('click', (e) => {
+        const statsButton = document.querySelector('.nav-button-default-state');
+        const statsModal = document.querySelector('.stats');
+
+        if (statsButton && statsModal) {
+            statsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.toggleModal('stats');
+                // Toggle behavior
+                if (statsModal.classList.contains('modal-visible')) {
+                    statsModal.classList.remove('modal-visible');
+                    statsButton.classList.remove('nav-button-active');
+                    setTimeout(() => {
+                        statsModal.style.display = 'none';
+                    }, 600);
+                } else {
+                    statsModal.style.display = 'flex';
+                    statsButton.classList.add('nav-button-active');
+                    setTimeout(() => {
+                        statsModal.classList.add('modal-visible');
+                    }, 10);
+                }
             });
         }
 
-        // Escape key handler
+        // Handle Escape key for both modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (this.elements.modals.instructions.classList.contains('modal-visible')) {
-                    this.hideModal('instructions');
+                if (instructionsModal && instructionsModal.classList.contains('modal-visible')) {
+                    instructionsModal.classList.remove('modal-visible');
+                    setTimeout(() => {
+                        instructionsModal.style.display = 'none';
+                    }, 600);
                 }
-                if (this.elements.modals.stats.classList.contains('modal-visible')) {
-                    this.hideModal('stats');
+                if (statsModal && statsModal.classList.contains('modal-visible')) {
+                    statsModal.classList.remove('modal-visible');
+                    statsButton.classList.remove('nav-button-active');
+                    setTimeout(() => {
+                        statsModal.style.display = 'none';
+                    }, 600);
                 }
             }
-        });
-    }
-
-    toggleModal(modalName) {
-        const modal = this.elements.modals[modalName];
-        const isVisible = modal.classList.contains('modal-visible');
-        
-        if (isVisible) {
-            this.hideModal(modalName);
-        } else {
-            this.showModal(modalName);
-        }
-    }
-
-    showModal(modalName) {
-        const modal = this.elements.modals[modalName];
-        const display = modalName === 'stats' ? 'flex' : 'block';
-        
-        requestAnimationFrame(() => {
-            modal.style.display = display;
-            if (modalName === 'stats') {
-                this.elements.buttons.statsToggle.classList.add('nav-button-active');
-            }
-            setTimeout(() => modal.classList.add('modal-visible'), 10);
-        });
-    }
-
-    hideModal(modalName) {
-        const modal = this.elements.modals[modalName];
-        
-        requestAnimationFrame(() => {
-            modal.classList.remove('modal-visible');
-            if (modalName === 'stats') {
-                this.elements.buttons.statsToggle.classList.remove('nav-button-active');
-            }
-            setTimeout(() => modal.style.display = 'none', ANIMATION_TIMINGS.MODAL_FADE);
         });
     }
 }
@@ -730,35 +704,46 @@ class InputHandler {
     constructor(gameState, uiController) {
         this.gameState = gameState;
         this.uiController = uiController;
-        this.isInputEnabled = true;
-        this.currentGuess = [];
+        this.inputDisabled = false;
+        
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        // Physical keyboard input
-        document.addEventListener('keydown', (e) => {
-            if (!this.isInputEnabled) return;
-            this.handleKeyInput(e.key.toUpperCase());
+        // Virtual keyboard
+        this.uiController.elements.keyboard.addEventListener('click', (e) => {
+            if (e.target.matches('.key')) {
+                const key = e.target.getAttribute('data-key');
+                this.handleKeyInput(key);
+            }
         });
 
-        // On-screen keyboard input
-        if (this.uiController.elements.keyboard.container) {
-            this.uiController.elements.keyboard.container.addEventListener('click', (e) => {
-                if (!this.isInputEnabled) return;
-                const key = e.target.closest('.key');
-                if (key) {
-                    const keyValue = key.getAttribute('data-key');
-                    if (keyValue) {
-                        this.handleKeyInput(keyValue.toUpperCase());
-                    }
+        // Physical keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+            if (e.key === 'Enter') {
+                this.handleKeyInput('ENTER');
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                this.handleKeyInput('BACKSPACE');
+            } else {
+                const key = e.key.toUpperCase();
+                if (/^[A-Z]$/.test(key)) {
+                    this.handleKeyInput(key);
                 }
-            });
+            }
+        });
+
+        // Share button
+        const shareButton = document.getElementById('share-result');
+        if (shareButton) {
+            shareButton.addEventListener('click', () => this.handleShare());
         }
     }
 
     handleKeyInput(key) {
-        if (!this.isInputEnabled || this.gameState.isGameOver) return;
+        if (this.inputDisabled || this.gameState.isGameOver) return;
 
         switch (key) {
             case 'ENTER':
@@ -770,10 +755,8 @@ class InputHandler {
                 this.handleBackspace();
                 break;
             default:
-                if (/^[A-Z]$/.test(key)) {
-                    HapticFeedback.light();
-                    this.handleLetter(key);
-                }
+                HapticFeedback.light();
+                this.handleLetter(key);
         }
     }
 
