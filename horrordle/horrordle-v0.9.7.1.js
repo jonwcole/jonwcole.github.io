@@ -541,11 +541,9 @@ class StatsManager {
     }
 
     updateStats(win, guessesTaken, gameDate) {
-        // Only backup stats if this is a win
-        if (win) {
-            LocalStorageManager.set('stats_backup', this.stats);
-            LocalStorageManager.set('last_backup_date', new Date().toISOString());
-        }
+        // Backup stats before any update
+        LocalStorageManager.set('stats_backup', this.stats);
+        LocalStorageManager.set('last_backup_date', new Date().toISOString());
         
         // Now update the stats
         this.stats.gamesPlayed += 1;
