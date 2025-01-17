@@ -48,30 +48,28 @@ class HapticFeedback {
         return 'vibrate' in navigator;
     }
 
-    static vibrate(pattern) {
-        try {
-            if (this.isAvailable()) {
-                navigator.vibrate(pattern);
-            }
-        } catch (error) {
-            // Silently fail if vibration isn't allowed
+    static light() {
+        if (this.isAvailable()) {
+            navigator.vibrate(10);
         }
     }
 
-    static light() {
-        this.vibrate(10);
-    }
-
     static medium() {
-        this.vibrate(20);
+        if (this.isAvailable()) {
+            navigator.vibrate(20);
+        }
     }
 
     static heavy() {
-        this.vibrate([30, 30, 30]);
+        if (this.isAvailable()) {
+            navigator.vibrate([30, 30, 30]);
+        }
     }
 
     static error() {
-        this.vibrate([50, 50, 50]);
+        if (this.isAvailable()) {
+            navigator.vibrate([50, 50, 50]);
+        }
     }
 }
 
@@ -97,16 +95,19 @@ class ModalController {
         // Instructions modal controls
         this.instructionsButton?.addEventListener('click', (e) => {
             e.preventDefault();
+            HapticFeedback.medium();
             this.toggleInstructionsModal();
         });
 
         this.instructionsDismiss?.addEventListener('click', (e) => {
             e.preventDefault();
+            HapticFeedback.light();
             this.hideInstructionsModal();
         });
 
         this.instructionsModal?.addEventListener('click', (e) => {
             if (e.target === this.instructionsModal) {
+                HapticFeedback.light();
                 this.hideInstructionsModal();
             }
         });
@@ -114,6 +115,7 @@ class ModalController {
         // Stats modal controls
         this.statsButton?.addEventListener('click', (e) => {
             e.preventDefault();
+            HapticFeedback.medium();
             console.log('Stats button clicked');
             this.toggleStatsModal();
         });
@@ -121,6 +123,7 @@ class ModalController {
         // Global ESC key handler
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
+                HapticFeedback.light();
                 this.hideInstructionsModal();
                 if (this.statsModal?.classList.contains('modal-visible')) {
                     this.toggleStatsModal();
@@ -737,12 +740,15 @@ class InputHandler {
 
         switch (key) {
             case 'ENTER':
+                HapticFeedback.medium();
                 this.handleEnter();
                 break;
             case 'BACKSPACE':
+                HapticFeedback.light();
                 this.handleBackspace();
                 break;
             default:
+                HapticFeedback.light();
                 this.handleLetter(key);
         }
     }
