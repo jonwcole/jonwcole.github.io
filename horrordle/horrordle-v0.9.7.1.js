@@ -84,6 +84,10 @@ class ModalController {
         this.instructionsDismiss = document.querySelector('.instructions-dismiss');
         this.statsButton = document.querySelector('.nav-button-default-state');
         
+        // Debug logs
+        console.log('Stats Modal:', this.statsModal);
+        console.log('Stats Button:', this.statsButton);
+        
         this.setupEventListeners();
     }
 
@@ -108,6 +112,7 @@ class ModalController {
         // Stats modal controls
         this.statsButton?.addEventListener('click', (e) => {
             e.preventDefault();
+            console.log('Stats button clicked');
             this.toggleStatsModal();
         });
 
@@ -156,8 +161,10 @@ class ModalController {
     }
 
     toggleStatsModal() {
+        console.log('Toggling stats modal');
         if (this.statsModal) {
             const isVisible = this.statsModal.classList.contains('modal-visible');
+            console.log('Stats modal visible:', isVisible);
             if (isVisible) {
                 this.hideStatsModal();
             } else {
