@@ -768,6 +768,69 @@ class InputHandler {
     }
 }
 
+// =================
+// Main Game Class
+// =================
+class HorrordleGame {
+    constructor() {
+        this.gameState = new GameState();
+        this.uiController = new UIController(this.gameState);
+        this.inputHandler = new InputHandler(this.gameState);
+        this.statsManager = new StatsManager();
+        this.modalController = new ModalController();
+    }
+
+    async initialize() {
+        try {
+            // Load dictionary and words
+            const [dictionary, words] = await Promise.all([
+                fetch(CONFIG.URLS.DICTIONARY).then(res => res.json()),
+                fetch(CONFIG.URLS.WORDS).then(res => res.json())
+            ]);
+
+            // Set up game state
+            this.gameState.dictionary = dictionary;
+            
+            // Get current date and word
+            const currentDate = this.getCurrentDate();
+            const todaysWord = words[currentDate];
+
+            if (!todaysWord) {
+                throw new Error('No word found for today');
+            }
+
+            this.gameState.wordOfTheDay = todaysWord.word.toUpperCase();
+            this.gameState.wordOfTheDayNormalized = todaysWord.word.toLowerCase();
+            this.gameState.hintOfTheDay = todaysWord.hint;
+            this.gameState.contextOfTheDay = todaysWord.context;
+            this.gameState.gameDate = currentDate;
+
+            // Load saved game state if it exists
+            this.loadGameProgress();
+
+        } catch (error) {
+            console.error('Failed to initialize game:', error);
+        }
+    }
+
+    getCurrentDate() {
+        const now = new Date();
+        const year = now.toLocaleString('en-US', { year: 'numeric', timeZone: 'America/New_York' });
+        const month = now.toLocaleString('en-US', { month: '2-digit', timeZone: 'America/New_York' });
+        const day = now.toLocaleString('en-US', { day: '2-digit', timeZone: 'America/New_York' });
+        return `${year}-${month}-${day}`;
+    }
+
+    loadGameProgress() {
+        const savedProgress = LocalStorageManager.get('gameProgress');
+        if (savedProgress && savedProgress.date === this.gameState.gameDate) {
+            this.gameState.currentAttempt = savedProgress.attempts.length;
+            this.gameState.gameGuessLetters = savedProgress.attempts.map(a => a.guess);
+            this.gameState.isGameOver = savedProgress.gameEnded;
+        }
+    }
+}
+
 // ======================
 // Initialize Application
 // ======================
