@@ -16,29 +16,92 @@ const CONFIG = {
 // Utility Classes
 // =================
 class LocalStorageManager {
+    static memoryStorage = {};
+
+    static isAvailable() {
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+            return true;
+        } catch (e) {
+            console.warn('LocalStorage is not available:', e);
+            return false;
+        }
+    }
+
+    static validateJSON(jsonString) {
+        try {
+            const parsed = JSON.parse(jsonString);
+            // Basic schema validation for stats object
+            if (jsonString.includes('"stats"')) {
+                const requiredKeys = ['gamesPlayed', 'wins', 'currentStreak', 'maxStreak', 'guessDistribution'];
+                if (!requiredKeys.every(key => key in parsed)) {
+                    console.error('Invalid stats object structure');
+                    return null;
+                }
+            }
+            return parsed;
+        } catch (e) {
+            console.error('Invalid JSON:', e);
+            return null;
+        }
+    }
+
     static get(key, defaultValue = null) {
         try {
+            if (!this.isAvailable()) {
+                return this.memoryStorage[key] || defaultValue;
+            }
             const value = localStorage.getItem(key);
-            return value ? JSON.parse(value) : defaultValue;
+            if (!value) return defaultValue;
+            
+            const validated = this.validateJSON(value);
+            if (validated === null) {
+                console.warn(`Invalid data for ${key}, using default value`);
+                return defaultValue;
+            }
+            return validated;
         } catch (error) {
-            console.error(`Error reading ${key} from localStorage:`, error);
+            console.error(`Error reading ${key} from storage:`, error);
             return defaultValue;
         }
     }
 
     static set(key, value) {
         try {
-            localStorage.setItem(key, JSON.stringify(value));
+            const jsonValue = JSON.stringify(value);
+            if (!this.isAvailable()) {
+                this.memoryStorage[key] = value;
+                return;
+            }
+            localStorage.setItem(key, jsonValue);
         } catch (error) {
-            console.error(`Error writing ${key} to localStorage:`, error);
+            console.error(`Error writing ${key} to storage:`, error);
+            this.memoryStorage[key] = value; // Fallback to memory storage
         }
     }
 
     static remove(key) {
         try {
+            if (!this.isAvailable()) {
+                delete this.memoryStorage[key];
+                return;
+            }
             localStorage.removeItem(key);
         } catch (error) {
-            console.error(`Error removing ${key} from localStorage:`, error);
+            console.error(`Error removing ${key} from storage:`, error);
+        }
+    }
+
+    static clear() {
+        try {
+            if (!this.isAvailable()) {
+                this.memoryStorage = {};
+                return;
+            }
+            localStorage.clear();
+        } catch (error) {
+            console.error('Error clearing storage:', error);
         }
     }
 }
