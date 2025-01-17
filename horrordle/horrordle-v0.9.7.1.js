@@ -73,143 +73,6 @@ class HapticFeedback {
     }
 }
 
-class ModalController {
-    constructor() {
-        // Modal elements
-        this.instructionsModal = document.querySelector('.instructions');
-        this.statsModal = document.querySelector('.stats');
-        
-        // Buttons
-        this.instructionsButton = document.querySelector('.instructions-button');
-        this.instructionsDismiss = document.querySelector('.instructions-dismiss');
-        this.statsButton = document.querySelector('.nav-button-default-state');
-        
-        // Debug logs
-        console.log('Stats Modal:', this.statsModal);
-        console.log('Stats Button:', this.statsButton);
-        
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        // Instructions modal controls
-        this.instructionsButton?.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleInstructionsModal();
-        });
-
-        this.instructionsDismiss?.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.hideInstructionsModal();
-        });
-
-        this.instructionsModal?.addEventListener('click', (e) => {
-            if (e.target === this.instructionsModal) {
-                this.hideInstructionsModal();
-            }
-        });
-
-        // Stats modal controls
-        this.statsButton?.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Stats button clicked');
-            this.toggleStatsModal();
-        });
-
-        // Global ESC key handler - modified to be more specific
-        document.addEventListener('keydown', (e) => {
-            if (e.key === "Escape") {
-                e.preventDefault();  // Only prevent default for ESC
-                this.hideInstructionsModal();
-                if (this.statsModal?.classList.contains('modal-visible')) {
-                    this.toggleStatsModal();
-                }
-            }
-        }, { passive: false });  // Allow event to continue propagating
-    }
-
-    toggleInstructionsModal() {
-        if (this.instructionsModal) {
-            const isVisible = this.instructionsModal.classList.contains('modal-visible');
-            if (isVisible) {
-                this.hideInstructionsModal();
-            } else {
-                // Ensure display is set before adding visible class
-                this.instructionsModal.style.display = 'block';
-                // Force a reflow
-                this.instructionsModal.offsetHeight;
-                this.showInstructionsModal();
-            }
-        }
-    }
-
-    showInstructionsModal() {
-        if (this.instructionsModal) {
-            // Add visible class to trigger transition
-            this.instructionsModal.classList.add('modal-visible');
-        }
-    }
-
-    hideInstructionsModal() {
-        if (this.instructionsModal) {
-            // Remove visible class to trigger transition
-            this.instructionsModal.classList.remove('modal-visible');
-            // Wait for transition to complete before hiding
-            setTimeout(() => {
-                if (!this.instructionsModal.classList.contains('modal-visible')) {
-                    this.instructionsModal.style.display = 'none';
-                }
-            }, 600);
-        }
-    }
-
-    toggleStatsModal() {
-        console.log('Toggling stats modal');
-        if (this.statsModal) {
-            const isVisible = this.statsModal.classList.contains('modal-visible');
-            console.log('Stats modal visible:', isVisible);
-            if (isVisible) {
-                this.hideStatsModal();
-            } else {
-                // Ensure display is set before adding visible class
-                this.statsModal.style.display = 'flex';
-                // Force a reflow
-                this.statsModal.offsetHeight;
-                this.showStatsModal();
-            }
-        }
-        this.toggleStatsButton();
-    }
-
-    showStatsModal() {
-        if (this.statsModal) {
-            // Add visible class to trigger transition
-            this.statsModal.classList.add('modal-visible');
-        }
-    }
-
-    hideStatsModal() {
-        if (this.statsModal) {
-            // Remove visible class to trigger transition
-            this.statsModal.classList.remove('modal-visible');
-            // Wait for transition to complete before hiding
-            setTimeout(() => {
-                if (!this.statsModal.classList.contains('modal-visible')) {
-                    this.statsModal.style.display = 'none';
-                }
-            }, 600);
-        }
-    }
-
-    toggleStatsButton() {
-        if (!this.statsButton) return;
-        
-        // Toggle active class on the button
-        this.statsButton.classList.toggle('nav-button-active');
-    }
-}
-
-
 // =================
 // Game State Class
 // =================
@@ -808,9 +671,8 @@ class HorrordleGame {
     constructor() {
         this.gameState = new GameState();
         this.uiController = new UIController(this.gameState);
-        this.inputHandler = new InputHandler(this.gameState, this.uiController);
         this.statsManager = new StatsManager();
-        this.modalController = new ModalController();
+        this.inputHandler = new InputHandler(this.gameState, this.uiController);
         
         // Bind game state to other components
         this.gameState.statsManager = this.statsManager;
