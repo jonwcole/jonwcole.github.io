@@ -116,15 +116,16 @@ class ModalController {
             this.toggleStatsModal();
         });
 
-        // Global ESC key handler
+        // Global ESC key handler - modified to be more specific
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
+                e.preventDefault();  // Only prevent default for ESC
                 this.hideInstructionsModal();
                 if (this.statsModal?.classList.contains('modal-visible')) {
-                    this.toggleStatsModal();  // This will handle both hiding the modal and toggling the button
+                    this.toggleStatsModal();
                 }
             }
-        });
+        }, { passive: false });  // Allow event to continue propagating
     }
 
     toggleInstructionsModal() {
