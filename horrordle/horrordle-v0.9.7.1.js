@@ -45,13 +45,10 @@ class LocalStorageManager {
 
 class HapticFeedback {
     static isAvailable() {
-        const available = 'vibrate' in navigator;
-        console.log('Haptic feedback available:', available);
-        return available;
+        return 'vibrate' in navigator;
     }
 
     static light() {
-        console.log('Attempting light haptic feedback');
         if (this.isAvailable()) {
             navigator.vibrate(10);
         }
@@ -265,6 +262,7 @@ class UIController {
         
         // Cache tile rows for better performance
         this.tileRows = Array.from(this.elements.gameBoard.querySelectorAll('.tile-row-wrapper'));
+        this.setupModalListeners();
     }
 
     updateGameUI(word, hint, context) {
@@ -433,6 +431,80 @@ class UIController {
             const result = guessColors[attemptIndex];
             this.updateTiles(attemptIndex, guess.join(''), result);
             this.updateKeyboard(guess.join(''), result, 0); // Immediate update for keyboard
+        });
+    }
+
+    setupModalListeners() {
+        // Instructions modal
+        const instructionsButton = document.querySelector('.instructions-button');
+        const instructionsDismiss = document.querySelector('.instructions-dismiss');
+        const instructionsModal = document.querySelector('.instructions');
+
+        if (instructionsButton && instructionsModal) {
+            instructionsButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                instructionsModal.style.display = 'block';
+                // Small delay to ensure display is set before adding visibility class
+                setTimeout(() => {
+                    instructionsModal.classList.add('modal-visible');
+                }, 10);
+            });
+        }
+
+        if (instructionsDismiss && instructionsModal) {
+            instructionsDismiss.addEventListener('click', (e) => {
+                e.preventDefault();
+                instructionsModal.classList.remove('modal-visible');
+                // Wait for fade out animation before hiding
+                setTimeout(() => {
+                    instructionsModal.style.display = 'none';
+                }, 600);
+            });
+        }
+
+        // Stats modal
+        const statsButton = document.querySelector('.nav-button-default-state');
+        const statsModal = document.querySelector('.stats');
+
+        if (statsButton && statsModal) {
+            statsButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                statsModal.style.display = 'flex';
+                statsButton.classList.add('nav-button-active');
+                setTimeout(() => {
+                    statsModal.classList.add('modal-visible');
+                }, 10);
+            });
+
+            // Close stats when clicking outside
+            statsModal.addEventListener('click', (e) => {
+                if (e.target === statsModal) {
+                    statsModal.classList.remove('modal-visible');
+                    statsButton.classList.remove('nav-button-active');
+                    setTimeout(() => {
+                        statsModal.style.display = 'none';
+                    }, 600);
+                }
+            });
+        }
+
+        // Handle Escape key for both modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (instructionsModal && instructionsModal.classList.contains('modal-visible')) {
+                    instructionsModal.classList.remove('modal-visible');
+                    setTimeout(() => {
+                        instructionsModal.style.display = 'none';
+                    }, 600);
+                }
+                if (statsModal && statsModal.classList.contains('modal-visible')) {
+                    statsModal.classList.remove('modal-visible');
+                    statsButton.classList.remove('nav-button-active');
+                    setTimeout(() => {
+                        statsModal.style.display = 'none';
+                    }, 600);
+                }
+            }
         });
     }
 }
