@@ -48,6 +48,15 @@ class HapticFeedback {
         return 'vibrate' in navigator;
     }
 
+    static initialize() {
+        // Initialize haptic feedback after first user interaction
+        document.addEventListener('click', () => {
+            if (this.isAvailable()) {
+                navigator.vibrate(0); // Request permission with a zero-duration vibration
+            }
+        }, { once: true }); // Only run once
+    }
+
     static light() {
         if (this.isAvailable()) {
             navigator.vibrate(10);
@@ -262,6 +271,7 @@ class UIController {
         
         // Cache tile rows for better performance
         this.tileRows = Array.from(this.elements.gameBoard.querySelectorAll('.tile-row-wrapper'));
+        HapticFeedback.initialize(); // Initialize haptic feedback
         this.setupModalListeners();
     }
 
