@@ -727,7 +727,8 @@ class StatsManager {
 // Input Handler Class
 // ====================
 class InputHandler {
-    constructor(uiController) {
+    constructor(gameState, uiController) {
+        this.gameState = gameState;
         this.uiController = uiController;
         this.isInputEnabled = true;
         this.currentGuess = [];
@@ -757,7 +758,7 @@ class InputHandler {
     }
 
     handleKeyInput(key) {
-        if (this.inputDisabled || this.gameState.isGameOver) return;
+        if (!this.isInputEnabled || this.gameState.isGameOver) return;
 
         switch (key) {
             case 'ENTER':
@@ -769,8 +770,10 @@ class InputHandler {
                 this.handleBackspace();
                 break;
             default:
-                HapticFeedback.light();
-                this.handleLetter(key);
+                if (/^[A-Z]$/.test(key)) {
+                    HapticFeedback.light();
+                    this.handleLetter(key);
+                }
         }
     }
 
@@ -833,7 +836,7 @@ class HorrordleGame {
         this.gameState = new GameState();
         this.uiController = new UIController(this.gameState);
         this.statsManager = new StatsManager();
-        this.inputHandler = new InputHandler(this.uiController);
+        this.inputHandler = new InputHandler(this.gameState, this.uiController);
         
         // Bind game state to other components
         this.gameState.statsManager = this.statsManager;
