@@ -138,11 +138,12 @@ class ModalController {
             this.instructionsModal.style.opacity = '0';
             this.instructionsModal.style.display = 'block';
             
-            // Force a reflow to ensure the initial opacity is applied
-            this.instructionsModal.offsetHeight;
-            
-            // Then transition to opacity 1
-            this.instructionsModal.style.opacity = '1';
+            // Use requestAnimationFrame to ensure the browser processes the initial state
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    this.instructionsModal.style.opacity = '1';
+                });
+            });
         }
     }
 
