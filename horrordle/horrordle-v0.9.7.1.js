@@ -665,25 +665,6 @@ class InputHandler {
         this.inputDisabled = false;
         this.uiController.toggleOnScreenKeyboard(true);
     }
-
-    setupKeyboardListeners() {
-        // Physical keyboard input
-        document.addEventListener('keydown', (e) => {
-            if (!this.isInputEnabled) return;
-            this.handleKeyInput(e.key.toUpperCase());
-        });
-
-        // On-screen keyboard input
-        document.querySelectorAll('.key').forEach(key => {
-            key.addEventListener('click', (e) => {
-                if (!this.isInputEnabled) return;
-                const keyValue = e.target.getAttribute('data-key');
-                // Add haptic feedback here
-                HapticFeedback.light();
-                this.handleKeyInput(keyValue);
-            });
-        });
-    }
 }
 
 // ====================
