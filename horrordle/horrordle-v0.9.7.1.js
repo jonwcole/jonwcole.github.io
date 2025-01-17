@@ -134,9 +134,15 @@ class ModalController {
 
     showInstructionsModal() {
         if (this.instructionsModal) {
+            // First set display to block with opacity 0
+            this.instructionsModal.style.opacity = '0';
             this.instructionsModal.style.display = 'block';
-            // Use setTimeout to ensure display change takes effect before opacity
-            setTimeout(() => this.instructionsModal.style.opacity = '1', 10);
+            
+            // Force a reflow to ensure the initial opacity is applied
+            this.instructionsModal.offsetHeight;
+            
+            // Then transition to opacity 1
+            this.instructionsModal.style.opacity = '1';
         }
     }
 
