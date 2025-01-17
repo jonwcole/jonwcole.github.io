@@ -45,30 +45,49 @@ class LocalStorageManager {
 
 class HapticFeedback {
     static isAvailable() {
-        return 'vibrate' in navigator;
+        // Check if vibrate is available AND if we're on a mobile device
+        return 'vibrate' in navigator && 
+               ('ontouchstart' in window || navigator.maxTouchPoints > 0);
     }
 
     static light() {
-        if (this.isAvailable()) {
-            navigator.vibrate(10);
+        try {
+            if (this.isAvailable()) {
+                navigator.vibrate(10);
+            }
+        } catch (error) {
+            // Silently fail if vibration isn't allowed
+            console.debug('Haptic feedback not available');
         }
     }
 
     static medium() {
-        if (this.isAvailable()) {
-            navigator.vibrate(20);
+        try {
+            if (this.isAvailable()) {
+                navigator.vibrate(20);
+            }
+        } catch (error) {
+            console.debug('Haptic feedback not available');
         }
     }
 
     static heavy() {
-        if (this.isAvailable()) {
-            navigator.vibrate([30, 30, 30]);
+        try {
+            if (this.isAvailable()) {
+                navigator.vibrate([30, 30, 30]);
+            }
+        } catch (error) {
+            console.debug('Haptic feedback not available');
         }
     }
 
     static error() {
-        if (this.isAvailable()) {
-            navigator.vibrate([50, 50, 50]);
+        try {
+            if (this.isAvailable()) {
+                navigator.vibrate([50, 50, 50]);
+            }
+        } catch (error) {
+            console.debug('Haptic feedback not available');
         }
     }
 }
