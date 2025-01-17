@@ -73,6 +73,122 @@ class HapticFeedback {
     }
 }
 
+class ModalController {
+    constructor() {
+        // Modal elements
+        this.instructionsModal = document.querySelector('.instructions');
+        this.statsModal = document.querySelector('.stats-overlay');
+        
+        // Buttons
+        this.instructionsButton = document.querySelector('.instructions-button');
+        this.instructionsDismiss = document.querySelector('.instructions-dismiss');
+        this.statsButton = document.querySelector('.nav-button-default-state');
+        
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Instructions modal controls
+        this.instructionsButton?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showInstructionsModal();
+        });
+
+        this.instructionsDismiss?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.hideInstructionsModal();
+        });
+
+        this.instructionsModal?.addEventListener('click', (e) => {
+            if (e.target === this.instructionsModal) {
+                this.hideInstructionsModal();
+            }
+        });
+
+        // Stats modal controls
+        this.statsButton?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.toggleStatsModal();
+        });
+
+        // Global ESC key handler
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                this.hideInstructionsModal();
+                this.hideStatsModal();
+            }
+        });
+    }
+
+    showInstructionsModal() {
+        if (this.instructionsModal) {
+            this.instructionsModal.style.display = 'block';
+            // Use setTimeout to ensure display change takes effect before opacity
+            setTimeout(() => this.instructionsModal.style.opacity = '1', 10);
+        }
+    }
+
+    hideInstructionsModal() {
+        if (this.instructionsModal) {
+            this.instructionsModal.style.opacity = '0';
+            setTimeout(() => this.instructionsModal.style.display = 'none', 600);
+        }
+    }
+
+    toggleStatsModal() {
+        if (this.statsModal) {
+            const isVisible = this.statsModal.style.display === 'flex';
+            if (isVisible) {
+                this.hideStatsModal();
+            } else {
+                this.showStatsModal();
+            }
+        }
+        this.toggleStatsButton();
+    }
+
+    showStatsModal() {
+        if (this.statsModal) {
+            this.statsModal.style.display = 'flex';
+            setTimeout(() => this.statsModal.style.opacity = '1', 10);
+        }
+    }
+
+    hideStatsModal() {
+        if (this.statsModal) {
+            this.statsModal.style.opacity = '0';
+            setTimeout(() => this.statsModal.style.display = 'none', 600);
+        }
+    }
+
+    toggleStatsButton() {
+        if (!this.statsButton) return;
+
+        const button1 = this.statsButton.querySelector('.stats-button-1');
+        const button2 = this.statsButton.querySelector('.stats-button-2');
+        const button3 = this.statsButton.querySelector('.stats-button-3');
+        const fillers = this.statsButton.querySelectorAll('.nav-filler');
+
+        const isActive = button1.style.transform.includes('rotateZ(45deg)');
+
+        if (isActive) {
+            // Return to default state
+            button1.style.transform = 'translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)';
+            button1.style.height = '60%';
+            button2.style.opacity = '1';
+            button3.style.transform = 'translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)';
+            fillers.forEach(filler => filler.style.opacity = '0');
+        } else {
+            // Set to active state
+            button1.style.transform = 'translate3d(-0.1em, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(45deg) skew(0deg, 0deg)';
+            button1.style.height = '100%';
+            button2.style.opacity = '0';
+            button3.style.transform = 'translate3d(-1.4em, 0.2em, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(-45deg) skew(0deg, 0deg)';
+            fillers.forEach(filler => filler.style.opacity = '1');
+        }
+    }
+}
+
 // =================
 // Game State Class
 // =================
@@ -671,8 +787,9 @@ class HorrordleGame {
     constructor() {
         this.gameState = new GameState();
         this.uiController = new UIController(this.gameState);
-        this.statsManager = new StatsManager();
         this.inputHandler = new InputHandler(this.gameState, this.uiController);
+        this.statsManager = new StatsManager();
+        this.modalController = new ModalController();
         
         // Bind game state to other components
         this.gameState.statsManager = this.statsManager;
