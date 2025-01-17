@@ -122,11 +122,14 @@ class ModalController {
 
     toggleInstructionsModal() {
         if (this.instructionsModal) {
-            const isVisible = this.instructionsModal.style.display === 'block' || 
-                            this.instructionsModal.style.opacity === '1';
+            const isVisible = this.instructionsModal.classList.contains('modal-visible');
             if (isVisible) {
                 this.hideInstructionsModal();
             } else {
+                // Ensure display is set before adding visible class
+                this.instructionsModal.style.display = 'block';
+                // Force a reflow
+                this.instructionsModal.offsetHeight;
                 this.showInstructionsModal();
             }
         }
@@ -134,23 +137,21 @@ class ModalController {
 
     showInstructionsModal() {
         if (this.instructionsModal) {
-            // First set display to block with opacity 0
-            this.instructionsModal.style.opacity = '0';
-            this.instructionsModal.style.display = 'block';
-            
-            // Use requestAnimationFrame to ensure the browser processes the initial state
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    this.instructionsModal.style.opacity = '1';
-                });
-            });
+            // Add visible class to trigger transition
+            this.instructionsModal.classList.add('modal-visible');
         }
     }
 
     hideInstructionsModal() {
         if (this.instructionsModal) {
-            this.instructionsModal.style.opacity = '0';
-            setTimeout(() => this.instructionsModal.style.display = 'none', 600);
+            // Remove visible class to trigger transition
+            this.instructionsModal.classList.remove('modal-visible');
+            // Wait for transition to complete before hiding
+            setTimeout(() => {
+                if (!this.instructionsModal.classList.contains('modal-visible')) {
+                    this.instructionsModal.style.display = 'none';
+                }
+            }, 600);
         }
     }
 
