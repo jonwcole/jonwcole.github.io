@@ -727,44 +727,32 @@ class StatsManager {
 // Input Handler Class
 // ====================
 class InputHandler {
-    constructor(gameState, uiController) {
-        this.gameState = gameState;
+    constructor(uiController) {
         this.uiController = uiController;
-        this.inputDisabled = false;
-        
+        this.isInputEnabled = true;
+        this.currentGuess = [];
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        // Virtual keyboard
-        this.uiController.elements.keyboard.addEventListener('click', (e) => {
-            if (e.target.matches('.key')) {
-                const key = e.target.getAttribute('data-key');
-                this.handleKeyInput(key);
-            }
-        });
-
-        // Physical keyboard
+        // Physical keyboard input
         document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey || e.altKey) return;
-
-            if (e.key === 'Enter') {
-                this.handleKeyInput('ENTER');
-            } else if (e.key === 'Backspace') {
-                e.preventDefault();
-                this.handleKeyInput('BACKSPACE');
-            } else {
-                const key = e.key.toUpperCase();
-                if (/^[A-Z]$/.test(key)) {
-                    this.handleKeyInput(key);
-                }
-            }
+            if (!this.isInputEnabled) return;
+            this.handleKeyInput(e.key.toUpperCase());
         });
 
-        // Share button
-        const shareButton = document.getElementById('share-result');
-        if (shareButton) {
-            shareButton.addEventListener('click', () => this.handleShare());
+        // On-screen keyboard input
+        if (this.uiController.elements.keyboard.container) {
+            this.uiController.elements.keyboard.container.addEventListener('click', (e) => {
+                if (!this.isInputEnabled) return;
+                const key = e.target.closest('.key');
+                if (key) {
+                    const keyValue = key.getAttribute('data-key');
+                    if (keyValue) {
+                        this.handleKeyInput(keyValue.toUpperCase());
+                    }
+                }
+            });
         }
     }
 
@@ -845,7 +833,7 @@ class HorrordleGame {
         this.gameState = new GameState();
         this.uiController = new UIController(this.gameState);
         this.statsManager = new StatsManager();
-        this.inputHandler = new InputHandler(this.gameState, this.uiController);
+        this.inputHandler = new InputHandler(this.uiController);
         
         // Bind game state to other components
         this.gameState.statsManager = this.statsManager;
