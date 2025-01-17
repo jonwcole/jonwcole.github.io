@@ -12,6 +12,14 @@ const CONFIG = {
     }
 };
 
+// Add animation timing constants
+const ANIMATION_TIMINGS = {
+    MODAL_FADE: 300,      // Reduced from 600ms
+    TILE_FLIP: 250,       // Optimized flip animation
+    SPLATTER: 200,        // Blood splatter effect
+    KEYBOARD_UPDATE: 50   // Keyboard visual feedback
+};
+
 // =================
 // Utility Classes
 // =================
@@ -309,74 +317,96 @@ class GameState {
 class UIController {
     constructor(gameState) {
         this.gameState = gameState;
+        // Enhanced DOM caching
         this.elements = {
-            gameBoard: document.getElementById('game-board'),
-            keyboard: document.getElementById('keyboard'),
-            hint: document.getElementById('hint'),
-            hintText: document.getElementById('hint-text'),
-            wordReveal: document.getElementById('word-reveal'),
-            wordContent: document.getElementById('word-content'),
-            context: document.getElementById('context'),
-            contextText: document.getElementById('context-text'),
-            errorMessage: document.getElementById('error-message'),
-            copyConfirmation: document.getElementById('copy-confirmation'),
-            completedMessage: document.getElementById('completed-message')
+            keyboard: {
+                container: document.getElementById('keyboard'),
+                keys: Array.from(document.querySelectorAll('.key')),
+                rows: Array.from(document.querySelectorAll('.keyboard-row'))
+            },
+            gameBoard: {
+                container: document.getElementById('game-board'),
+                rows: Array.from(document.querySelectorAll('.tile-row-wrapper')),
+                tiles: Array.from(document.querySelectorAll('.tile')),
+                fronts: Array.from(document.querySelectorAll('.front')),
+                backs: Array.from(document.querySelectorAll('.back-text')),
+                splatters: Array.from(document.querySelectorAll('.splatter-box'))
+            },
+            modals: {
+                stats: document.querySelector('.stats'),
+                instructions: document.querySelector('.instructions'),
+                error: document.getElementById('error-message'),
+                hint: document.getElementById('hint'),
+                wordReveal: document.getElementById('word-reveal'),
+                context: document.getElementById('context'),
+                copyConfirmation: document.getElementById('copy-confirmation'),
+                completedMessage: document.getElementById('completed-message')
+            },
+            text: {
+                hint: document.getElementById('hint-text'),
+                word: document.getElementById('word-content'),
+                context: document.getElementById('context-text')
+            },
+            buttons: {
+                statsToggle: document.querySelector('.nav-button-default-state'),
+                instructionsToggle: document.querySelector('.instructions-button'),
+                instructionsDismiss: document.querySelector('.instructions-dismiss')
+            }
         };
         
         // Cache tile rows for better performance
-        this.tileRows = Array.from(this.elements.gameBoard.querySelectorAll('.tile-row-wrapper'));
+        this.tileRows = Array.from(this.elements.gameBoard.rows);
         this.setupModalListeners();
     }
 
     updateGameUI(word, hint, context) {
-        if (this.elements.hintText) {
-            this.elements.hintText.textContent = hint || '';
-        }
-        if (this.elements.wordContent) {
-            this.elements.wordContent.textContent = word || '';
-        }
-        if (context && this.elements.context && this.elements.contextText) {
-            this.elements.contextText.textContent = context;
-            this.elements.context.style.display = 'block';
-        } else if (this.elements.context) {
-            this.elements.context.style.display = 'none';
-        }
-    }
-
-    updateCurrentGuessDisplay(currentGuess, currentAttempt) {
-        const currentRow = this.tileRows[currentAttempt];
-        if (!currentRow) return;
-
-        const tiles = currentRow.querySelectorAll('.tile');
-        tiles.forEach((tile, index) => {
-            const front = tile.querySelector('.front');
-            if (front) {
-                front.textContent = currentGuess[index] || '';
+        requestAnimationFrame(() => {
+            if (this.elements.text.hint) {
+                this.elements.text.hint.textContent = hint || '';
+            }
+            if (this.elements.text.word) {
+                this.elements.text.word.textContent = word || '';
+            }
+            if (context && this.elements.text.context) {
+                this.elements.text.context.textContent = context;
+                this.elements.modals.context.style.display = 'block';
+            } else if (this.elements.modals.context) {
+                this.elements.modals.context.style.display = 'none';
             }
         });
     }
 
-    updateTiles(attempt, guess, result) {
-        const row = this.tileRows[attempt];
+    updateCurrentGuessDisplay(currentGuess, currentAttempt) {
+        const currentRow = this.elements.gameBoard.rows[currentAttempt];
+        if (!currentRow) return;
+
+        requestAnimationFrame(() => {
+            const tiles = currentRow.querySelectorAll('.front');
+            tiles.forEach((front, index) => {
+                front.textContent = currentGuess[index] || '';
+            });
+        });
+    }
+
+    updateTiles(attemptIndex, guess, result, delay = 0) {
+        const row = this.elements.gameBoard.rows[attemptIndex];
         if (!row) return;
 
         const tiles = row.querySelectorAll('.tile');
-        const allCorrect = result.every(status => status === 'correct');
+        const fragment = document.createDocumentFragment();
 
-        tiles.forEach((tile, index) => {
-            const back = tile.querySelector('.back');
-            const backText = tile.querySelector('.back-text');
-            
-            backText.textContent = guess[index];
-            back.className = 'back ' + result[index];
-
-            setTimeout(() => {
-                tile.classList.add('flipped');
-
-                if (allCorrect && index === tiles.length - 1) {
-                    setTimeout(() => this.triggerWinAnimation(tiles), CONFIG.ANIMATION_DELAY);
-                }
-            }, index * CONFIG.ANIMATION_DELAY);
+        requestAnimationFrame(() => {
+            tiles.forEach((tile, index) => {
+                setTimeout(() => {
+                    const front = tile.querySelector('.front');
+                    const back = tile.querySelector('.back-text');
+                    if (front && back) {
+                        front.textContent = guess[index] || '';
+                        back.textContent = guess[index] || '';
+                        tile.className = `tile ${result[index]}`;
+                    }
+                }, delay + (index * ANIMATION_TIMINGS.TILE_FLIP));
+            });
         });
     }
 
@@ -389,7 +419,7 @@ class UIController {
     }
 
     shakeCurrentRow(currentAttempt) {
-        const row = this.tileRows[currentAttempt];
+        const row = this.elements.gameBoard.rows[currentAttempt];
         if (row) {
             HapticFeedback.error();
             row.classList.add('shake');
@@ -416,11 +446,11 @@ class UIController {
     }
 
     displayHint() {
-        if (this.elements.hint) {
-            this.elements.hint.style.display = 'block';
+        if (this.elements.modals.hint) {
+            this.elements.modals.hint.style.display = 'block';
             // Force reflow
-            void this.elements.hint.offsetWidth;
-            this.elements.hint.style.opacity = '1';
+            void this.elements.modals.hint.offsetWidth;
+            this.elements.modals.hint.style.opacity = '1';
             if (this.gameState) {
                 this.gameState.hintDisplayed = true;
                 LocalStorageManager.set('hintDisplayed', true);
@@ -429,11 +459,11 @@ class UIController {
     }
 
     revealWordOfTheDay(word) {
-        if (this.elements.wordReveal && this.elements.wordContent) {
-            this.elements.wordContent.textContent = word;
-            this.elements.wordReveal.style.display = 'flex';
+        if (this.elements.modals.wordReveal && this.elements.text.word) {
+            this.elements.text.word.textContent = word;
+            this.elements.modals.wordReveal.style.display = 'flex';
             setTimeout(() => {
-                this.elements.wordReveal.style.opacity = '1';
+                this.elements.modals.wordReveal.style.opacity = '1';
             }, 100);
         }
     }
@@ -452,13 +482,13 @@ class UIController {
     }
 
     showCopyConfirmation() {
-        if (this.elements.copyConfirmation) {
-            this.elements.copyConfirmation.style.display = 'block';
-            this.elements.copyConfirmation.style.opacity = '1';
+        if (this.elements.modals.copyConfirmation) {
+            this.elements.modals.copyConfirmation.style.display = 'block';
+            this.elements.modals.copyConfirmation.style.opacity = '1';
             setTimeout(() => {
-                this.elements.copyConfirmation.style.opacity = '0';
+                this.elements.modals.copyConfirmation.style.opacity = '0';
                 setTimeout(() => {
-                    this.elements.copyConfirmation.style.display = 'none';
+                    this.elements.modals.copyConfirmation.style.display = 'none';
                 }, 600);
             }, 6000);
         }
@@ -482,10 +512,11 @@ class UIController {
     }
 
     showEndGameUI() {
-        // Show splatter boxes
-        document.querySelectorAll('.splatter-box').forEach(box => {
-            box.style.display = 'block';
-            setTimeout(() => box.style.opacity = '1', 10);
+        requestAnimationFrame(() => {
+            this.elements.gameBoard.splatters.forEach(box => {
+                box.style.display = 'block';
+                setTimeout(() => box.style.opacity = '1', ANIMATION_TIMINGS.SPLATTER);
+            });
         });
     }
 
@@ -499,79 +530,74 @@ class UIController {
 
     setupModalListeners() {
         // Instructions modal
-        const instructionsButton = document.querySelector('.instructions-button');
-        const instructionsDismiss = document.querySelector('.instructions-dismiss');
-        const instructionsModal = document.querySelector('.instructions');
-
-        if (instructionsButton && instructionsModal) {
-            instructionsButton.addEventListener('click', (e) => {
+        if (this.elements.buttons.instructionsToggle && this.elements.modals.instructions) {
+            this.elements.buttons.instructionsToggle.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Toggle behavior
-                if (instructionsModal.classList.contains('modal-visible')) {
-                    instructionsModal.classList.remove('modal-visible');
-                    setTimeout(() => {
-                        instructionsModal.style.display = 'none';
-                    }, 600);
-                } else {
-                    instructionsModal.style.display = 'block';
-                    setTimeout(() => {
-                        instructionsModal.classList.add('modal-visible');
-                    }, 10);
-                }
+                this.toggleModal('instructions');
             });
         }
 
-        if (instructionsDismiss && instructionsModal) {
-            instructionsDismiss.addEventListener('click', (e) => {
+        if (this.elements.buttons.instructionsDismiss && this.elements.modals.instructions) {
+            this.elements.buttons.instructionsDismiss.addEventListener('click', (e) => {
                 e.preventDefault();
-                instructionsModal.classList.remove('modal-visible');
-                setTimeout(() => {
-                    instructionsModal.style.display = 'none';
-                }, 600);
+                this.hideModal('instructions');
             });
         }
 
         // Stats modal
-        const statsButton = document.querySelector('.nav-button-default-state');
-        const statsModal = document.querySelector('.stats');
-
-        if (statsButton && statsModal) {
-            statsButton.addEventListener('click', (e) => {
+        if (this.elements.buttons.statsToggle && this.elements.modals.stats) {
+            this.elements.buttons.statsToggle.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Toggle behavior
-                if (statsModal.classList.contains('modal-visible')) {
-                    statsModal.classList.remove('modal-visible');
-                    statsButton.classList.remove('nav-button-active');
-                    setTimeout(() => {
-                        statsModal.style.display = 'none';
-                    }, 600);
-                } else {
-                    statsModal.style.display = 'flex';
-                    statsButton.classList.add('nav-button-active');
-                    setTimeout(() => {
-                        statsModal.classList.add('modal-visible');
-                    }, 10);
-                }
+                this.toggleModal('stats');
             });
         }
 
-        // Handle Escape key for both modals
+        // Escape key handler
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (instructionsModal && instructionsModal.classList.contains('modal-visible')) {
-                    instructionsModal.classList.remove('modal-visible');
-                    setTimeout(() => {
-                        instructionsModal.style.display = 'none';
-                    }, 600);
+                if (this.elements.modals.instructions.classList.contains('modal-visible')) {
+                    this.hideModal('instructions');
                 }
-                if (statsModal && statsModal.classList.contains('modal-visible')) {
-                    statsModal.classList.remove('modal-visible');
-                    statsButton.classList.remove('nav-button-active');
-                    setTimeout(() => {
-                        statsModal.style.display = 'none';
-                    }, 600);
+                if (this.elements.modals.stats.classList.contains('modal-visible')) {
+                    this.hideModal('stats');
                 }
             }
+        });
+    }
+
+    toggleModal(modalName) {
+        const modal = this.elements.modals[modalName];
+        const isVisible = modal.classList.contains('modal-visible');
+        
+        if (isVisible) {
+            this.hideModal(modalName);
+        } else {
+            this.showModal(modalName);
+        }
+    }
+
+    showModal(modalName) {
+        const modal = this.elements.modals[modalName];
+        const display = modalName === 'stats' ? 'flex' : 'block';
+        
+        requestAnimationFrame(() => {
+            modal.style.display = display;
+            if (modalName === 'stats') {
+                this.elements.buttons.statsToggle.classList.add('nav-button-active');
+            }
+            setTimeout(() => modal.classList.add('modal-visible'), 10);
+        });
+    }
+
+    hideModal(modalName) {
+        const modal = this.elements.modals[modalName];
+        
+        requestAnimationFrame(() => {
+            modal.classList.remove('modal-visible');
+            if (modalName === 'stats') {
+                this.elements.buttons.statsToggle.classList.remove('nav-button-active');
+            }
+            setTimeout(() => modal.style.display = 'none', ANIMATION_TIMINGS.MODAL_FADE);
         });
     }
 }
