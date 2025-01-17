@@ -697,4 +697,100 @@ class InputHandler {
         this.setupEventListeners();
     }
 
-    setupEvent 
+    setupEventListeners() {
+        document.addEventListener('keydown', (e) => {
+            if (this.inputDisabled || this.gameState.isGameOver || this.gameState.isRevealingGuess) return;
+            
+            const key = e.key.toUpperCase();
+            if (key === 'ENTER' || key === 'BACKSPACE' || (key.length === 1 && key.match(/[A-Z]/))) {
+                e.preventDefault();
+                this.handleKeyInput(key);
+            }
+        });
+
+        document.querySelectorAll('.key').forEach(button => {
+            button.addEventListener('click', () => {
+                if (this.inputDisabled || this.gameState.isGameOver || this.gameState.isRevealingGuess) return;
+                
+                const key = button.getAttribute('data-key');
+                if (key) {
+                    this.handleKeyInput(key);
+                }
+            });
+        });
+    }
+
+    handleKeyInput(key) {
+        switch (key) {
+            case 'ENTER':
+                HapticFeedback.medium();
+                this.handleEnter();
+                break;
+            case 'BACKSPACE':
+                HapticFeedback.light();
+                this.handleBackspace();
+                break;
+            default:
+                HapticFeedback.light();
+                this.handleLetter(key);
+        }
+    }
+
+    handleEnter() {
+        if (this.gameState.currentGuess.length !== CONFIG.WORD_LENGTH) return;
+        
+        const guess = this.gameState.currentGuess.join('').toLowerCase();
+        if (!this.gameState.dictionary.includes(guess)) {
+            this.showError('Not in word list');
+            return;
+        }
+
+        this.gameState.currentAttempt++;
+        this.gameState.gameGuessLetters.push(guess);
+        this.gameState.currentGuess = [];
+    }
+
+    handleBackspace() {
+        if (this.gameState.currentGuess.length > 0) {
+            this.gameState.currentGuess.pop();
+        }
+    }
+
+    handleLetter(key) {
+        if (this.gameState.currentGuess.length < CONFIG.WORD_LENGTH) {
+            this.gameState.currentGuess.push(key);
+        }
+    }
+
+    showError(message) {
+        // Implementation for showing error messages
+        console.error(message);
+    }
+}
+
+// ======================
+// Initialize Application
+// ======================
+document.addEventListener('DOMContentLoaded', async () => {
+    const game = new HorrordleGame();
+    await game.initialize();
+
+    // Show instructions for first-time visitors
+    if (!LocalStorageManager.get('hasVisited')) {
+        const instructionsElement = document.querySelector('.instructions');
+        if (instructionsElement) {
+            instructionsElement.style.display = 'block';
+            setTimeout(() => instructionsElement.style.opacity = 1, 10);
+        }
+    }
+});
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { HorrordleGame, GameState, UIController, InputHandler, StatsManager };
+} else if (typeof window !== 'undefined') {
+    window.HorrordleGame = HorrordleGame;
+    window.GameState = GameState;
+    window.UIController = UIController;
+    window.InputHandler = InputHandler;
+    window.StatsManager = StatsManager;
+} 
