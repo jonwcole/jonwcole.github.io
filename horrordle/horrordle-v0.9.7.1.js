@@ -443,6 +443,7 @@ class UIController {
         if (instructionsButton && instructionsModal) {
             instructionsButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                HapticFeedback.light();
                 // Toggle behavior
                 if (instructionsModal.classList.contains('modal-visible')) {
                     instructionsModal.classList.remove('modal-visible');
@@ -461,6 +462,7 @@ class UIController {
         if (instructionsDismiss && instructionsModal) {
             instructionsDismiss.addEventListener('click', (e) => {
                 e.preventDefault();
+                HapticFeedback.medium();
                 instructionsModal.classList.remove('modal-visible');
                 setTimeout(() => {
                     instructionsModal.style.display = 'none';
@@ -475,6 +477,7 @@ class UIController {
         if (statsButton && statsModal) {
             statsButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                HapticFeedback.light();
                 // Toggle behavior
                 if (statsModal.classList.contains('modal-visible')) {
                     statsModal.classList.remove('modal-visible');
@@ -496,12 +499,14 @@ class UIController {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (instructionsModal && instructionsModal.classList.contains('modal-visible')) {
+                    HapticFeedback.medium();
                     instructionsModal.classList.remove('modal-visible');
                     setTimeout(() => {
                         instructionsModal.style.display = 'none';
                     }, 600);
                 }
                 if (statsModal && statsModal.classList.contains('modal-visible')) {
+                    HapticFeedback.medium();
                     statsModal.classList.remove('modal-visible');
                     statsButton.classList.remove('nav-button-active');
                     setTimeout(() => {
