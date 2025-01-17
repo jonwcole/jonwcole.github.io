@@ -690,37 +690,50 @@ class StatsManager {
 // Input Handler Class
 // ====================
 class InputHandler {
-    constructor(gameState) {
+    constructor(gameState, uiController) {
         this.gameState = gameState;
+        this.uiController = uiController;
         this.inputDisabled = false;
         
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        document.addEventListener('keydown', (e) => {
-            if (this.inputDisabled || this.gameState.isGameOver || this.gameState.isRevealingGuess) return;
-            
-            const key = e.key.toUpperCase();
-            if (key === 'ENTER' || key === 'BACKSPACE' || (key.length === 1 && key.match(/[A-Z]/))) {
-                e.preventDefault();
+        // Virtual keyboard
+        this.uiController.elements.keyboard.addEventListener('click', (e) => {
+            if (e.target.matches('.key')) {
+                const key = e.target.getAttribute('data-key');
                 this.handleKeyInput(key);
             }
         });
 
-        document.querySelectorAll('.key').forEach(button => {
-            button.addEventListener('click', () => {
-                if (this.inputDisabled || this.gameState.isGameOver || this.gameState.isRevealingGuess) return;
-                
-                const key = button.getAttribute('data-key');
-                if (key) {
+        // Physical keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+            if (e.key === 'Enter') {
+                this.handleKeyInput('ENTER');
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                this.handleKeyInput('BACKSPACE');
+            } else {
+                const key = e.key.toUpperCase();
+                if (/^[A-Z]$/.test(key)) {
                     this.handleKeyInput(key);
                 }
-            });
+            }
         });
+
+        // Share button
+        const shareButton = document.getElementById('share-result');
+        if (shareButton) {
+            shareButton.addEventListener('click', () => this.handleShare());
+        }
     }
 
     handleKeyInput(key) {
+        if (this.inputDisabled || this.gameState.isGameOver) return;
+
         switch (key) {
             case 'ENTER':
                 HapticFeedback.medium();
@@ -737,97 +750,237 @@ class InputHandler {
     }
 
     handleEnter() {
-        if (this.gameState.currentGuess.length !== CONFIG.WORD_LENGTH) return;
-        
-        const guess = this.gameState.currentGuess.join('').toLowerCase();
-        if (!this.gameState.dictionary.includes(guess)) {
-            this.showError('Not in word list');
-            return;
+        if (this.gameState.currentGuess.length === CONFIG.WORD_LENGTH) {
+            this.gameState.submitGuess();
         }
-
-        this.gameState.currentAttempt++;
-        this.gameState.gameGuessLetters.push(guess);
-        this.gameState.currentGuess = [];
     }
 
     handleBackspace() {
         if (this.gameState.currentGuess.length > 0) {
             this.gameState.currentGuess.pop();
+            this.uiController.updateCurrentGuessDisplay(
+                this.gameState.currentGuess, 
+                this.gameState.currentAttempt
+            );
         }
     }
 
     handleLetter(key) {
         if (this.gameState.currentGuess.length < CONFIG.WORD_LENGTH) {
             this.gameState.currentGuess.push(key);
+            this.uiController.updateCurrentGuessDisplay(
+                this.gameState.currentGuess, 
+                this.gameState.currentAttempt
+            );
         }
     }
 
-    showError(message) {
-        // Implementation for showing error messages
-        console.error(message);
+    async handleShare() {
+        const resultString = this.gameState.statsManager.generateResultString(
+            this.gameState.gameDate,
+            this.gameState.gameGuessColors
+        );
+
+        try {
+            await navigator.clipboard.writeText(resultString);
+            this.uiController.showCopyConfirmation();
+        } catch (err) {
+            console.error('Failed to copy result to clipboard:', err);
+        }
+    }
+
+    disableInput() {
+        this.inputDisabled = true;
+        this.uiController.toggleOnScreenKeyboard(false);
+    }
+
+    enableInput() {
+        this.inputDisabled = false;
+        this.uiController.toggleOnScreenKeyboard(true);
     }
 }
 
-// =================
+// ====================
 // Main Game Class
-// =================
+// ====================
 class HorrordleGame {
     constructor() {
         this.gameState = new GameState();
         this.uiController = new UIController(this.gameState);
-        this.inputHandler = new InputHandler(this.gameState);
+        this.inputHandler = new InputHandler(this.gameState, this.uiController);
         this.statsManager = new StatsManager();
         this.modalController = new ModalController();
+        
+        // Bind game state to other components
+        this.gameState.statsManager = this.statsManager;
+        this.gameState.uiController = this.uiController;
+        
+        // Display stats if game is already completed
+        const gameProgress = LocalStorageManager.get('gameProgress', {});
+        if (gameProgress.gameEnded) {
+            this.statsManager.displayStats();
+        }
     }
 
     async initialize() {
-        try {
-            // Load dictionary and words
-            const [dictionary, words] = await Promise.all([
-                fetch(CONFIG.URLS.DICTIONARY).then(res => res.json()),
-                fetch(CONFIG.URLS.WORDS).then(res => res.json())
-            ]);
-
-            // Set up game state
-            this.gameState.dictionary = dictionary;
+        await this.gameState.initialize();
+        this.uiController.updateGameUI(
+            this.gameState.wordOfTheDay,
+            this.gameState.hintOfTheDay,
+            this.gameState.contextOfTheDay
+        );
+        
+        // Restore previous game state
+        if (this.gameState.gameGuessLetters.length > 0) {
+            this.uiController.restorePreviousGuesses(
+                this.gameState.gameGuessLetters,
+                this.gameState.gameGuessColors
+            );
+        }
+        
+        // Show hint if conditions are met
+        if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD || this.gameState.isGameOver) {
+            this.uiController.displayHint();
+        }
+        
+        if (this.gameState.isGameOver) {
+            this.inputHandler.disableInput();
+            const lastGuess = this.gameState.gameGuessLetters[this.gameState.gameGuessLetters.length - 1];
+            const won = lastGuess && lastGuess.join('') === this.gameState.wordOfTheDayNormalized;
             
-            // Get current date and word
-            const currentDate = this.getCurrentDate();
-            const todaysWord = words[currentDate];
+            // Show end game UI in proper sequence
+            this.uiController.displayEndGameMessage(won);
+        }
 
-            if (!todaysWord) {
-                throw new Error('No word found for today');
+        // Add guess processing to game state
+        this.gameState.submitGuess = () => this.processGuess();
+        
+        // Set up auto-refresh
+        this.setupAutoRefresh();
+    }
+
+    processGuess() {
+        if (this.gameState.isRevealingGuess || this.gameState.isGameOver || 
+            this.gameState.currentGuess.length !== CONFIG.WORD_LENGTH) return;
+
+        this.gameState.isRevealingGuess = true;
+        const guess = this.gameState.normalizeWord(this.gameState.currentGuess.join(''));
+
+        if (!this.gameState.dictionary.includes(guess)) {
+            this.uiController.shakeCurrentRow(this.gameState.currentAttempt);
+            this.gameState.isRevealingGuess = false;
+            return;
+        }
+
+        if (guess !== this.gameState.wordOfTheDayNormalized) {
+            this.gameState.incorrectGuesses++;
+            LocalStorageManager.set('incorrectGuesses', this.gameState.incorrectGuesses);
+        }
+
+        const result = this.evaluateGuess(guess);
+        this.updateGameState(guess, result);
+
+        setTimeout(() => {
+            this.checkGameConditions();
+            if (!this.gameState.isGameOver) {
+                this.finalizeGuess(guess);
             }
+        }, this.gameState.currentGuess.length * CONFIG.ANIMATION_DELAY + 600);
+    }
 
-            this.gameState.wordOfTheDay = todaysWord.word.toUpperCase();
-            this.gameState.wordOfTheDayNormalized = todaysWord.word.toLowerCase();
-            this.gameState.hintOfTheDay = todaysWord.hint;
-            this.gameState.contextOfTheDay = todaysWord.context;
-            this.gameState.gameDate = currentDate;
+    evaluateGuess(guess) {
+        const wordArray = this.gameState.wordOfTheDayNormalized.split('');
+        const result = Array(CONFIG.WORD_LENGTH).fill('absent');
+        
+        // First pass: mark correct positions
+        for (let i = 0; i < guess.length; i++) {
+            if (guess[i] === this.gameState.wordOfTheDayNormalized[i]) {
+                result[i] = 'correct';
+                wordArray[i] = null;
+            }
+        }
 
-            // Load saved game state if it exists
-            this.loadGameProgress();
+        // Second pass: mark present positions
+        for (let i = 0; i < guess.length; i++) {
+            if (result[i] !== 'correct' && wordArray.includes(guess[i])) {
+                result[i] = 'present';
+                wordArray[wordArray.indexOf(guess[i])] = null;
+            }
+        }
 
-        } catch (error) {
-            console.error('Failed to initialize game:', error);
+        return result;
+    }
+
+    updateGameState(guess, result) {
+        this.uiController.updateTiles(this.gameState.currentAttempt, guess, result);
+        this.uiController.updateKeyboard(guess, result);
+        this.gameState.gameGuessColors.push(result);
+        this.gameState.gameGuessLetters.push(guess.split(''));
+        
+        LocalStorageManager.set('gameGuessColors', this.gameState.gameGuessColors);
+        LocalStorageManager.set('gameGuessLetters', this.gameState.gameGuessLetters);
+        
+        this.gameState.currentAttempt++;
+        this.saveGameProgress(guess, result);
+    }
+
+    checkGameConditions() {
+        // Check hint threshold first
+        if (this.gameState.incorrectGuesses >= CONFIG.HINT_THRESHOLD) {
+            this.uiController.displayHint();
+        }
+
+        const isWin = this.gameState.currentGuess.join('') === this.gameState.wordOfTheDayNormalized;
+        const isLoss = this.gameState.currentAttempt >= CONFIG.MAX_ATTEMPTS;
+
+        if (isWin || isLoss) {
+            this.concludeGame(isWin);
         }
     }
 
-    getCurrentDate() {
-        const now = new Date();
-        const year = now.toLocaleString('en-US', { year: 'numeric', timeZone: 'America/New_York' });
-        const month = now.toLocaleString('en-US', { month: '2-digit', timeZone: 'America/New_York' });
-        const day = now.toLocaleString('en-US', { day: '2-digit', timeZone: 'America/New_York' });
-        return `${year}-${month}-${day}`;
+    concludeGame(won) {
+        this.gameState.isGameOver = true;
+        this.inputHandler.disableInput();
+        
+        let gameProgress = LocalStorageManager.get('gameProgress', {});
+        if (!gameProgress.gameEnded) {
+            gameProgress.gameEnded = true;
+            LocalStorageManager.set('gameProgress', gameProgress);
+            
+            this.statsManager.updateStats(
+                won,
+                this.gameState.currentAttempt,
+                this.gameState.gameDate
+            );
+        }
+
+        // Display end game UI elements in sequence
+        this.uiController.displayEndGameMessage(won);
     }
 
-    loadGameProgress() {
-        const savedProgress = LocalStorageManager.get('gameProgress');
-        if (savedProgress && savedProgress.date === this.gameState.gameDate) {
-            this.gameState.currentAttempt = savedProgress.attempts.length;
-            this.gameState.gameGuessLetters = savedProgress.attempts.map(a => a.guess);
-            this.gameState.isGameOver = savedProgress.gameEnded;
-        }
+    saveGameProgress(guess, result) {
+        const gameProgress = {
+            date: this.gameState.gameDate,
+            attempts: [...(LocalStorageManager.get('gameProgress', {}).attempts || []), {
+                guess,
+                result,
+                attemptNumber: this.gameState.currentAttempt - 1
+            }],
+            gameEnded: this.gameState.isGameOver
+        };
+        LocalStorageManager.set('gameProgress', gameProgress);
+    }
+
+    finalizeGuess(guess) {
+        this.gameState.currentGuess = [];
+        this.gameState.isRevealingGuess = false;
+    }
+
+    setupAutoRefresh() {
+        // Refresh every 12 hours
+        setInterval(() => {
+            location.reload(true);
+        }, 12 * 60 * 60 * 1000);
     }
 }
 
@@ -846,6 +999,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => instructionsElement.style.opacity = 1, 10);
         }
     }
+
+    // Handle instructions dismiss via click
+    const dismissBtn = document.querySelector('.instructions-dismiss');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            LocalStorageManager.set('hasVisited', true);
+        });
+    }
+
+    // Handle modal close on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === "Escape") {
+            const statsCloseButton = document.querySelector('.nav-button-close-target');
+            const rulesDismissButton = document.querySelector('.instructions-dismiss-ghost-button');
+            
+            if (statsCloseButton) statsCloseButton.click();
+            if (rulesDismissButton) {
+                rulesDismissButton.click();
+                LocalStorageManager.set('hasVisited', true);
+            }
+        }
+    });
 });
 
 if (typeof module !== 'undefined' && module.exports) {
