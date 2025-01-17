@@ -48,15 +48,6 @@ class HapticFeedback {
         return 'vibrate' in navigator;
     }
 
-    static initialize() {
-        // Initialize haptic feedback after first user interaction
-        document.addEventListener('click', () => {
-            if (this.isAvailable()) {
-                navigator.vibrate(0); // Request permission with a zero-duration vibration
-            }
-        }, { once: true }); // Only run once
-    }
-
     static light() {
         if (this.isAvailable()) {
             navigator.vibrate(10);
@@ -271,7 +262,6 @@ class UIController {
         
         // Cache tile rows for better performance
         this.tileRows = Array.from(this.elements.gameBoard.querySelectorAll('.tile-row-wrapper'));
-        HapticFeedback.initialize(); // Initialize haptic feedback
         this.setupModalListeners();
     }
 
@@ -453,7 +443,6 @@ class UIController {
         if (instructionsButton && instructionsModal) {
             instructionsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                HapticFeedback.light();
                 // Toggle behavior
                 if (instructionsModal.classList.contains('modal-visible')) {
                     instructionsModal.classList.remove('modal-visible');
@@ -472,7 +461,6 @@ class UIController {
         if (instructionsDismiss && instructionsModal) {
             instructionsDismiss.addEventListener('click', (e) => {
                 e.preventDefault();
-                HapticFeedback.medium();
                 instructionsModal.classList.remove('modal-visible');
                 setTimeout(() => {
                     instructionsModal.style.display = 'none';
@@ -487,7 +475,6 @@ class UIController {
         if (statsButton && statsModal) {
             statsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                HapticFeedback.light();
                 // Toggle behavior
                 if (statsModal.classList.contains('modal-visible')) {
                     statsModal.classList.remove('modal-visible');
@@ -509,14 +496,12 @@ class UIController {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (instructionsModal && instructionsModal.classList.contains('modal-visible')) {
-                    HapticFeedback.medium();
                     instructionsModal.classList.remove('modal-visible');
                     setTimeout(() => {
                         instructionsModal.style.display = 'none';
                     }, 600);
                 }
                 if (statsModal && statsModal.classList.contains('modal-visible')) {
-                    HapticFeedback.medium();
                     statsModal.classList.remove('modal-visible');
                     statsButton.classList.remove('nav-button-active');
                     setTimeout(() => {
