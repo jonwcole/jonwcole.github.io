@@ -326,12 +326,16 @@ class UIController {
             contextText: document.getElementById('context-text'),
             errorMessage: document.getElementById('error-message'),
             copyConfirmation: document.getElementById('copy-confirmation'),
-            completedMessage: document.getElementById('completed-message')
+            completedMessage: document.getElementById('completed-message'),
+            shareButton: document.getElementById('share-result')
         };
         
         // Cache tile rows for better performance
         this.tileRows = Array.from(this.elements.gameBoard.querySelectorAll('.tile-row-wrapper'));
         this.setupModalListeners();
+        
+        // Disable share button initially
+        this.toggleShareButton(false);
     }
 
     updateGameUI(word, hint, context) {
@@ -473,6 +477,7 @@ class UIController {
     displayEndGameMessage(won) {
         this.showEndGameUI();
         this.toggleOnScreenKeyboard(false);
+        this.toggleShareButton(true); // Enable share button when game ends
         
         // Show hint and word reveal first
         this.displayHint();
@@ -580,6 +585,18 @@ class UIController {
             if (button) button.classList.remove('nav-button-active');
             setTimeout(() => modal.style.display = 'none', UIController.ANIMATION_TIMINGS.MODAL_FADE);
         });
+    }
+
+    toggleShareButton(enable) {
+        if (this.elements.shareButton) {
+            if (enable) {
+                this.elements.shareButton.removeAttribute('disabled');
+                this.elements.shareButton.classList.remove('disabled');
+            } else {
+                this.elements.shareButton.setAttribute('disabled', 'true');
+                this.elements.shareButton.classList.add('disabled');
+            }
+        }
     }
 }
 
