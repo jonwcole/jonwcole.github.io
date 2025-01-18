@@ -528,14 +528,6 @@ class StatsManager {
             lastWinGuesses: null,
             lastPlayedDate: null
         };
-        
-        // Check for stats restoration parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('restore')) {
-            this.restoreBackupStats();
-            return;
-        }
-
         this.stats = this.loadStats();
         this.backupCurrentStats(); // Create backup when loading stats
         this.displayStats();
@@ -979,7 +971,32 @@ class HorrordleGame {
 // Initialize Application
 // ======================
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check for stats restoration parameter first
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('restore')) {
+        const backupStats = LocalStorageManager.get('stats_backup');
+        if (backupStats) {
+            LocalStorageManager.set('stats', backupStats);
+            const errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.innerHTML = 'Your previous stats have been restored. <a href="/">Click here</a> to reload the game.';
+                errorMessage.style.display = 'block';
+            }
+            // Remove restore parameter from URL
+            window.history.replaceState({}, '', window.location.pathname);
+            
+            // Disable game board and keyboard
+            const gameBoard = document.getElementById('game-board');
+            const keyboard = document.getElementById('keyboard');
+            if (gameBoard) gameBoard.style.opacity = '0.5';
+            if (keyboard) keyboard.style.opacity = '0.5';
+            return; // Don't initialize game
+        }
+    }
+
+    // Normal game initialization
     const game = new HorrordleGame();
+    window.game = game; // Make game globally available
     await game.initialize();
 
     // Show instructions for first-time visitors
