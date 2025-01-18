@@ -529,7 +529,6 @@ class StatsManager {
             lastPlayedDate: null
         };
         this.stats = this.loadStats();
-        this.backupCurrentStats(); // Create backup when loading stats
         this.displayStats();
     }
 
@@ -539,40 +538,16 @@ class StatsManager {
 
     saveStats() {
         LocalStorageManager.set('stats', this.stats);
-        this.backupCurrentStats(); // Create backup when saving stats
-    }
-
-    backupCurrentStats() {
-        const currentStats = LocalStorageManager.get('stats');
-        if (currentStats) {
-            LocalStorageManager.set('stats_backup', currentStats);
-            LocalStorageManager.set('last_backup_date', new Date().toISOString());
-        }
-    }
-
-    restoreBackupStats() {
-        const backupStats = LocalStorageManager.get('stats_backup');
-        if (backupStats) {
-            LocalStorageManager.set('stats', backupStats);
-            
-            // Show restoration message
-            const errorMessage = document.getElementById('error-message');
-            if (errorMessage) {
-                errorMessage.innerHTML = 'Your previous stats have been restored. <a href="/">Click here</a> to reload the game.';
-                errorMessage.style.display = 'block';
-            }
-
-            // Disable game
-            if (window.game) {
-                window.game.disableGame();
-            }
-
-            // Remove restore parameter from URL
-            window.history.replaceState({}, '', window.location.pathname);
-        }
     }
 
     updateStats(win, guessesTaken, gameDate) {
+        // Only backup stats if this is a win
+        if (win) {
+            LocalStorageManager.set('stats_backup', this.stats);
+            LocalStorageManager.set('last_backup_date', new Date().toISOString());
+        }
+        
+        // Now update the stats
         this.stats.gamesPlayed += 1;
         
         if (win) {
