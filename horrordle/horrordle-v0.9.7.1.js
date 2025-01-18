@@ -976,12 +976,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (urlParams.has('restore')) {
         const backupStats = LocalStorageManager.get('stats_backup');
         if (backupStats) {
+            // Restore the backup stats
             LocalStorageManager.set('stats', backupStats);
+            
+            // Show error message with proper visibility
             const errorMessage = document.getElementById('error-message');
             if (errorMessage) {
                 errorMessage.innerHTML = 'Your previous stats have been restored. <a href="/">Click here</a> to reload the game.';
                 errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.classList.add('modal-visible');
+                }, 10);
             }
+            
             // Remove restore parameter from URL
             window.history.replaceState({}, '', window.location.pathname);
             
@@ -990,13 +997,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const keyboard = document.getElementById('keyboard');
             if (gameBoard) gameBoard.style.opacity = '0.5';
             if (keyboard) keyboard.style.opacity = '0.5';
-            return; // Don't initialize game
+            
+            // Initialize StatsManager to display restored stats
+            const statsManager = new StatsManager();
+            statsManager.displayStats();
+            
+            return; // Don't initialize rest of game
         }
     }
 
     // Normal game initialization
     const game = new HorrordleGame();
-    window.game = game; // Make game globally available
+    window.game = game;
     await game.initialize();
 
     // Show instructions for first-time visitors
