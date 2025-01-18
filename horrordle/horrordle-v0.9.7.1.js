@@ -307,6 +307,11 @@ class GameState {
 // UI Controller
 // ==================
 class UIController {
+    static ANIMATION_TIMINGS = {
+        MODAL_FADE: 300,  // Reduced from 600ms
+        MODAL_INIT: 10
+    };
+
     constructor(gameState) {
         this.gameState = gameState;
         this.elements = {
@@ -506,28 +511,14 @@ class UIController {
         if (instructionsButton && instructionsModal) {
             instructionsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Toggle behavior
-                if (instructionsModal.classList.contains('modal-visible')) {
-                    instructionsModal.classList.remove('modal-visible');
-                    setTimeout(() => {
-                        instructionsModal.style.display = 'none';
-                    }, 600);
-                } else {
-                    instructionsModal.style.display = 'block';
-                    setTimeout(() => {
-                        instructionsModal.classList.add('modal-visible');
-                    }, 10);
-                }
+                this.toggleModal(instructionsModal);
             });
         }
 
         if (instructionsDismiss && instructionsModal) {
             instructionsDismiss.addEventListener('click', (e) => {
                 e.preventDefault();
-                instructionsModal.classList.remove('modal-visible');
-                setTimeout(() => {
-                    instructionsModal.style.display = 'none';
-                }, 600);
+                this.hideModal(instructionsModal);
             });
         }
 
@@ -538,40 +529,44 @@ class UIController {
         if (statsButton && statsModal) {
             statsButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Toggle behavior
-                if (statsModal.classList.contains('modal-visible')) {
-                    statsModal.classList.remove('modal-visible');
-                    statsButton.classList.remove('nav-button-active');
-                    setTimeout(() => {
-                        statsModal.style.display = 'none';
-                    }, 600);
-                } else {
-                    statsModal.style.display = 'flex';
-                    statsButton.classList.add('nav-button-active');
-                    setTimeout(() => {
-                        statsModal.classList.add('modal-visible');
-                    }, 10);
-                }
+                this.toggleModal(statsModal, statsButton);
             });
         }
 
         // Handle Escape key for both modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (instructionsModal && instructionsModal.classList.contains('modal-visible')) {
-                    instructionsModal.classList.remove('modal-visible');
-                    setTimeout(() => {
-                        instructionsModal.style.display = 'none';
-                    }, 600);
+                if (instructionsModal?.classList.contains('modal-visible')) {
+                    this.hideModal(instructionsModal);
                 }
-                if (statsModal && statsModal.classList.contains('modal-visible')) {
-                    statsModal.classList.remove('modal-visible');
-                    statsButton.classList.remove('nav-button-active');
-                    setTimeout(() => {
-                        statsModal.style.display = 'none';
-                    }, 600);
+                if (statsModal?.classList.contains('modal-visible')) {
+                    this.hideModal(statsModal, statsButton);
                 }
             }
+        });
+    }
+
+    toggleModal(modal, button = null) {
+        if (modal.classList.contains('modal-visible')) {
+            this.hideModal(modal, button);
+        } else {
+            this.showModal(modal, button);
+        }
+    }
+
+    showModal(modal, button = null) {
+        requestAnimationFrame(() => {
+            modal.style.display = button ? 'flex' : 'block';
+            if (button) button.classList.add('nav-button-active');
+            setTimeout(() => modal.classList.add('modal-visible'), UIController.ANIMATION_TIMINGS.MODAL_INIT);
+        });
+    }
+
+    hideModal(modal, button = null) {
+        requestAnimationFrame(() => {
+            modal.classList.remove('modal-visible');
+            if (button) button.classList.remove('nav-button-active');
+            setTimeout(() => modal.style.display = 'none', UIController.ANIMATION_TIMINGS.MODAL_FADE);
         });
     }
 }
