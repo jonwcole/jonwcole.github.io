@@ -494,42 +494,15 @@ class UIController {
             setTimeout(() => box.style.opacity = '1', 10);
         });
 
-        // Show completed message after animations
-        setTimeout(() => {
-            if (this.elements.completedMessage) {
-                const message = isWin 
-                    ? `You survived! The word was ${word}.` 
-                    : `Game Over. The word was ${word}.`;
-                
-                this.elements.completedMessage.textContent = message;
-                this.elements.completedMessage.style.display = 'block';
-                
-                // Add context if available
-                if (context) {
-                    const contextElement = document.createElement('div');
-                    contextElement.className = 'context-text';
-                    contextElement.textContent = context;
-                    this.elements.completedMessage.appendChild(contextElement);
-                }
-
-                setTimeout(() => {
-                    this.elements.completedMessage.classList.add('modal-visible');
-                }, UIController.ANIMATION_TIMINGS.MODAL_INIT);
-            }
-        }, UIController.ANIMATION_TIMINGS.COMPLETED_DELAY);
+        // Show completed message
+        if (this.elements.completedMessage) {
+            this.elements.completedMessage.style.display = 'flex';
+        }
     }
 
     hideCompletedMessage() {
         if (this.elements.completedMessage) {
-            this.elements.completedMessage.classList.remove('modal-visible');
-            setTimeout(() => {
-                this.elements.completedMessage.style.display = 'none';
-                // Clear any context text
-                const contextElement = this.elements.completedMessage.querySelector('.context-text');
-                if (contextElement) {
-                    contextElement.remove();
-                }
-            }, UIController.ANIMATION_TIMINGS.MODAL_FADE);
+            this.elements.completedMessage.style.display = 'none';
         }
     }
 
