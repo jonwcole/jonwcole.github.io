@@ -976,6 +976,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (urlParams.has('restore')) {
         const backupStats = LocalStorageManager.get('stats_backup');
         if (backupStats) {
+            // Clear current game progress
+            LocalStorageManager.remove('gameProgress');
+            LocalStorageManager.remove('gameOutcome');
+            
             // Restore the backup stats
             LocalStorageManager.set('stats', backupStats);
             
@@ -1000,7 +1004,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Initialize StatsManager to display restored stats
             const statsManager = new StatsManager();
-            statsManager.displayStats();
             
             return; // Don't initialize rest of game
         }
