@@ -309,7 +309,8 @@ class GameState {
 class UIController {
     static ANIMATION_TIMINGS = {
         MODAL_FADE: 300,  // Reduced from 600ms
-        MODAL_INIT: 10
+        MODAL_INIT: 10,
+        COMPLETED_DELAY: 1500  // Show completed message after animations finish
     };
 
     constructor(gameState) {
@@ -486,12 +487,50 @@ class UIController {
         }, 3500);
     }
 
-    showEndGameUI() {
+    showEndGameUI(isWin, word, context) {
         // Show splatter boxes
         document.querySelectorAll('.splatter-box').forEach(box => {
             box.style.display = 'block';
             setTimeout(() => box.style.opacity = '1', 10);
         });
+
+        // Show completed message after animations
+        setTimeout(() => {
+            if (this.elements.completedMessage) {
+                const message = isWin 
+                    ? `You survived! The word was ${word}.` 
+                    : `Game Over. The word was ${word}.`;
+                
+                this.elements.completedMessage.textContent = message;
+                this.elements.completedMessage.style.display = 'block';
+                
+                // Add context if available
+                if (context) {
+                    const contextElement = document.createElement('div');
+                    contextElement.className = 'context-text';
+                    contextElement.textContent = context;
+                    this.elements.completedMessage.appendChild(contextElement);
+                }
+
+                setTimeout(() => {
+                    this.elements.completedMessage.classList.add('modal-visible');
+                }, UIController.ANIMATION_TIMINGS.MODAL_INIT);
+            }
+        }, UIController.ANIMATION_TIMINGS.COMPLETED_DELAY);
+    }
+
+    hideCompletedMessage() {
+        if (this.elements.completedMessage) {
+            this.elements.completedMessage.classList.remove('modal-visible');
+            setTimeout(() => {
+                this.elements.completedMessage.style.display = 'none';
+                // Clear any context text
+                const contextElement = this.elements.completedMessage.querySelector('.context-text');
+                if (contextElement) {
+                    contextElement.remove();
+                }
+            }, UIController.ANIMATION_TIMINGS.MODAL_FADE);
+        }
     }
 
     restorePreviousGuesses(guessLetters, guessColors) {
