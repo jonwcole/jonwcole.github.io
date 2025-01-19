@@ -959,7 +959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Show error message with proper visibility
             const errorMessage = document.getElementById('error-message');
             if (errorMessage) {
-                errorMessage.innerHTML = 'Your previous stats have been restored. <a href="/">Click here</a> to reload the game.';
+                errorMessage.innerHTML = 'Your previous stats have been restored. <a class="text---green-400" href="/">Click here</a> to reload the game.';
                 errorMessage.style.display = 'block';
                 setTimeout(() => {
                     errorMessage.classList.add('modal-visible');
