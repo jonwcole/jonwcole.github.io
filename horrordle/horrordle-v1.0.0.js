@@ -717,7 +717,7 @@ class StatsManager {
             .map(guess => guess.map(status => emojiMap[status]).join(''))
             .join('\n');
 
-        return `www.horrordle.app BETA, ${formattedDate}\n\n${resultString}`;
+        return `www.horrordle.app, ${formattedDate}\n\n${resultString}`;
     }
 }
 
